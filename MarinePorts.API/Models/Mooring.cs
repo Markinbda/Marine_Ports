@@ -23,8 +23,15 @@ public class Mooring
 
     public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
 
-    // ── Owner FK ──────────────────────────────────────────────────────────────
-    public int AppUserId { get; set; }
+    // ── ArcGIS import fields ──────────────────────────────────────────────────
+    /// <summary>Colour as recorded in the ArcGIS survey (e.g. White, Yellow).</summary>
+    public string? Colour { get; set; }
+
+    /// <summary>"ArcGIS" for imported records; null for user-registered.</summary>
+    public string? Source { get; set; }
+
+    // ── Owner FK (nullable – ArcGIS-imported records have no system user) ─────
+    public int? AppUserId { get; set; }
     public AppUser? AppUser { get; set; }
 
     // ── Fixed colour for all moorings ─────────────────────────────────────────
