@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Map – Marine &amp; Ports Registration System</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d3b66; }
+
+    /* ── Top bar ────────────────────────────────────────────────────────── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #0d3b66; color: #fff;
+      padding: 0.75rem 1.5rem; gap: 1rem;
+    }
+    .brand { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+    .user-info { font-size: 0.85rem; opacity: 0.85; }
+    .btn-logout, .btn-back {
+      background: rgba(255,255,255,0.15); color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 6px; padding: 0.4rem 0.85rem;
+      cursor: pointer; font-size: 0.82rem; transition: background 0.2s;
+    }
+    .btn-logout:hover, .btn-back:hover { background: rgba(255,255,255,0.25); }
+    .header-actions { display: flex; align-items: center; gap: 0.5rem; }
+
+    /* ── Map ────────────────────────────────────────────────────────────── */
+    #map {
+      width: 100%;
+      height: calc(100vh - 52px); /* fill remaining screen height */
+    }
+
+    /* ── Legend ─────────────────────────────────────────────────────────── */
+    .legend {
+      background: rgba(255,255,255,0.95);
+      border-radius: 8px; padding: 0.75rem 1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+      font-size: 0.82rem; line-height: 1.8;
+    }
+    .legend h4 { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; color: #555; margin-bottom: 0.4rem; }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; }
+    .swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Popup ───────────────────────────────────────────────────────────── */
+    .pin-popup { text-align: center; min-width: 160px; max-width: 220px; }
+    .pin-popup img {
+      width: 100%; max-height: 130px; object-fit: cover;
+      border-radius: 6px; margin-bottom: 0.4rem;
+    }
+    .pin-popup .no-photo {
+      background: #f0f4f8; color: #aab; font-size: 0.78rem;
+      padding: 1rem 0; border-radius: 6px; margin-bottom: 0.4rem;
+    }
+    .pin-popup .pin-label { font-weight: 600; font-size: 0.88rem; color: #1a1a2e; }
+    .pin-popup .pin-type  { font-size: 0.75rem; color: #777; margin-top: 0.15rem; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Top navigation bar ─────────────────────────────────────────────── -->
+  <header>
+    <div class="brand">⚓ Marine &amp; Ports – Bermuda</div>
+    <span class="user-info" id="userInfo"></span>
+    <div class="header-actions">
+      <button class="btn-back" id="backBtn">⬅ Back</button>
+      <button class="btn-logout" id="logoutBtn">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- ── Map container ──────────────────────────────────────────────────── -->
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    /**
+     * Marine & Ports – Map Dashboard JS
+     * ───────────────────────────────────────────────────────────────────────
+     * 1. Reads the JWT stored by login.html from sessionStorage.
+     * 2. Initialises a Leaflet map centred on Bermuda.
+     * 3. Fetches all pins from GET /api/map/pins (public endpoint).
+     * 4. Renders colour-coded circle markers with photo popups.
+     * 5. Adds a colour legend.
+     */
+
+    const API_BASE = 'http://localhost:5000';
+
+    // ── Auth guard ────────────────────────────────────────────────────────────
+    const token    = sessionStorage.getItem('mp_token');
+    const fullName = sessionStorage.getItem('mp_fullName') || 'Guest';
+    const role     = sessionStorage.getItem('mp_role')     || '';
+
+    // Show user info in header
+    document.getElementById('userInfo').textContent =
+      `${fullName}${role ? ' (' + role + ')' : ''}`;
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.href = 'login.html';
+    });
+
+    document.getElementById('backBtn').addEventListener('click', () => {
+      window.location.href = role === 'Admin' ? 'admin.html' : 'login.html';
+    });
+
+    // ── Initialise Leaflet map centred on Bermuda ─────────────────────────────
+    // Bermuda tight bounding box: SW 32.23, -64.90  →  NE 32.39, -64.60
+    // maxBounds prevents panning outside this area; minZoom 11 prevents zooming
+    // out far enough to lose the island context.
+    const BERMUDA_BOUNDS = L.latLngBounds(
+      L.latLng(32.20, -64.98),   // South-West corner (with a small margin)
+      L.latLng(32.42, -64.52)    // North-East corner (with a small margin)
+    );
+
+    const map = L.map('map', {
+      center:             [32.303, -64.751],
+      zoom:               13,
+      minZoom:            11,          // Can't zoom out further than this
+      maxZoom:            19,
+      maxBounds:          BERMUDA_BOUNDS,
+      maxBoundsViscosity: 1.0          // Hard wall – map refuses to pan outside bounds
+    });
+
+    // CARTO Voyager tile layer – free, no API key, no Referer requirement.
+    // Works when the page is opened directly from the filesystem (file://).
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      subdomains: 'abcd',
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors ' +
+        '© <a href="https://carto.com/attributions">CARTO</a>'
+    }).addTo(map);
+
+    // ── Colour legend ─────────────────────────────────────────────────────────
+    const legend = L.control({ position: 'bottomright' });
+    legend.onAdd = () => {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = `
+        <h4>Legend</h4>
+        <div class="legend-item"><span class="swatch" style="background:#2196F3"></span> Boat ≤ 10 ft (Color A)</div>
+        <div class="legend-item"><span class="swatch" style="background:#4CAF50"></span> Boat 10–20 ft (Color B)</div>
+        <div class="legend-item"><span class="swatch" style="background:#FF9800"></span> Boat > 20 ft (Color C)</div>
+        <div class="legend-item"><span class="swatch" style="background:#E91E63"></span> Mooring (Color D)</div>
+      `;
+      return div;
+    };
+    legend.addTo(map);
+
+    // ── Helper: create a coloured SVG circle icon ─────────────────────────────
+    function circleIcon(color) {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22">
+        <circle cx="11" cy="11" r="9" fill="${color}" stroke="#fff" stroke-width="2.5"/>
+      </svg>`;
+      return L.icon({
+        iconUrl:     'data:image/svg+xml;base64,' + btoa(svg),
+        iconSize:    [22, 22],
+        iconAnchor:  [11, 11],
+        popupAnchor: [0, -14]
+      });
+    }
+
+    // ── Fetch and render pins ─────────────────────────────────────────────────
+    async function loadPins() {
+      try {
+        const res  = await fetch(`${API_BASE}/api/map/pins`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const pins = await res.json();
+
+        pins.forEach(pin => {
+          const icon   = circleIcon(pin.colorCode);
+          const marker = L.marker([pin.latitude, pin.longitude], { icon });
+
+          // Build popup content
+          const photoHtml = pin.photoUrl
+            ? `<img src="${API_BASE}${pin.photoUrl}" alt="Photo" />`
+            : `<div class="no-photo">📷 No photo available</div>`;
+
+          marker.bindPopup(`
+            <div class="pin-popup">
+              ${photoHtml}
+              <div class="pin-label">${escapeHtml(pin.label)}</div>
+              <div class="pin-type">${escapeHtml(pin.type)}</div>
+            </div>
+          `);
+
+          marker.addTo(map);
+        });
+
+        console.info(`Loaded ${pins.length} pin(s) onto the map.`);
+      } catch (err) {
+        console.error('Failed to load map pins:', err);
+        // Non-blocking – user still sees the base map
+      }
+    }
+
+    // Sanitise strings inserted into innerHTML to prevent XSS
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    loadPins();
+  </script>
+</body>
+</html>

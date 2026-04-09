@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In – Marine &amp; Ports Registration System</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #0d3b66 0%, #1a6fa8 50%, #0d3b66 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .page-header {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 2rem;
+    }
+    .page-header .logo-icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 700; }
+    .page-header p  { font-size: 0.9rem; opacity: 0.85; margin-top: 0.3rem; }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .card h2 {
+      font-size: 1.35rem;
+      color: #0d3b66;
+      margin-bottom: 1.75rem;
+      text-align: center;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 1.1rem; }
+    .field label { font-size: 0.85rem; font-weight: 600; color: #333; }
+    .field label .required { color: #e53935; margin-left: 2px; }
+    .field input {
+      padding: 0.65rem 0.75rem;
+      border: 1.5px solid #ccd6e0;
+      border-radius: 7px;
+      font-size: 0.9rem;
+      color: #1a1a2e;
+      background: #f8fbff;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus {
+      border-color: #1a6fa8;
+      box-shadow: 0 0 0 3px rgba(26,111,168,0.15);
+      background: #fff;
+    }
+    .field input.error { border-color: #e53935; }
+    .err-msg { font-size: 0.78rem; color: #e53935; display: none; }
+    .field.has-error .err-msg { display: block; }
+
+    .pw-wrap { position: relative; }
+    .pw-wrap input { width: 100%; padding-right: 2.5rem; }
+    .pw-toggle {
+      position: absolute; right: 0.65rem; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      font-size: 1rem; color: #6b7a8d; padding: 0;
+    }
+
+    .btn-submit {
+      width: 100%; margin-top: 0.5rem;
+      padding: 0.85rem;
+      background: linear-gradient(135deg, #1a6fa8, #0d3b66);
+      color: #fff; border: none; border-radius: 8px;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-submit:hover  { opacity: 0.92; }
+    .btn-submit:active { transform: scale(0.99); }
+    .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .status {
+      display: none; margin-top: 1rem;
+      padding: 0.8rem 1rem; border-radius: 8px;
+      font-size: 0.88rem; font-weight: 500;
+    }
+    .status.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .status.error   { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+    .status.warning { background: #fff8e1; color: #e65100; border: 1px solid #ffe082; }
+
+    .footer-link {
+      text-align: center; margin-top: 1.5rem;
+      font-size: 0.88rem; color: #555;
+    }
+    .footer-link a { color: #1a6fa8; text-decoration: none; font-weight: 600; }
+    .footer-link a:hover { text-decoration: underline; }
+
+    @media (max-width: 460px) {
+      .card { padding: 1.75rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="page-header">
+    <span class="logo-icon">⚓</span>
+    <h1>Marine &amp; Ports Registration System</h1>
+    <p>Government of Bermuda</p>
+  </header>
+
+  <div class="card">
+    <h2>Sign In to Your Account</h2>
+
+    <form id="loginForm" novalidate>
+
+      <div class="field" id="field-email">
+        <label for="email">Email Address <span class="required">*</span></label>
+        <input type="email" id="email" name="email"
+               placeholder="you@example.bm" autocomplete="username" />
+        <span class="err-msg">A valid email address is required.</span>
+      </div>
+
+      <div class="field" id="field-password">
+        <label for="password">Password <span class="required">*</span></label>
+        <div class="pw-wrap">
+          <input type="password" id="password" name="password"
+                 placeholder="Your password" autocomplete="current-password" />
+          <button type="button" class="pw-toggle" data-target="password">👁</button>
+        </div>
+        <span class="err-msg">Password is required.</span>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">Sign In</button>
+
+      <div class="status" id="statusBanner"></div>
+    </form>
+
+    <p class="footer-link">
+      Don't have an account? <a href="register.html">Register here</a>
+    </p>
+  </div>
+
+  <script>
+    /**
+     * Marine & Ports – Login Page JS
+     * Posts credentials to /api/auth/login, stores the JWT in sessionStorage,
+     * then redirects to the map dashboard on success.
+     */
+
+    const API_BASE  = 'http://localhost:5000';
+    const form      = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const banner    = document.getElementById('statusBanner');
+
+    // Show/hide password toggle
+    document.querySelectorAll('.pw-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const inp = document.getElementById(btn.dataset.target);
+        inp.type        = inp.type === 'password' ? 'text' : 'password';
+        btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+      });
+    });
+
+    // Field-level helpers
+    function setError(id, hasError) {
+      const wrapper = document.getElementById('field-' + id);
+      const input   = document.getElementById(id);
+      wrapper.classList.toggle('has-error', hasError);
+      if (input) input.classList.toggle('error', hasError);
+    }
+
+    function validate() {
+      let ok = true;
+      const email = document.getElementById('email').value.trim();
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      setError('email', !emailOk);
+      if (!emailOk) ok = false;
+
+      const pw = document.getElementById('password').value;
+      setError('password', !pw);
+      if (!pw) ok = false;
+
+      return ok;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideBanner();
+
+      if (!validate()) return;
+
+      submitBtn.disabled    = true;
+      submitBtn.textContent = 'Signing in…';
+
+      try {
+        const res  = await fetch(`${API_BASE}/api/auth/login`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({
+            email:    document.getElementById('email').value.trim(),
+            password: document.getElementById('password').value
+          })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          // Store JWT and user info for subsequent API calls
+          sessionStorage.setItem('mp_token',    data.token);
+          sessionStorage.setItem('mp_userId',   data.userId);
+          sessionStorage.setItem('mp_fullName', data.fullName);
+          sessionStorage.setItem('mp_role',     data.role);
+
+          const dest = data.role === 'Admin' ? 'admin.html' : 'map.html';
+          showBanner('success', `Welcome back, ${data.fullName}! Redirecting…`);
+          setTimeout(() => window.location.href = dest, 1200);
+        } else if (res.status === 403) {
+          showBanner('warning', data.message ||
+            'Your account is awaiting approval by the Port Authority.');
+        } else {
+          showBanner('error', data.message || 'Invalid email or password.');
+        }
+      } catch (err) {
+        showBanner('error', 'Could not reach the server. Please check your connection.');
+        console.error('Login error:', err);
+      } finally {
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Sign In';
+      }
+    });
+
+    function showBanner(type, msg) {
+      banner.className     = `status ${type}`;
+      banner.textContent   = msg;
+      banner.style.display = 'block';
+    }
+    function hideBanner() {
+      banner.style.display = 'none';
+    }
+  </script>
+</body>
+</html>

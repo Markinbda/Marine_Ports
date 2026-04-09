@@ -1,0 +1,22 @@
+# .NET build outputs
+MarinePorts.API/bin/
+MarinePorts.API/obj/
+
+# Sensitive config – use environment variables or secrets manager in production
+MarinePorts.API/appsettings.json
+
+# SQLite database files (now using Supabase, but keep old files out)
+*.db
+*.db-shm
+*.db-wal
+
+# Node / frontend dev server
+node_modules/
+.env
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db

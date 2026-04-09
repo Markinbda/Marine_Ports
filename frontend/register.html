@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register – Marine &amp; Ports Registration System</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #0d3b66 0%, #1a6fa8 50%, #0d3b66 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Header ──────────────────────────────────────────────────────────── */
+    .page-header {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 2rem;
+    }
+    .page-header .logo-icon {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .page-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .page-header p {
+      font-size: 0.95rem;
+      opacity: 0.85;
+      margin-top: 0.35rem;
+    }
+
+    /* ── Card ────────────────────────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 680px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    /* ── Section headings inside card ───────────────────────────────────── */
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #1a6fa8;
+      border-bottom: 2px solid #e0f0ff;
+      padding-bottom: 0.4rem;
+      margin: 1.75rem 0 1rem;
+    }
+    .section-title:first-of-type { margin-top: 0; }
+
+    /* ── Form grid ───────────────────────────────────────────────────────── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem 1.25rem;
+    }
+    .full-width { grid-column: 1 / -1; }
+
+    /* ── Field ───────────────────────────────────────────────────────────── */
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .field label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .field label .required { color: #e53935; margin-left: 2px; }
+    .field input,
+    .field select,
+    .field textarea {
+      padding: 0.6rem 0.75rem;
+      border: 1.5px solid #ccd6e0;
+      border-radius: 7px;
+      font-size: 0.9rem;
+      color: #1a1a2e;
+      background: #f8fbff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: #1a6fa8;
+      box-shadow: 0 0 0 3px rgba(26,111,168,0.15);
+      background: #fff;
+    }
+    .field input.error,
+    .field select.error,
+    .field textarea.error {
+      border-color: #e53935;
+    }
+    .field .hint {
+      font-size: 0.75rem;
+      color: #6b7a8d;
+    }
+    .field .err-msg {
+      font-size: 0.78rem;
+      color: #e53935;
+      display: none;
+    }
+    .field.has-error .err-msg { display: block; }
+
+    /* ── Password toggle ─────────────────────────────────────────────────── */
+    .pw-wrap { position: relative; }
+    .pw-wrap input { width: 100%; padding-right: 2.5rem; }
+    .pw-toggle {
+      position: absolute;
+      right: 0.65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: #6b7a8d;
+      padding: 0;
+    }
+
+    /* ── Password strength bar ───────────────────────────────────────────── */
+    .strength-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: #e0e0e0;
+      margin-top: 0.3rem;
+      overflow: hidden;
+    }
+    .strength-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+    }
+    .strength-label {
+      font-size: 0.75rem;
+      color: #6b7a8d;
+      margin-top: 0.2rem;
+    }
+
+    /* ── Submit button ───────────────────────────────────────────────────── */
+    .btn-submit {
+      width: 100%;
+      margin-top: 1.75rem;
+      padding: 0.85rem;
+      background: linear-gradient(135deg, #1a6fa8, #0d3b66);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-submit:hover  { opacity: 0.92; }
+    .btn-submit:active { transform: scale(0.99); }
+    .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* ── Status banner ───────────────────────────────────────────────────── */
+    .status {
+      display: none;
+      margin-top: 1.25rem;
+      padding: 0.85rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .status.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .status.error   { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+
+    /* ── Footer link ─────────────────────────────────────────────────────── */
+    .footer-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.88rem;
+      color: #555;
+    }
+    .footer-link a { color: #1a6fa8; text-decoration: none; font-weight: 600; }
+    .footer-link a:hover { text-decoration: underline; }
+
+    /* ── Responsive ──────────────────────────────────────────────────────── */
+    @media (max-width: 540px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .full-width { grid-column: auto; }
+      .card { padding: 1.75rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <header class="page-header">
+    <span class="logo-icon">⚓</span>
+    <h1>Marine &amp; Ports Registration System</h1>
+    <p>Government of Bermuda – Department of Marine &amp; Ports Services</p>
+  </header>
+
+  <!-- ── Registration card ────────────────────────────────────────────────── -->
+  <div class="card">
+    <form id="registrationForm" novalidate>
+
+      <!-- ── 1. Personal details ─────────────────────────────────────────── -->
+      <div class="section-title">Personal Details</div>
+      <div class="form-grid">
+
+        <div class="field full-width" id="field-fullName">
+          <label for="fullName">Full Legal Name <span class="required">*</span></label>
+          <input type="text" id="fullName" name="fullName" placeholder="e.g. John A. Smith"
+                 autocomplete="name" />
+          <span class="err-msg">Full name is required.</span>
+        </div>
+
+        <div class="field" id="field-email">
+          <label for="email">Email Address <span class="required">*</span></label>
+          <input type="email" id="email" name="email" placeholder="you@example.bm"
+                 autocomplete="email" />
+          <span class="err-msg">A valid email address is required.</span>
+        </div>
+
+        <div class="field" id="field-phone">
+          <label for="phone">Phone Number <span class="required">*</span></label>
+          <input type="tel" id="phone" name="phone" placeholder="+1 441 555 0100"
+                 autocomplete="tel" />
+          <span class="err-msg">A valid phone number is required.</span>
+        </div>
+
+      </div>
+
+      <!-- ── 2. Password ─────────────────────────────────────────────────── -->
+      <div class="section-title">Set Password</div>
+      <div class="form-grid">
+
+        <div class="field" id="field-password">
+          <label for="password">Password <span class="required">*</span></label>
+          <div class="pw-wrap">
+            <input type="password" id="password" name="password"
+                   placeholder="Minimum 8 characters" autocomplete="new-password" />
+            <button type="button" class="pw-toggle" data-target="password" title="Show/hide">👁</button>
+          </div>
+          <!-- Strength indicator -->
+          <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+          <span class="strength-label" id="strengthLabel">Enter a password to check strength</span>
+          <span class="err-msg">Password must be at least 8 characters.</span>
+        </div>
+
+        <div class="field" id="field-confirmPassword">
+          <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+          <div class="pw-wrap">
+            <input type="password" id="confirmPassword" name="confirmPassword"
+                   placeholder="Re-enter password" autocomplete="new-password" />
+            <button type="button" class="pw-toggle" data-target="confirmPassword" title="Show/hide">👁</button>
+          </div>
+          <span class="err-msg">Passwords do not match.</span>
+        </div>
+
+      </div>
+
+      <!-- ── 3. Address ──────────────────────────────────────────────────── -->
+      <div class="section-title">Residential Address</div>
+      <div class="form-grid">
+
+        <div class="field full-width" id="field-addressLine1">
+          <label for="addressLine1">Address Line 1 <span class="required">*</span></label>
+          <input type="text" id="addressLine1" name="addressLine1" placeholder="Street address"
+                 autocomplete="address-line1" />
+          <span class="err-msg">Address line 1 is required.</span>
+        </div>
+
+        <div class="field full-width" id="field-addressLine2">
+          <label for="addressLine2">Address Line 2</label>
+          <input type="text" id="addressLine2" name="addressLine2" placeholder="Apartment, suite, etc. (optional)"
+                 autocomplete="address-line2" />
+        </div>
+
+        <div class="field" id="field-parish">
+          <label for="parish">Parish <span class="required">*</span></label>
+          <select id="parish" name="parish">
+            <option value="">— Select parish —</option>
+            <option>Devonshire</option>
+            <option>Hamilton</option>
+            <option>Paget</option>
+            <option>Pembroke</option>
+            <option>Sandys</option>
+            <option>Smith's</option>
+            <option>Southampton</option>
+            <option>St. David's</option>
+            <option>St. George's</option>
+            <option>Warwick</option>
+          </select>
+          <span class="err-msg">Please select your parish.</span>
+        </div>
+
+      </div>
+
+      <!-- ── Submit ──────────────────────────────────────────────────────── -->
+      <button type="submit" class="btn-submit" id="submitBtn">
+        Submit Registration
+      </button>
+
+      <!-- ── Status banner ───────────────────────────────────────────────── -->
+      <div class="status" id="statusBanner"></div>
+
+    </form>
+
+    <p class="footer-link">
+      Already have an account? <a href="login.html">Sign in here</a>
+    </p>
+  </div><!-- /.card -->
+
+  <script>
+    /**
+     * Marine & Ports Registration System – Registration Page JS
+     * ─────────────────────────────────────────────────────────
+     * Handles:
+     *   - Client-side validation (mirrors server-side rules)
+     *   - Password strength indicator
+     *   - Show/hide password toggles
+     *   - POST to /api/auth/register
+     *   - Success / error feedback
+     */
+
+    // ── Configuration ─────────────────────────────────────────────────────────
+    const API_BASE = 'http://localhost:5000';  // Change port if needed
+
+    // ── DOM references ────────────────────────────────────────────────────────
+    const form         = document.getElementById('registrationForm');
+    const submitBtn    = document.getElementById('submitBtn');
+    const statusBanner = document.getElementById('statusBanner');
+    const pwInput      = document.getElementById('password');
+    const strengthFill = document.getElementById('strengthFill');
+    const strengthLabel= document.getElementById('strengthLabel');
+
+    // ── Password visibility toggles ───────────────────────────────────────────
+    document.querySelectorAll('.pw-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.target);
+        target.type  = target.type === 'password' ? 'text' : 'password';
+        btn.textContent = target.type === 'password' ? '👁' : '🙈';
+      });
+    });
+
+    // ── Password strength ─────────────────────────────────────────────────────
+    pwInput.addEventListener('input', () => {
+      const score = calcStrength(pwInput.value);
+      const colours = ['#e53935', '#ff9800', '#fdd835', '#4caf50'];
+      const labels  = ['Weak', 'Fair', 'Good', 'Strong'];
+      const pct     = [25, 50, 75, 100];
+
+      strengthFill.style.width      = (pwInput.value.length ? pct[score] : 0) + '%';
+      strengthFill.style.background = colours[score];
+      strengthLabel.textContent     = pwInput.value.length ? labels[score] : 'Enter a password to check strength';
+    });
+
+    function calcStrength(pw) {
+      let score = 0;
+      if (pw.length >= 8)                    score++;
+      if (pw.length >= 12)                   score++;
+      if (/[A-Z]/.test(pw) && /[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw))          score++;
+      return Math.min(score, 3);
+    }
+
+    // ── Validation helpers ────────────────────────────────────────────────────
+    function setError(fieldId, hasError) {
+      const wrapper = document.getElementById('field-' + fieldId);
+      const input   = document.getElementById(fieldId) ||
+                      document.querySelector(`[name="${fieldId}"]`);
+      if (!wrapper) return;
+      wrapper.classList.toggle('has-error', hasError);
+      if (input) input.classList.toggle('error', hasError);
+    }
+
+    function validateForm() {
+      let valid = true;
+
+      const fullName = document.getElementById('fullName').value.trim();
+      setError('fullName', !fullName);
+      if (!fullName) valid = false;
+
+      const email = document.getElementById('email').value.trim();
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      setError('email', !emailOk);
+      if (!emailOk) valid = false;
+
+      const phone = document.getElementById('phone').value.trim();
+      const phoneOk = /^[+\d\s\-().]{7,20}$/.test(phone);
+      setError('phone', !phoneOk);
+      if (!phoneOk) valid = false;
+
+      const pw  = document.getElementById('password').value;
+      const pwOk = pw.length >= 8;
+      setError('password', !pwOk);
+      if (!pwOk) valid = false;
+
+      const cpw   = document.getElementById('confirmPassword').value;
+      const cpwOk = cpw === pw && cpw.length > 0;
+      setError('confirmPassword', !cpwOk);
+      if (!cpwOk) valid = false;
+
+      const addr1 = document.getElementById('addressLine1').value.trim();
+      setError('addressLine1', !addr1);
+      if (!addr1) valid = false;
+
+      const parish = document.getElementById('parish').value;
+      setError('parish', !parish);
+      if (!parish) valid = false;
+
+      const govId = document.getElementById('govId').value.trim();
+      setError('govId', !govId);
+      if (!govId) valid = false;
+
+      const role = document.getElementById('role').value;
+      setError('role', !role);
+      if (!role) valid = false;
+
+      return valid;
+    }
+
+    // ── Form submission ───────────────────────────────────────────────────────
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Clear previous status
+      hideBanner();
+
+      if (!validateForm()) {
+        showBanner('error', 'Please correct the highlighted fields before submitting.');
+        return;
+      }
+
+      const payload = {
+        fullName:                    document.getElementById('fullName').value.trim(),
+        email:                       document.getElementById('email').value.trim(),
+        password:                    document.getElementById('password').value,
+        confirmPassword:             document.getElementById('confirmPassword').value,
+        phoneNumber:                 document.getElementById('phone').value.trim(),
+        addressLine1:                document.getElementById('addressLine1').value.trim(),
+        addressLine2:                document.getElementById('addressLine2').value.trim(),
+        parish:                      document.getElementById('parish').value,
+        governmentIdOrLicenceNumber: document.getElementById('govId').value.trim(),
+        organisationName:            document.getElementById('organisation').value.trim() || null,
+        role:                        document.getElementById('role').value
+      };
+
+      submitBtn.disabled  = true;
+      submitBtn.textContent = 'Submitting…';
+
+      try {
+        const response = await fetch(`${API_BASE}/api/auth/register`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Success – tell user their account awaits approval
+          form.reset();
+          document.getElementById('strengthFill').style.width = '0';
+          document.getElementById('strengthLabel').textContent = 'Enter a password to check strength';
+          showBanner('success',
+            '✔ Registration submitted successfully. Your account is pending approval ' +
+            'by the Port Authority. You will be contacted once your registration has been reviewed.');
+        } else if (response.status === 409) {
+          showBanner('error', data.message || 'An account with this email already exists.');
+        } else {
+          // Surface first server validation message if available
+          const firstError = data.errors
+            ? Object.values(data.errors).flat()[0]
+            : (data.message || 'An unexpected error occurred. Please try again.');
+          showBanner('error', firstError);
+        }
+      } catch (err) {
+        showBanner('error', 'Could not reach the server. Please check your connection and try again.');
+        console.error('Registration error:', err);
+      } finally {
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Submit Registration';
+      }
+    });
+
+    // ── Banner helpers ────────────────────────────────────────────────────────
+    function showBanner(type, message) {
+      statusBanner.className   = `status ${type}`;
+      statusBanner.textContent = message;
+      statusBanner.style.display = 'block';
+      statusBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hideBanner() {
+      statusBanner.style.display = 'none';
+      statusBanner.className     = 'status';
+    }
+  </script>
+</body>
+</html>

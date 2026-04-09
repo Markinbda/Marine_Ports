@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel – Marine &amp; Ports</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+    }
+
+    /* ── Header ───────────────────────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, #0d3b66, #1a6fa8);
+      color: #fff;
+      padding: 0 1.5rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand { font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+    .header-right { display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; }
+    .btn-sm {
+      padding: 0.35rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      transition: background 0.2s;
+    }
+    .btn-sm:hover { background: rgba(255,255,255,0.27); }
+
+    /* ── Layout ───────────────────────────────────────────────────────────── */
+    .page { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+
+    /* ── Stats bar ────────────────────────────────────────────────────────── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      border-left: 4px solid #1a6fa8;
+    }
+    .stat-card.pending { border-color: #FF9800; }
+    .stat-card.approved { border-color: #4CAF50; }
+    .stat-card.total { border-color: #1a6fa8; }
+    .stat-card .val { font-size: 2rem; font-weight: 800; color: #0d3b66; }
+    .stat-card .lbl { font-size: 0.78rem; color: #777; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── Section card ─────────────────────────────────────────────────────── */
+    .section {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .section-head {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e8edf2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-head h2 { font-size: 1rem; color: #0d3b66; }
+
+    /* ── Filter bar ───────────────────────────────────────────────────────── */
+    .filter-bar {
+      padding: 0.75rem 1.5rem;
+      background: #f8fbff;
+      border-bottom: 1px solid #e8edf2;
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-bar input,
+    .filter-bar select {
+      padding: 0.45rem 0.7rem;
+      border: 1.5px solid #ccd6e0;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      outline: none;
+      background: #fff;
+    }
+    .filter-bar input:focus,
+    .filter-bar select:focus { border-color: #1a6fa8; }
+
+    /* ── Table ────────────────────────────────────────────────────────────── */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    thead tr { background: #f0f4f8; }
+    th { padding: 0.7rem 1rem; text-align: left; font-size: 0.75rem;
+         text-transform: uppercase; letter-spacing: 0.5px; color: #555; white-space: nowrap; }
+    td { padding: 0.75rem 1rem; border-top: 1px solid #edf1f5; vertical-align: middle; }
+    tr:hover td { background: #f8fbff; }
+
+    /* ── Badges ───────────────────────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.73rem;
+      font-weight: 700;
+    }
+    .badge.approved  { background: #e8f5e9; color: #2e7d32; }
+    .badge.pending   { background: #fff8e1; color: #e65100; }
+    .badge.role-admin { background: #ede7f6; color: #4527a0; }
+    .badge.role-port  { background: #e3f2fd; color: #0d47a1; }
+    .badge.role-boat  { background: #e8f5e9; color: #1b5e20; }
+    .badge.role-moor  { background: #fce4ec; color: #880e4f; }
+
+    /* ── Action buttons ───────────────────────────────────────────────────── */
+    .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .btn-action {
+      padding: 0.3rem 0.7rem;
+      border-radius: 5px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s;
+    }
+    .btn-action:hover { opacity: 0.8; }
+    .btn-approve  { background: #4CAF50; color: #fff; }
+    .btn-revoke   { background: #FF9800; color: #fff; }
+    .btn-delete   { background: #f44336; color: #fff; }
+    .btn-admin    { background: #7c4dff; color: #fff; }
+
+    /* ── Toast ────────────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: #323232; color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px; font-size: 0.88rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      opacity: 0; transition: opacity 0.3s;
+      pointer-events: none; z-index: 9999;
+    }
+    #toast.show { opacity: 1; }
+    #toast.ok   { background: #2e7d32; }
+    #toast.err  { background: #c62828; }
+
+    /* ── Bootstrap panel (shown when no admin yet) ─────────────────────── */
+    #bootstrapBox {
+      background: #fff8e1;
+      border: 2px solid #ffd54f;
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    #bootstrapBox h3 { color: #e65100; margin-bottom: 0.6rem; }
+    #bootstrapBox p  { font-size: 0.88rem; color: #555; margin-bottom: 1rem; }
+    .bootstrap-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .bootstrap-row input {
+      flex: 1; padding: 0.55rem 0.8rem;
+      border: 1.5px solid #ccd6e0; border-radius: 6px; font-size: 0.9rem;
+      min-width: 200px;
+    }
+    .btn-bootstrap {
+      padding: 0.55rem 1.2rem;
+      background: #e65100; color: #fff;
+      border: none; border-radius: 6px;
+      font-size: 0.9rem; font-weight: 700; cursor: pointer;
+    }
+    .btn-bootstrap:hover { background: #bf360c; }
+
+    /* ── Empty state ──────────────────────────────────────────────────────── */
+    .empty { padding: 2.5rem; text-align: center; color: #aaa; font-size: 0.9rem; }
+
+    /* ── Spinner ──────────────────────────────────────────────────────────── */
+    .loading { padding: 2rem; text-align: center; color: #777; }
+
+    @media (max-width: 600px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <header>
+    <div class="brand">⚓ Marine &amp; Ports – Admin Panel</div>
+    <div class="header-right">
+      <span id="adminName"></span>
+      <a href="map.html" class="btn-sm">Map</a>
+      <button class="btn-sm" id="logoutBtn">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <!-- ── Bootstrap notice (only visible when no admin exists) ─────────────── -->
+    <div id="bootstrapBox" style="display:none;">
+      <h3>⚠ First-Run Setup: No Admin Exists</h3>
+      <p>
+        Enter the email address of an already-registered user to grant them Admin access.
+        This panel disappears permanently once the first admin is created.
+      </p>
+      <div class="bootstrap-row">
+        <input type="email" id="bootstrapEmail" placeholder="e.g. markinbda@outlook.com" />
+        <button class="btn-bootstrap" id="bootstrapBtn">Make Admin</button>
+      </div>
+    </div>
+
+    <!-- ── Stats ──────────────────────────────────────────────────────────── -->
+    <div class="stats">
+      <div class="stat-card total">
+        <div class="val" id="statTotal">–</div>
+        <div class="lbl">Total Users</div>
+      </div>
+      <div class="stat-card pending">
+        <div class="val" id="statPending">–</div>
+        <div class="lbl">Pending Approval</div>
+      </div>
+      <div class="stat-card approved">
+        <div class="val" id="statApproved">–</div>
+        <div class="lbl">Approved</div>
+      </div>
+      <div class="stat-card">
+        <div class="val" id="statBoats">–</div>
+        <div class="lbl">Total Boats</div>
+      </div>
+      <div class="stat-card">
+        <div class="val" id="statMoorings">–</div>
+        <div class="lbl">Total Moorings</div>
+      </div>
+    </div>
+
+    <!-- ── Users table ────────────────────────────────────────────────────── -->
+    <div class="section">
+      <div class="section-head">
+        <h2>Registered Users</h2>
+        <button class="btn-sm" id="refreshBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">↻ Refresh</button>
+      </div>
+
+      <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="Search name or email…" style="width:220px;" />
+        <select id="filterStatus">
+          <option value="">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+        </select>
+        <select id="filterRole">
+          <option value="">All roles</option>
+          <option value="Admin">Admin</option>
+          <option value="PortAuthority">Port Authority</option>
+          <option value="BoatOwner">Boat Owner</option>
+          <option value="MooringOwner">Mooring Owner</option>
+        </select>
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Parish</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Registered</th>
+              <th>Boats</th>
+              <th>Moorings</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTbody">
+            <tr><td colspan="11" class="loading">Loading users…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /.page -->
+
+  <div id="toast"></div>
+
+  <script>
+    /**
+     * Marine & Ports – Admin Panel JS
+     * ─────────────────────────────────────────────────────────────────────
+     * Loads users from GET /api/admin/users (requires Admin JWT).
+     * Provides approve / revoke / promote / delete actions per row.
+     * Shows a bootstrap panel when no admin account exists yet.
+     */
+
+    const API_BASE = 'http://localhost:5000';
+
+    // ── Auth ──────────────────────────────────────────────────────────────────
+    const token    = sessionStorage.getItem('mp_token');
+    const role     = sessionStorage.getItem('mp_role');
+    const fullName = sessionStorage.getItem('mp_fullName') || '';
+
+    document.getElementById('adminName').textContent = fullName;
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.href = 'login.html';
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', loadUsers);
+
+    // ── Auth headers helper ───────────────────────────────────────────────────
+    function authHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      };
+    }
+
+    // ── Bootstrap (first-run no-admin setup) ──────────────────────────────────
+    document.getElementById('bootstrapBtn').addEventListener('click', async () => {
+      const email = document.getElementById('bootstrapEmail').value.trim();
+      if (!email) { toast('err', 'Enter an email address.'); return; }
+
+      try {
+        const res  = await fetch(`${API_BASE}/api/admin/bootstrap`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          toast('ok', data.message);
+          document.getElementById('bootstrapBox').style.display = 'none';
+          // Prompt user to log in again to get a new token with Admin role
+          setTimeout(() => {
+            alert('Admin created! Please log in again to receive your updated Admin token.');
+            window.location.href = 'login.html';
+          }, 1500);
+        } else {
+          toast('err', data.message || 'Bootstrap failed.');
+        }
+      } catch (e) {
+        toast('err', 'Server unreachable.');
+      }
+    });
+
+    // ── User data store ───────────────────────────────────────────────────────
+    let allUsers = [];
+
+    // ── Load users ────────────────────────────────────────────────────────────
+    async function loadUsers() {
+      const tbody = document.getElementById('usersTbody');
+      tbody.innerHTML = '<tr><td colspan="11" class="loading">Loading…</td></tr>';
+
+      // If not logged in as Admin, show bootstrap box and bail
+      if (!token || role !== 'Admin') {
+        document.getElementById('bootstrapBox').style.display = 'block';
+        tbody.innerHTML = '<tr><td colspan="11" class="empty">Sign in as Admin to manage users.</td></tr>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/users`, {
+          headers: authHeaders()
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          document.getElementById('bootstrapBox').style.display = 'block';
+          tbody.innerHTML = '<tr><td colspan="11" class="empty">Access denied. Ensure your account has Admin role.</td></tr>';
+          return;
+        }
+
+        allUsers = await res.json();
+        updateStats(allUsers);
+        renderTable(allUsers);
+
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="11" class="empty">Could not reach the API. Is the server running?</td></tr>';
+        document.getElementById('bootstrapBox').style.display = 'block';
+      }
+    }
+
+    // ── Stats ─────────────────────────────────────────────────────────────────
+    function updateStats(users) {
+      document.getElementById('statTotal').textContent    = users.length;
+      document.getElementById('statPending').textContent  = users.filter(u => !u.isApproved).length;
+      document.getElementById('statApproved').textContent = users.filter(u => u.isApproved).length;
+      document.getElementById('statBoats').textContent    = users.reduce((s, u) => s + (u.boatCount || 0), 0);
+      document.getElementById('statMoorings').textContent = users.reduce((s, u) => s + (u.mooringCount || 0), 0);
+    }
+
+    // ── Render ────────────────────────────────────────────────────────────────
+    function renderTable(users) {
+      const tbody  = document.getElementById('usersTbody');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const fStatus= document.getElementById('filterStatus').value;
+      const fRole  = document.getElementById('filterRole').value;
+
+      let filtered = users.filter(u => {
+        const matchSearch = !search ||
+          u.fullName.toLowerCase().includes(search) ||
+          u.email.toLowerCase().includes(search);
+        const matchStatus = !fStatus ||
+          (fStatus === 'pending'  && !u.isApproved) ||
+          (fStatus === 'approved' &&  u.isApproved);
+        const matchRole = !fRole || u.role === fRole;
+        return matchSearch && matchStatus && matchRole;
+      });
+
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="11" class="empty">No users match the current filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(u => `
+        <tr data-id="${u.id}">
+          <td>${u.id}</td>
+          <td><strong>${esc(u.fullName)}</strong><br><small style="color:#888">${esc(u.organisationName || '')}</small></td>
+          <td>${esc(u.email)}</td>
+          <td>${esc(u.phoneNumber)}</td>
+          <td>${esc(u.parish)}</td>
+          <td>${roleBadge(u.role)}</td>
+          <td>${u.isApproved
+            ? '<span class="badge approved">Approved</span>'
+            : '<span class="badge pending">Pending</span>'}</td>
+          <td style="white-space:nowrap">${fmtDate(u.registeredAt)}</td>
+          <td style="text-align:center">${u.boatCount}</td>
+          <td style="text-align:center">${u.mooringCount}</td>
+          <td>
+            <div class="actions">
+              ${!u.isApproved
+                ? `<button class="btn-action btn-approve" onclick="approveUser(${u.id})">Approve</button>`
+                : `<button class="btn-action btn-revoke"  onclick="revokeUser(${u.id})">Revoke</button>`}
+              ${u.role !== 'Admin'
+                ? `<button class="btn-action btn-admin" onclick="makeAdmin(${u.id})">Make Admin</button>`
+                : ''}
+              <button class="btn-action btn-delete" onclick="deleteUser(${u.id}, '${esc(u.fullName)}')">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // ── Live filter ───────────────────────────────────────────────────────────
+    ['searchInput', 'filterStatus', 'filterRole'].forEach(id =>
+      document.getElementById(id).addEventListener('input', () => renderTable(allUsers))
+    );
+
+    // ── Actions ───────────────────────────────────────────────────────────────
+    async function approveUser(id) {
+      const res = await apiCall(`PUT`, `/api/admin/users/${id}/approve`);
+      if (res) { toast('ok', res.message); loadUsers(); }
+    }
+
+    async function revokeUser(id) {
+      const res = await apiCall(`PUT`, `/api/admin/users/${id}/reject`);
+      if (res) { toast('ok', res.message); loadUsers(); }
+    }
+
+    async function makeAdmin(id) {
+      if (!confirm('Promote this user to Admin? They will have full system access.')) return;
+      const res = await apiCall('PUT', `/api/admin/users/${id}/role`, { role: 'Admin' });
+      if (res) { toast('ok', res.message); loadUsers(); }
+    }
+
+    async function deleteUser(id, name) {
+      if (!confirm(`Permanently delete "${name}" and all their boats/moorings?`)) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/users/${id}`, {
+          method: 'DELETE', headers: authHeaders()
+        });
+        if (res.status === 204) { toast('ok', `${name} deleted.`); loadUsers(); }
+        else toast('err', 'Delete failed.');
+      } catch { toast('err', 'Server error.'); }
+    }
+
+    async function apiCall(method, path, body) {
+      try {
+        const res  = await fetch(API_BASE + path, {
+          method,
+          headers: authHeaders(),
+          body: body ? JSON.stringify(body) : undefined
+        });
+        const data = await res.json();
+        if (!res.ok) { toast('err', data.message || 'Request failed.'); return null; }
+        return data;
+      } catch { toast('err', 'Server unreachable.'); return null; }
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function roleBadge(role) {
+      const map = {
+        Admin:        'role-admin',
+        PortAuthority:'role-port',
+        BoatOwner:    'role-boat',
+        MooringOwner: 'role-moor'
+      };
+      return `<span class="badge ${map[role] || ''}">${role}</span>`;
+    }
+
+    function fmtDate(iso) {
+      return iso ? new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '–';
+    }
+
+    function esc(s) {
+      return String(s || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Toast ─────────────────────────────────────────────────────────────────
+    let toastTimer;
+    function toast(type, msg) {
+      const el = document.getElementById('toast');
+      el.className = `show ${type}`;
+      el.textContent = msg;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.className = ''; }, 3500);
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    loadUsers();
+  </script>
+</body>
+</html>
