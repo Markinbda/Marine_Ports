@@ -42,11 +42,12 @@ public class AppDbContext : DbContext
             .HasForeignKey(b => b.AppUserId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // A user can own many moorings.
+        // A user can own many moorings; AppUserId is nullable for ArcGIS imports.
         modelBuilder.Entity<Mooring>()
             .HasOne(m => m.AppUser)
             .WithMany(u => u.Moorings)
             .HasForeignKey(m => m.AppUserId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
