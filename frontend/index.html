@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Department of Marine &amp; Ports Services – Bermuda</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #003366;
+      --blue:   #005fa3;
+      --light:  #e8f2fb;
+      --gold:   #c8a84b;
+      --text:   #1a1a2e;
+      --muted:  #5a6475;
+      --white:  #ffffff;
+      --border: #d0d9e5;
+      --hover:  #00264d;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f7fb;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── TOP UTILITY BAR ───────────────────────────────────────────────────── */
+    .util-bar {
+      background: var(--hover);
+      color: rgba(255,255,255,0.75);
+      font-size: 0.75rem;
+      padding: 0.3rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .util-bar a { color: rgba(255,255,255,0.85); }
+    .util-bar a:hover { color: #fff; text-decoration: none; }
+    .util-links { display: flex; gap: 1.25rem; }
+
+    /* ── HEADER ────────────────────────────────────────────────────────────── */
+    .site-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+      color: #fff;
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .header-crest {
+      font-size: 2.4rem;
+      line-height: 1;
+    }
+    .header-text .dept-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .header-text .dept-sub {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      margin-top: 1px;
+    }
+    .header-tagline {
+      font-size: 0.85rem;
+      font-style: italic;
+      opacity: 0.85;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .header-actions {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+    .btn-header {
+      padding: 0.4rem 1rem;
+      border-radius: 5px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1.5px solid rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+    .btn-header:hover { background: rgba(255,255,255,0.25); text-decoration: none; }
+    .btn-header.primary {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy);
+    }
+    .btn-header.primary:hover { background: #e0b85a; }
+
+    /* ── PRIMARY NAV ───────────────────────────────────────────────────────── */
+    .primary-nav {
+      background: var(--navy);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    .primary-nav ul {
+      list-style: none;
+      display: flex;
+      align-items: stretch;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .primary-nav > ul > li {
+      position: relative;
+    }
+    .primary-nav > ul > li > a,
+    .primary-nav > ul > li > span {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.85rem 1.1rem;
+      color: rgba(255,255,255,0.88);
+      font-size: 0.82rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background 0.18s;
+      letter-spacing: 0.2px;
+    }
+    .primary-nav > ul > li > a:hover,
+    .primary-nav > ul > li > span:hover,
+    .primary-nav > ul > li.active > a,
+    .primary-nav > ul > li.active > span {
+      background: var(--blue);
+      color: #fff;
+      text-decoration: none;
+    }
+    .primary-nav > ul > li > span::after {
+      content: '▾';
+      font-size: 0.65rem;
+      opacity: 0.7;
+    }
+
+    /* ── DROPDOWN ──────────────────────────────────────────────────────────── */
+    .dropdown {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px);
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s 0.18s;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: var(--white);
+      min-width: 230px;
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--gold);
+      border-radius: 0 0 6px 6px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      z-index: 2000;
+    }
+    .primary-nav > ul > li:hover .dropdown {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s 0s;
+    }
+    .dropdown li a {
+      display: block;
+      padding: 0.6rem 1.1rem;
+      font-size: 0.81rem;
+      color: var(--text);
+      border-bottom: 1px solid #f0f2f5;
+      transition: background 0.15s;
+    }
+    .dropdown li:last-child a { border-bottom: none; }
+    .dropdown li a:hover { background: var(--light); color: var(--blue); text-decoration: none; }
+
+    /* ── NEWS TICKER ───────────────────────────────────────────────────────── */
+    .ticker-bar {
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.35rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      overflow: hidden;
+    }
+    .ticker-label {
+      background: var(--navy);
+      color: #fff;
+      padding: 0.1rem 0.55rem;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .ticker-content {
+      overflow: hidden;
+      white-space: nowrap;
+      flex: 1;
+    }
+    .ticker-content span {
+      display: inline-block;
+      animation: ticker 70s linear infinite;
+    }
+    @keyframes ticker {
+      0%   { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* ── MAIN LAYOUT ───────────────────────────────────────────────────────── */
+    .site-body {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+      align-items: start;
+    }
+    .site-body.has-sidebar {
+      grid-template-columns: 210px 1fr;
+    }
+
+    /* ── SIDEBAR ───────────────────────────────────────────────────────────── */
+    .sidebar {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      position: sticky;
+      top: 52px;
+    }
+    .sidebar-title {
+      background: var(--navy);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.65rem 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .sidebar ul { list-style: none; }
+    .sidebar ul li a {
+      display: block;
+      padding: 0.55rem 1rem;
+      font-size: 0.81rem;
+      color: var(--text);
+      border-bottom: 1px solid #f0f2f5;
+      transition: all 0.15s;
+    }
+    .sidebar ul li a:hover,
+    .sidebar ul li a.active {
+      background: var(--light);
+      color: var(--blue);
+      text-decoration: none;
+      padding-left: 1.3rem;
+    }
+    .sidebar ul li a.active { font-weight: 700; border-left: 3px solid var(--blue); }
+
+    /* ── PAGE CONTENT ──────────────────────────────────────────────────────── */
+    .page-content { min-height: 500px; }
+    .content-section { display: none; }
+    .content-section.active { display: block; }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--navy);
+      border-bottom: 3px solid var(--gold);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .page-intro {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+    .content-body {
+      font-size: 0.93rem;
+      line-height: 1.75;
+      color: var(--text);
+    }
+    .content-body p { margin-bottom: 1rem; }
+    .content-body h3 {
+      font-size: 1rem;
+      color: var(--navy);
+      margin: 1.5rem 0 0.5rem;
+      border-left: 4px solid var(--gold);
+      padding-left: 0.6rem;
+    }
+    .content-body ul {
+      margin: 0.5rem 0 1rem 1.5rem;
+    }
+    .content-body ul li { margin-bottom: 0.3rem; }
+
+    /* ── INFO CARDS ────────────────────────────────────────────────────────── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    .info-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--blue);
+      border-radius: 6px;
+      padding: 1rem 1.1rem;
+      font-size: 0.85rem;
+    }
+    .info-card .card-icon { font-size: 1.6rem; margin-bottom: 0.4rem; }
+    .info-card .card-title { font-weight: 700; color: var(--navy); margin-bottom: 0.3rem; }
+    .info-card .card-body { color: var(--muted); line-height: 1.55; }
+
+    /* ── ALERT BOX ─────────────────────────────────────────────────────────── */
+    .alert {
+      border-left: 4px solid var(--gold);
+      background: #fffbea;
+      padding: 0.75rem 1rem;
+      border-radius: 0 5px 5px 0;
+      margin-bottom: 1.25rem;
+      font-size: 0.87rem;
+    }
+    .alert strong { color: var(--navy); }
+
+    /* ── CTA BUTTONS ───────────────────────────────────────────────────────── */
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+    }
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1.1rem;
+      border-radius: 5px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      transition: background 0.2s;
+    }
+    .btn-cta:hover { background: var(--blue); color: #fff; text-decoration: none; }
+    .btn-cta.outline {
+      background: transparent;
+      border: 2px solid var(--navy);
+      color: var(--navy);
+    }
+    .btn-cta.outline:hover { background: var(--light); }
+
+    /* ── CONTACT TABLE ─────────────────────────────────────────────────────── */
+    .contact-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .contact-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .contact-table td:first-child { font-weight: 700; color: var(--navy); width: 140px; }
+
+    /* ── LINKS LIST ────────────────────────────────────────────────────────── */
+    .links-list { list-style: none; }
+    .links-list li {
+      border-bottom: 1px solid var(--border);
+      padding: 0.55rem 0;
+    }
+    .links-list li a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .links-list li a::before { content: '🔗'; font-size: 0.8rem; }
+
+    /* ── HERO (home only) ──────────────────────────────────────────────────── */
+    .home-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 60%, #1a7fbf 100%);
+      color: #fff;
+      border-radius: 8px;
+      padding: 2rem 2.25rem;
+      margin-bottom: 1.75rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .home-hero::after {
+      content: '⚓';
+      position: absolute;
+      right: 1.5rem;
+      bottom: -0.5rem;
+      font-size: 6rem;
+      opacity: 0.1;
+    }
+    .home-hero h2 { font-size: 1.6rem; margin-bottom: 0.6rem; }
+    .home-hero p  { font-size: 0.93rem; opacity: 0.9; line-height: 1.65; max-width: 680px; }
+    .home-hero .cta-row { margin-top: 1.25rem; }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .service-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.1rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .service-card:hover {
+      border-color: var(--blue);
+      box-shadow: 0 3px 12px rgba(0,90,180,0.12);
+      transform: translateY(-2px);
+    }
+    .service-card .sc-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .service-card .sc-title { font-weight: 700; color: var(--navy); font-size: 0.88rem; }
+    .service-card .sc-desc  { font-size: 0.77rem; color: var(--muted); margin-top: 0.25rem; line-height: 1.45; }
+
+    /* ── FOOTER ────────────────────────────────────────────────────────────── */
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,0.75);
+      padding: 1.5rem 1.5rem;
+      font-size: 0.78rem;
+      margin-top: auto;
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    footer h4 { color: #fff; margin-bottom: 0.5rem; font-size: 0.8rem; }
+    footer ul { list-style: none; }
+    footer ul li { margin-bottom: 0.3rem; }
+    footer ul li a { color: rgba(255,255,255,0.7); }
+    footer ul li a:hover { color: #fff; }
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 1rem auto 0;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding-top: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.73rem;
+      opacity: 0.6;
+    }
+
+    /* ── AUTH MODAL ────────────────────────────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); z-index: 9999;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 10px;
+      width: min(440px, 96vw);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .modal-tabs {
+      display: flex;
+    }
+    .modal-tab {
+      flex: 1; padding: 0.85rem;
+      text-align: center; font-weight: 700; font-size: 0.9rem;
+      background: #f0f4f8; cursor: pointer;
+      border-bottom: 3px solid transparent;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .modal-tab.active {
+      background: #fff; color: var(--navy);
+      border-bottom-color: var(--blue);
+    }
+    .modal-panel { display: none; padding: 1.5rem; }
+    .modal-panel.active { display: block; }
+    .modal-panel h3 { color: var(--navy); margin-bottom: 1rem; font-size: 1rem; }
+    .modal-close-btn {
+      float: right; background: none; border: none;
+      font-size: 1.3rem; cursor: pointer; color: var(--muted);
+      margin-top: -0.25rem;
+    }
+    .form-row { margin-bottom: 0.9rem; }
+    .form-row label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--navy); margin-bottom: 0.3rem; }
+    .form-row input {
+      width: 100%; padding: 0.5rem 0.75rem;
+      border: 1.5px solid var(--border); border-radius: 5px;
+      font-size: 0.88rem; transition: border 0.15s;
+    }
+    .form-row input:focus { outline: none; border-color: var(--blue); }
+    .btn-submit-modal {
+      width: 100%; padding: 0.6rem;
+      background: var(--navy); color: #fff;
+      border: none; border-radius: 5px;
+      font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; margin-top: 0.25rem;
+    }
+    .btn-submit-modal:hover { background: var(--blue); }
+    .modal-divider { text-align: center; font-size: 0.78rem; color: var(--muted); margin: 0.75rem 0; }
+    .modal-link { font-size: 0.8rem; color: var(--blue); cursor: pointer; }
+    .modal-note { font-size: 0.76rem; color: var(--muted); margin-top: 0.75rem; line-height: 1.5; }
+
+    /* ── Licensing Fees modal ─────────────────────────────────────────────── */
+    #feesModal .modal-box {
+      width: min(680px, 97vw);
+      max-height: 90vh;
+      display: flex; flex-direction: column;
+    }
+    .fees-header {
+      background: #0d3b66; color: #fff;
+      padding: 1rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .fees-header h2 { margin: 0; font-size: 1rem; line-height: 1.4; }
+    .fees-header small { font-weight: 400; opacity: 0.8; display: block; font-size: 0.8rem; }
+    .fees-close { background: none; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; line-height: 1; }
+    .fees-body {
+      overflow-y: auto; padding: 1.1rem 1.25rem;
+      flex: 1;
+    }
+    .fees-section { margin-bottom: 1.1rem; }
+    .fees-section h3 {
+      font-size: 0.82rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: #0d3b66;
+      border-bottom: 2px solid #0d3b66; padding-bottom: 0.25rem;
+      margin: 0 0 0.5rem;
+    }
+    .fees-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .fees-table td { padding: 0.28rem 0.4rem; vertical-align: top; }
+    .fees-table td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }
+    .fees-table tr:nth-child(even) td { background: #f5f8fc; }
+    .fees-table .sub-row td { padding-left: 1.4rem; font-style: italic; color: #444; }
+    .fees-note {
+      font-size: 0.78rem; color: #b71c1c; background: #fff3e0;
+      border-left: 3px solid #e65100; padding: 0.5rem 0.75rem;
+      margin-top: 1rem; border-radius: 0 5px 5px 0;
+    }
+    .fees-footer {
+      padding: 0.75rem 1.25rem; background: #f5f8fc;
+      border-top: 1px solid #e0e0e0; text-align: right; flex-shrink: 0;
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .site-body,
+      .site-body.has-sidebar { grid-template-columns: 1fr; }
+      .sidebar { position: static; display: none !important; }
+      .primary-nav > ul { flex-wrap: wrap; }
+      .primary-nav > ul > li > a,
+      .primary-nav > ul > li > span { padding: 0.65rem 0.75rem; font-size: 0.75rem; }
+      .home-hero { padding: 1.25rem; }
+      .header-tagline { display: none; }
+    }
+  </style>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <!-- ── UTILITY BAR ───────────────────────────────────────────────────────── -->
+  <div class="util-bar">
+    <span>Government of Bermuda</span>
+    <div class="util-links">
+      <a href="#" onclick="showSection('contact','contact-main')">Contact Us</a>
+      <a href="http://www.rccbermuda.bm/nav_warnings.aspx" target="_blank">Nav Warnings</a>
+      <a href="http://www.rccbermuda.bm/Documents/Ferry/Summer%20Ferry%20Schedule%202026.pdf" target="_blank">Ferry Schedule 2026</a>
+      <a href="http://www.rccbermuda.bm/Beacons_home.aspx" target="_blank">406 Beacons</a>
+    </div>
+  </div>
+
+  <!-- ── SITE HEADER ───────────────────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="header-brand" style="cursor:pointer" onclick="showSection('home','')">
+      <div class="header-crest">⚓</div>
+      <div class="header-text">
+        <div class="dept-name">Department of Marine &amp; Ports Services</div>
+        <div class="dept-sub">Government of Bermuda &nbsp;·&nbsp; Ministry of Transport</div>
+      </div>
+    </div>
+    <div class="header-tagline">
+      🌊 Keeping Bermuda's Seas Safe
+    </div>
+    <div class="header-actions">
+      <button class="btn-header" onclick="openModal('login')">Sign In</button>
+      <a href="register.html" class="btn-header primary">Register</a>
+    </div>
+  </header>
+
+  <!-- ── PRIMARY NAV ───────────────────────────────────────────────────────── -->
+  <nav class="primary-nav" id="primaryNav">
+    <ul>
+      <li id="nav-home">
+        <a href="#" onclick="showSection('home',''); return false;">🏠 Home</a>
+      </li>
+
+      <li id="nav-marops">
+        <span onclick="showSection('marops','marops-about')">Maritime Operations Centre</span>
+        <ul class="dropdown">
+          <li><a href="#" onclick="showSection('marops','marops-about'); return false;">About MOC</a></li>
+          <li><a href="#" onclick="showSection('marops','marops-sar'); return false;">Search &amp; Rescue</a></li>
+          <li><a href="#" onclick="showSection('marops','marops-seaport'); return false;">Seaport Security</a></li>
+          <li><a href="#" onclick="showSection('marops','marops-vhf'); return false;">VHF Radios / Licensing</a></li>
+          <li><a href="#" onclick="showSection('marops','marops-weather'); return false;">Weather</a></li>
+          <li><a href="#" onclick="showSection('marops','marops-sailing'); return false;">Sailing to Bermuda</a></li>
+          <li><a href="#" onclick="showSection('marops','marops-events'); return false;">Upcoming Events</a></li>
+          <li><a href="#" onclick="showSection('marops','marops-contact'); return false;">Contact MOC</a></li>
+        </ul>
+      </li>
+
+      <li id="nav-bam">
+        <span onclick="showSection('bam','bam-private')">Boats &amp; Moorings</span>
+        <ul class="dropdown">
+          <li><a href="#" onclick="showSection('bam','bam-private'); return false;">Private Boats</a></li>
+          <li><a href="#" onclick="showSection('bam','bam-charter'); return false;">Charter Boats</a></li>
+          <li><a href="#" onclick="showSection('bam','bam-moorings'); return false;">Moorings</a></li>
+          <li><a href="#" onclick="showSection('bam','bam-wreck'); return false;">Wreck Removal</a></li>
+          <li><a href="#" onclick="showSection('bam','bam-recreation'); return false;">Marine Recreation</a></li>
+          <li><a href="#" onclick="showSection('bam','bam-forms'); return false;">Forms &amp; Applications</a></li>
+          <li><a href="register.html" class="">Register / Account Login</a></li>
+          <li><a href="#" onclick="showSection('bam','bam-contact'); return false;">Contact B&amp;M</a></li>
+        </ul>
+      </li>
+
+      <li id="nav-ferry">
+        <span onclick="showSection('ferry','ferry-about')">Ferry Service</span>
+        <ul class="dropdown">
+          <li><a href="#" onclick="showSection('ferry','ferry-about'); return false;">About the Service</a></li>
+          <li><a href="#" onclick="showSection('ferry','ferry-routes'); return false;">Routes &amp; Terminals</a></li>
+          <li><a href="http://www.rccbermuda.bm/Documents/Ferry/Summer%20Ferry%20Schedule%202026.pdf" target="_blank">Summer Schedule 2026</a></li>
+          <li><a href="http://www.rccbermuda.bm/Documents/Ferry/Winter%20Ferry%20Schedule%202025-26.pdf" target="_blank">Winter Schedule 2025-26</a></li>
+        </ul>
+      </li>
+
+      <li id="nav-pilots">
+        <span onclick="showSection('pilots','pilots-about')">Pilot Service</span>
+        <ul class="dropdown">
+          <li><a href="#" onclick="showSection('pilots','pilots-about'); return false;">About Pilot Service</a></li>
+          <li><a href="#" onclick="showSection('pilots','pilots-rates'); return false;">Rate Sheet</a></li>
+        </ul>
+      </li>
+
+      <li id="nav-aton">
+        <span onclick="showSection('aton','aton-about')">Aids to Navigation</span>
+        <ul class="dropdown">
+          <li><a href="#" onclick="showSection('aton','aton-about'); return false;">About AtoN</a></li>
+          <li><a href="http://www.rccbermuda.bm/nav_warnings.aspx" target="_blank">Nav Warnings</a></li>
+        </ul>
+      </li>
+
+      <li id="nav-tugs">
+        <a href="#" onclick="showSection('tugs','tugs-about'); return false;">Tugs</a>
+      </li>
+
+      <li id="nav-links">
+        <a href="#" onclick="showSection('links','links-main'); return false;">Links</a>
+      </li>
+
+      <li id="nav-contact">
+        <a href="#" onclick="showSection('contact','contact-main'); return false;">Contact Us</a>
+      </li>
+
+      <li style="margin-left:auto">
+        <a href="map.html?view=public" style="color:var(--gold)!important;font-weight:700">🗺 Live Map</a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ── NEWS TICKER ───────────────────────────────────────────────────────── -->
+  <div class="ticker-bar">
+    <span class="ticker-label">NEWS</span>
+    <div class="ticker-content">
+      <span id="tickerSpan">
+        📅 ⚓ 2026–2027 Boat &amp; Mooring Licence renewal period is <strong>April 1st – May 31st</strong> &nbsp;|&nbsp;
+        ⛴ 🗓️ Summer Ferry Schedule 2026 now available – click <em>Ferry Service</em> above &nbsp;|&nbsp;
+        🧭 🔭 Bermuda Radio (ZBR) maintains 24-hour watchkeeping on international distress frequencies &nbsp;|&nbsp;
+        🆘 🛟 Maritime emergency? Contact Bermuda Radio on <strong>VHF Ch. 16</strong> or ☎️ (441) 297-1010 &nbsp;|&nbsp;
+        💰 📋 2022/2023 Licensing Fees now in effect – Class A boats from $56.00, Mooring Registration $190.00 &nbsp;|&nbsp;
+        🌊 🚤 Approximately 7,000 private boats are registered in Bermuda &nbsp;|&nbsp;
+        🏝️ ⛵ Sail safely – always wear your lifejacket and file a float plan before heading offshore &nbsp;|&nbsp;
+        🐬 🔔 New boat or mooring? Register online via the <strong>Portal Login</strong> link above
+      </span>
+    </div>
+  </div>
+
+  <!-- ── MAIN BODY ─────────────────────────────────────────────────────────── -->
+  <div class="site-body">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-title" id="sidebarTitle">Navigation</div>
+      <ul id="sidebarLinks"></ul>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <main class="page-content">
+
+      <!-- ════════════════════════════════════════════ HOME ════════════════ -->
+      <section id="sect-home" class="content-section active">
+        <div class="home-hero">
+          <h2>Welcome to Marine &amp; Ports Services</h2>
+          <p>
+            The Department's primary role is to oversee marine affairs in Bermuda.
+            We are responsible for the safe movement of both international shipping
+            and the operation of commercial and recreational boat traffic in local waters.
+            The Department contributes significantly to the public transportation system
+            through the operation of the Ferry Service, while also managing port operations
+            including Pilotage, Tug and Line Boat assistance and maintenance of all
+            marine Aids to Navigation.
+          </p>
+          <div class="cta-row">
+            <a href="register.html" class="btn-cta">⚓ Register Boat / Mooring</a>
+            <button class="btn-cta outline" onclick="openModal('login')" style="color:#fff;border-color:rgba(255,255,255,0.5)">Sign In to Your Account</button>
+            <a href="map.html?view=public" class="btn-cta outline" style="color:#fff;border-color:rgba(255,255,255,0.5)">🗺 View Marine Map</a>
+          </div>
+        </div>
+
+        <div class="alert">
+          <strong>📢 Renewal Notice:</strong> 2026–2027 Boat and Moorings Licence renewal period is <strong>April 1st to May 31st</strong>.
+          All active vessels must be re-licensed annually. <a href="#" onclick="showSection('bam','bam-private'); return false;">Learn more →</a>
+        </div>
+
+        <h2 class="page-title">Our Services</h2>
+        <div class="service-grid">
+          <div class="service-card" onclick="showSection('marops','marops-about')">
+            <div class="sc-icon">📡</div>
+            <div class="sc-title">Maritime Operations Centre</div>
+            <div class="sc-desc">24-hour operational hub, RCC Bermuda, VTS radar surveillance and Bermuda Radio (ZBR).</div>
+          </div>
+          <div class="service-card" onclick="showSection('bam','bam-private')">
+            <div class="sc-icon">🚤</div>
+            <div class="sc-title">Boats &amp; Moorings</div>
+            <div class="sc-desc">Registration, annual licensing, moorings and marine recreation for approx. 7,000 private boats.</div>
+          </div>
+          <div class="service-card" onclick="showSection('ferry','ferry-about')">
+            <div class="sc-icon">⛴</div>
+            <div class="sc-title">Ferry Service</div>
+            <div class="sc-desc">Shorelink fast ferries connecting Hamilton, Dockyard, St. George's and more.</div>
+          </div>
+          <div class="service-card" onclick="showSection('pilots','pilots-about')">
+            <div class="sc-icon">🧭</div>
+            <div class="sc-title">Pilot Service</div>
+            <div class="sc-desc">Branch Pilots guide international shipping safely through Bermuda's narrow channels.</div>
+          </div>
+          <div class="service-card" onclick="showSection('aton','aton-about')">
+            <div class="sc-icon">🔦</div>
+            <div class="sc-title">Aids to Navigation</div>
+            <div class="sc-desc">Maintaining 200+ channel markers, lighthouses, offshore beacons and small boat markers.</div>
+          </div>
+          <div class="service-card" onclick="showSection('tugs','tugs-about')">
+            <div class="sc-icon">🛳</div>
+            <div class="sc-title">Tug Service</div>
+            <div class="sc-desc">Harbour tugs "Powerful", "Faithful" and "Edward M. Stowe" for berthing, salvage &amp; rescue.</div>
+          </div>
+        </div>
+
+        <div class="card-grid" style="margin-top:1.75rem">
+          <div class="info-card">
+            <div class="card-icon">📞</div>
+            <div class="card-title">Emergency Contact</div>
+            <div class="card-body">VHF Channel 16<br>Bermuda Radio ZBR<br><strong>(441) 297-1010</strong></div>
+          </div>
+          <div class="info-card">
+            <div class="card-icon">🏢</div>
+            <div class="card-title">Main Office</div>
+            <div class="card-body">East Broadway, 4 Crow Lane<br>Hamilton HM19<br>(441) 295-6575</div>
+          </div>
+          <div class="info-card">
+            <div class="card-icon">🕐</div>
+            <div class="card-title">Office Hours</div>
+            <div class="card-body">Monday – Friday<br>8:30 am – 4:30 pm<br>Closed public holidays</div>
+          </div>
+          <div class="info-card">
+            <div class="card-icon">⛴</div>
+            <div class="card-title">Ferry Terminal</div>
+            <div class="card-body">Albuoy's Point, Hamilton<br>(441) 295-4506<br>Summer schedule available</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════ MAROPS SECTIONS ══════════ -->
+      <section id="sect-marops" class="content-section">
+        <!-- About MOC -->
+        <div id="marops-about" class="sub-section">
+          <h1 class="page-title">About Maritime Operations Centre</h1>
+          <div class="content-body">
+            <p>The Maritime Operations Centre is the 24-hour operational hub of the Bermuda Government's maritime support program. Various distinct international safety and security responsibilities are overseen from a common facility where the use of specialist marine technology, training and experience all combine to create a high degree of situational awareness, communications connectivity and ultimately — timely decision making to support local and international operations.</p>
+            <h3>Rescue Coordination Centre (RCC Bermuda)</h3>
+            <p>Fulfilling international obligations to mariners and aviators requiring search and rescue support. RCC Bermuda coordinates SAR operations across a large area of the North Atlantic in accordance with international ICAO and IMO standards.</p>
+            <h3>Vessel Traffic Coastal Radar Surveillance (VTS)</h3>
+            <p>This serves as the backbone of the Bermuda Maritime Domain Awareness program and allows radar, AIS, radio direction finding and electronic chart technologies to be combined on one platform to assist border control, search and rescue, environmental protection and port operations.</p>
+            <h3>Coast Radio Station – Bermuda Radio (ZBR)</h3>
+            <p>This marine communications hub is interconnected with other Bermuda public safety agencies and fulfils regional communication obligations under the Global Maritime Distress and Safety System (GMDSS) where Bermuda has declared A1/A2 radio coverage in this area of the Atlantic. 24-hour watchkeeping on international distress frequencies and dissemination of Marine Safety Information — Notices to Mariners, Weather Forecasts and other SAR information — are broadcast around the clock.</p>
+            <h3>406 MHz Beacon Registry</h3>
+            <p>Management of the database holding details on beacons fitted aboard Bermuda vessels and aircraft required to fit COSPAS/SARSAT 406 MHz beacons. This is of direct benefit to RCC operations when an alert is detected and a response must be initiated based upon beacon user information on file.</p>
+            <h3>Long Range Identification and Tracking (LRIT)</h3>
+            <p>The global tracking of ships is an IMO requirement. Oversight of the Bermuda fleet sailing worldwide ensures that equipment faults aboard individual ships are quickly detected, port state compliance issues avoided, and remote monitoring assists in genuine emergencies.</p>
+            <h3>Seaport Security and the ISPS Code</h3>
+            <p>The Centre serves as the Government hub for Bermuda seaport security coordination. Mandatory filing with Bermuda Radio of pre-arrival information from all SOLAS vessels calling at Bermuda is required 48 hours prior to entry into territorial waters.</p>
+            <div class="cta-row">
+              <a href="http://www.rccbermuda.bm/Documents/BMOC/broadcast.schedule.pdf" target="_blank" class="btn-cta">📄 ZBR Broadcast Schedule</a>
+            </div>
+          </div>
+        </div>
+        <!-- SAR -->
+        <div id="marops-sar" class="sub-section" style="display:none">
+          <h1 class="page-title">Search and Rescue</h1>
+          <div class="content-body">
+            <p>RCC Bermuda is responsible for coordinating Search and Rescue operations in a large area of the North Atlantic. The centre operates around the clock and maintains close liaison with the US Coast Guard, RCMP, and other international rescue coordination centres.</p>
+            <p>In the event of a maritime or aeronautical emergency in the Bermuda Search and Rescue region, contact Bermuda Radio on <strong>VHF Channel 16</strong> or telephone <strong>(441) 297-1010</strong>.</p>
+            <div class="cta-row">
+              <a href="http://www.rccbermuda.bm/Documents/BMOC/Bermuda%20SAR%20Operational%20Activation%20flow%20chart%20ANNEX%20A.pdf" target="_blank" class="btn-cta">📄 SAR Organisation Chart</a>
+              <a href="http://www.rccbermuda.bm/Documents/BMOC/SAR%20OPlan%20MAIN%20May%202020.pdf" target="_blank" class="btn-cta">📄 SAR Operations Plan</a>
+              <a href="http://www.rccbermuda.bm/Documents/BMOC/RCC%20BERMUDA%20AND%20US%20COASTGUARD%20SAR%20MOU.pdf" target="_blank" class="btn-cta">📄 MOU with USCG</a>
+            </div>
+          </div>
+        </div>
+        <!-- Seaport Security -->
+        <div id="marops-seaport" class="sub-section" style="display:none">
+          <h1 class="page-title">Seaport Security</h1>
+          <div class="content-body">
+            <p>Bermuda implements the International Ship and Port Facility Security (ISPS) Code at all commercial ports. Each port has an individual security plan and security guard services for cruise terminals is a Government contracted programme.</p>
+            <p>All SOLAS vessels calling at Bermuda must file pre-arrival information with Bermuda Radio a minimum of <strong>48 hours</strong> prior to entry into territorial waters.</p>
+            <p>Security screening of all persons and goods embarking/loaded aboard ship is required under the ISPS Code. Port security certification and oversight is ultimately a UK Government function delegated to the Governor of Bermuda.</p>
+          </div>
+        </div>
+        <!-- VHF -->
+        <div id="marops-vhf" class="sub-section" style="display:none">
+          <h1 class="page-title">VHF Radios / Licensing</h1>
+          <div class="content-body">
+            <p>Marine VHF radios are essential safety equipment for any vessel operating in Bermudian waters. The use of marine VHF radios is regulated and operators must hold an appropriate licence.</p>
+            <h3>Key VHF Channels</h3>
+            <ul>
+              <li><strong>Channel 16</strong> — International distress, safety &amp; calling channel. Always monitored by Bermuda Radio.</li>
+              <li><strong>Channel 27</strong> — Bermuda Radio working channel for routine traffic.</li>
+              <li><strong>Channel 68/69</strong> — Commonly used recreational channels.</li>
+            </ul>
+            <p>For information on obtaining a marine VHF licence, contact the Department at (441) 295-6575 or visit the office at East Broadway, Hamilton.</p>
+          </div>
+        </div>
+        <!-- Weather -->
+        <div id="marops-weather" class="sub-section" style="display:none">
+          <h1 class="page-title">Weather</h1>
+          <div class="content-body">
+            <p>Bermuda Radio broadcasts regular marine weather forecasts on VHF Channel 27 in accordance with the GMDSS broadcast schedule. Forecasts include wind, sea state, visibility and any warnings.</p>
+            <div class="cta-row">
+              <a href="http://www.rccbermuda.bm/Documents/BMOC/broadcast.schedule.pdf" target="_blank" class="btn-cta">📡 ZBR Broadcast Schedule</a>
+              <a href="https://www.weather.bm" target="_blank" class="btn-cta outline">🌤 Bermuda Weather Service</a>
+            </div>
+          </div>
+        </div>
+        <!-- Sailing to Bermuda -->
+        <div id="marops-sailing" class="sub-section" style="display:none">
+          <h1 class="page-title">Sailing to Bermuda</h1>
+          <div class="content-body">
+            <p>Bermuda is a popular waypoint for transatlantic voyages. All visiting yachts must comply with Bermuda Customs and Immigration requirements upon arrival.</p>
+            <h3>Arrival Procedure</h3>
+            <ul>
+              <li>Contact Bermuda Radio on VHF Channel 16 when within 50 miles of Bermuda.</li>
+              <li>Proceed directly to St. George's Harbour (primary Port of Entry for yachts).</li>
+              <li>Do not go ashore until cleared by Customs and Immigration.</li>
+              <li>Fly the yellow (Q) flag until clearance is granted.</li>
+            </ul>
+            <h3>Contacts</h3>
+            <ul>
+              <li>Bermuda Radio: VHF Channel 16 / Tel: (441) 297-1010</li>
+              <li>St. George's Harbour Radio: VHF Channel 16</li>
+              <li>Bermuda Customs: (441) 293-2913</li>
+            </ul>
+          </div>
+        </div>
+        <!-- Events -->
+        <div id="marops-events" class="sub-section" style="display:none">
+          <h1 class="page-title">Upcoming Events</h1>
+          <div class="content-body">
+            <p>Check back regularly for scheduled maritime events, regattas and port operations notices that may affect navigation.</p>
+            <div class="alert"><strong>Current Notice:</strong> 2026–2027 Boat and Moorings Licence renewal period is April 1st to May 31st.</div>
+          </div>
+        </div>
+        <!-- MOC Contact -->
+        <div id="marops-contact" class="sub-section" style="display:none">
+          <h1 class="page-title">Contact Maritime Operations Centre</h1>
+          <div class="content-body">
+            <table class="contact-table">
+              <tr><td>Emergency (24 hr)</td><td>VHF Channel 16 &nbsp;|&nbsp; (441) 297-1010</td></tr>
+              <tr><td>Telephone</td><td>(441) 297-1010</td></tr>
+              <tr><td>Email</td><td><a href="mailto:bermudamoc@gov.bm">bermudamoc@gov.bm</a></td></tr>
+              <tr><td>Address</td><td>Bermuda Maritime Operations Centre, St. David's, Bermuda</td></tr>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════ BAM SECTIONS ══════════════ -->
+      <section id="sect-bam" class="content-section">
+        <!-- Private Boats -->
+        <div id="bam-private" class="sub-section">
+          <h1 class="page-title">Private Boat Registration</h1>
+          <div class="content-body">
+            <p>The Boats and Moorings Section issues initial registrations and annual licensing (including transfer of ownership) for pleasure boats. There are approximately <strong>7,000 private boats</strong> registered in Bermuda.</p>
+            <div class="alert">
+              <strong>Annual Licensing:</strong> All active vessels — punts, kayaks and boats — must be re-licensed annually between <strong>April 1st and May 31st</strong> of each year. "Active" means the boat is in the water or gets put in the water from time to time during the year.
+            </div>
+            <h3>New Boat Registration</h3>
+            <p>After purchasing a brand new boat you are required by law to register it. Visit the Department at East Broadway, Hamilton with proof of purchase and the vessel details.</p>
+            <h3>Transfer of Ownership</h3>
+            <p>Whenever a vessel is sold, the new owner must attend the Department <strong>within 7 days</strong> to transfer title into their name.</p>
+            <h3>Calculating Fees</h3>
+            <p>When calculating boat fees you must use registered foot length as it appears on the Marine and Ports issued boat registration — drop inches, round down to feet only.</p>
+            <div class="cta-row">
+              <a href="register.html" class="btn-cta">📝 Register Online</a>
+              <button class="btn-cta outline" onclick="document.getElementById('feesModal').classList.add('open')">💰 Licensing Fees</button>
+            </div>
+          </div>
+        </div>
+        <!-- Charter -->
+        <div id="bam-charter" class="sub-section" style="display:none">
+          <h1 class="page-title">Island (Charter) Boats</h1>
+          <div class="content-body">
+            <p>The Code of Practice for the inspection and registration of all Island (charter) boats was introduced following consultation with local commercial boat operators. This Code firmly establishes basic safety and operational levels for the industry and ensures a continued improvement in the condition of boats that use Bermuda's local waters.</p>
+            <p>The Code is continuously updated to reflect changing international standards. The most recent amendments include a section for operation and inspection of amphibious vehicles.</p>
+            <div class="cta-row">
+              <a href="http://www.rccbermuda.bm/Documents/BaM/Code%20of%20Practice%20for%20Island%20Boats.pdf" target="_blank" class="btn-cta">📄 Code of Practice for Island Boats</a>
+            </div>
+          </div>
+        </div>
+        <!-- Moorings -->
+        <div id="bam-moorings" class="sub-section" style="display:none">
+          <h1 class="page-title">Getting a Mooring</h1>
+          <div class="content-body">
+            <p>There are 2 ways to acquire a mooring: apply for a new one, or acquire an existing one. Space for new moorings is very limited, with most bays closed due to lack of space.</p>
+            <h3>Acquiring an Existing Mooring</h3>
+            <p>Acquiring an existing mooring means having a current mooring licensee sign their valid licence over to you to put in your name. The method for doing this is on the back of the mooring licence itself.</p>
+            <div class="alert">
+              <strong>Eligibility:</strong> To take a mooring licence you must have a boat registered in your name and cannot have other moorings in excess of boats owned. There is a <strong>$100 transfer fee</strong>. All transfers are subject to approval by the Department.
+            </div>
+            <h3>New Mooring Application</h3>
+            <p>Before issuing an initial mooring licence, the Department inspects the site to ensure the proposed mooring poses no hazard to navigation or to other boats moored nearby.</p>
+            <div class="cta-row">
+              <a href="http://www.rccbermuda.bm/Documents/BaM/Mooring%20Application%20Form%20June%202024.pdf" target="_blank" class="btn-cta">📄 New Mooring Application Form</a>
+              <a href="http://www.rccbermuda.bm/Documents/BaM/Mooring%20Application%20Instructions.pdf" target="_blank" class="btn-cta outline">📋 Application Instructions</a>
+              <a href="http://www.rccbermuda.bm/Documents/BaM/Mooring%20Dispute%20Form.pdf" target="_blank" class="btn-cta outline">⚖ Mooring Dispute Form</a>
+              <a href="https://experience.arcgis.com/experience/9ab66adc4990422bb0668696d88fb62d" target="_blank" class="btn-cta outline">🗺 Moorings Location Map</a>
+            </div>
+          </div>
+        </div>
+        <!-- Wreck Removal -->
+        <div id="bam-wreck" class="sub-section" style="display:none">
+          <h1 class="page-title">Wreck Removal</h1>
+          <div class="content-body">
+            <p>The Boats and Moorings Section, in conjunction with the Aids to Navigation Section, assists with small boat wreck removal around the Island. Wrecks that pose a hazard to navigation are prioritised for removal.</p>
+            <p>If you are the owner of a sunken or abandoned vessel, you are legally obligated to have it removed at your expense. Failure to do so may result in the Department removing the vessel and recovering costs from the registered owner.</p>
+            <p>For queries regarding wreck removal, contact the Boats and Moorings Section at <a href="mailto:boatsandmoorings@gov.bm">boatsandmoorings@gov.bm</a> or call (441) 444-1221.</p>
+          </div>
+        </div>
+        <!-- Recreation -->
+        <div id="bam-recreation" class="sub-section" style="display:none">
+          <h1 class="page-title">Marine Related Recreation</h1>
+          <div class="content-body">
+            <p>Bermuda's waters offer a variety of recreational activities. The Department provides guidance and regulation of marine recreational activities to ensure the safety of all water users.</p>
+            <div class="card-grid">
+              <div class="info-card">
+                <div class="card-icon">🤿</div>
+                <div class="card-title">SCUBA Diving</div>
+                <div class="card-body">World-class wreck diving on over 300 documented wrecks around Bermuda's reefs.</div>
+              </div>
+              <div class="info-card">
+                <div class="card-icon">🎣</div>
+                <div class="card-title">Fishing</div>
+                <div class="card-body">Sport fishing regulations and licencing apply. Bermuda offers excellent deep water sport fishing.</div>
+              </div>
+              <div class="info-card">
+                <div class="card-icon">🏄</div>
+                <div class="card-title">Jet Skiing (PWC)</div>
+                <div class="card-body">Personal watercraft must be registered and operators must follow speed restrictions near shore.</div>
+              </div>
+              <div class="info-card">
+                <div class="card-icon">📻</div>
+                <div class="card-title">VHF Radios</div>
+                <div class="card-body">All vessels are strongly encouraged to carry a VHF radio and monitor Channel 16 at all times.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Forms -->
+        <div id="bam-forms" class="sub-section" style="display:none">
+          <h1 class="page-title">Forms &amp; Applications</h1>
+          <div class="content-body">
+            <ul class="links-list">
+              <li><a href="register.html">Online Boat Registration Form</a></li>
+              <li><a href="http://www.rccbermuda.bm/Documents/BaM/Mooring%20Application%20Form%20June%202024.pdf" target="_blank">New Mooring Application Form (PDF)</a></li>
+              <li><a href="http://www.rccbermuda.bm/Documents/BaM/Mooring%20Application%20Instructions.pdf" target="_blank">Mooring Application Instructions (PDF)</a></li>
+              <li><a href="http://www.rccbermuda.bm/Documents/BaM/Mooring%20Dispute%20Form.pdf" target="_blank">Mooring Dispute Form (PDF)</a></li>
+              <li><a href="http://www.rccbermuda.bm/Documents/BaM/Code%20of%20Practice%20for%20Island%20Boats.pdf" target="_blank">Code of Practice for Island Boats (PDF)</a></li>
+              <li><a href="http://www.rccbermuda.bm/Documents/BaM/2022%20Licensing%20Fees.pdf" target="_blank">2022 Licensing Fees (PDF)</a></li>
+            </ul>
+          </div>
+        </div>
+        <!-- BAM Contact -->
+        <div id="bam-contact" class="sub-section" style="display:none">
+          <h1 class="page-title">Contact Boats &amp; Moorings</h1>
+          <div class="content-body">
+            <table class="contact-table">
+              <tr><td>Telephone</td><td>(441) 444-1221 &nbsp;|&nbsp; (441) 246-8222</td></tr>
+              <tr><td>Fax</td><td>(441) 295-5523</td></tr>
+              <tr><td>Email</td><td><a href="mailto:boatsandmoorings@gov.bm">boatsandmoorings@gov.bm</a></td></tr>
+              <tr><td>Address</td><td>East Broadway, 4 Crow Lane, Hamilton HM19</td></tr>
+              <tr><td>Hours</td><td>Monday – Friday, 8:30 am – 4:30 pm</td></tr>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════ FERRY ══════════════════════ -->
+      <section id="sect-ferry" class="content-section">
+        <div id="ferry-about" class="sub-section">
+          <h1 class="page-title">Shorelink Ferry Service</h1>
+          <div class="content-body">
+            <p>Traveling by ferry in Bermuda is an excellent way to get around. The fast ferries are clean, spacious, air-conditioned and efficient. One of the highlights of traveling by ferry is the opportunity to see Bermuda's beauty from a different vantage point.</p>
+            <p>The main ferry terminal is located at <strong>Albuoy's Point in Hamilton</strong>. For further information please call Hamilton Terminal <strong>(441) 295-4506</strong>.</p>
+            <div class="cta-row">
+              <a href="http://www.rccbermuda.bm/Documents/Ferry/Summer%20Ferry%20Schedule%202026.pdf" target="_blank" class="btn-cta">☀ Summer Ferry Schedule 2026</a>
+              <a href="http://www.rccbermuda.bm/Documents/Ferry/Winter%20Ferry%20Schedule%202025-26.pdf" target="_blank" class="btn-cta outline">❄ Winter Schedule 2025–26</a>
+            </div>
+          </div>
+        </div>
+        <div id="ferry-routes" class="sub-section" style="display:none">
+          <h1 class="page-title">Routes &amp; Terminals</h1>
+          <div class="content-body">
+            <div class="card-grid">
+              <div class="info-card">
+                <div class="card-icon">🟦</div>
+                <div class="card-title">Blue Route</div>
+                <div class="card-body">Hamilton ↔ Dockyard (Royal Naval Dockyard). Fast ferry via Great Sound.</div>
+              </div>
+              <div class="info-card">
+                <div class="card-icon">🟩</div>
+                <div class="card-title">Green Route</div>
+                <div class="card-body">Hamilton ↔ Paget ↔ Warwick. Local service on Hamilton Harbour.</div>
+              </div>
+              <div class="info-card">
+                <div class="card-icon">🟥</div>
+                <div class="card-title">Pink Route</div>
+                <div class="card-body">Hamilton ↔ Rockaway ↔ Dockyard. Stops at several Southshore points.</div>
+              </div>
+              <div class="info-card">
+                <div class="card-icon">🟧</div>
+                <div class="card-title">Orange Route</div>
+                <div class="card-body">Hamilton ↔ St. George's. Eastern end of the island service.</div>
+              </div>
+            </div>
+            <table class="contact-table" style="margin-top:1rem">
+              <tr><td>Hamilton Terminal</td><td>Albuoy's Point, Hamilton — (441) 295-4506</td></tr>
+              <tr><td>Dockyard Terminal</td><td>Royal Naval Dockyard, Sandys</td></tr>
+              <tr><td>St. George's</td><td>White's Island / Ferry Terminal, St. George's</td></tr>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════ PILOTS ════════════════════ -->
+      <section id="sect-pilots" class="content-section">
+        <div id="pilots-about" class="sub-section">
+          <h1 class="page-title">Pilot Service</h1>
+          <div class="content-body">
+            <p>This Section provides Branch Pilots to assist international shipping to safely navigate Bermuda's narrow channels. Transit of Bermuda's channels is limited to daylight hours only, however night pilotage does take place on a limited basis in cases where ships on passage may divert to Bermuda with medical cases onboard, or where ships alongside at the ESSO Oil Docks complete their cargo discharge and are able to shift to anchor in Murray's Anchorage.</p>
+            <div class="cta-row">
+              <a href="#" onclick="showSection('pilots','pilots-rates'); return false;" class="btn-cta">💰 View Rate Sheet</a>
+            </div>
+          </div>
+        </div>
+        <div id="pilots-rates" class="sub-section" style="display:none">
+          <h1 class="page-title">Pilot Dues – Rate Sheet</h1>
+          <div class="content-body">
+            <p>Pilot dues are charged per metre or draft (minimum draft 3 metres). The following rates are effective <strong>1st April 2023</strong>.</p>
+            <table class="contact-table">
+              <tr><td>St. Georges / Esso Oil Docks / Five Fathom Hole</td><td>$151 per metre</td></tr>
+              <tr><td>Dockyard / Grassy Bay</td><td>$211 per metre</td></tr>
+              <tr><td>Hamilton / Great Sound / Port Royal Bay</td><td>$225 per metre</td></tr>
+              <tr><td>Port to port shift</td><td>$151 per metre</td></tr>
+              <tr><td>Shift within port</td><td>$103 per metre</td></tr>
+              <tr><td>Pilot detention</td><td>$123 per hour</td></tr>
+            </table>
+            <p style="margin-top:0.75rem;font-size:0.82rem;color:var(--muted)">All rates subject to 100% surcharge on weekends, public holidays and between 4:30 pm and 8:00 am Monday–Friday.</p>
+            <div class="cta-row">
+              <a href="http://www.rccbermuda.bm/Documents/BMOC/Marine%20and%20Ports%20Tariff.pdf" target="_blank" class="btn-cta">📄 Full Tariff PDF</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════ ATON ════════════════════ -->
+      <section id="sect-aton" class="content-section">
+        <div id="aton-about" class="sub-section">
+          <h1 class="page-title">Aids to Navigation</h1>
+          <div class="content-body">
+            <p>The Aids to Navigation Section continues to do outstanding work maintaining some <strong>200 channel markers</strong>, the lighthouses, offshore beacons and small boat markers to international standards.</p>
+            <p>The section also assists with small boat wreck removal around the Island and with minor dredging works.</p>
+            <div class="card-grid">
+              <div class="info-card">
+                <div class="card-icon">🔦</div>
+                <div class="card-title">Lighthouses</div>
+                <div class="card-body">Gibbs Hill Lighthouse (1846), St. David's Lighthouse and other navigational lights maintained year-round.</div>
+              </div>
+              <div class="info-card">
+                <div class="card-icon">🚧</div>
+                <div class="card-title">Channel Markers</div>
+                <div class="card-body">200+ buoys and markers maintained to IALA standards across all approach channels.</div>
+              </div>
+              <div class="info-card">
+                <div class="card-icon">⚠</div>
+                <div class="card-title">Nav Warnings</div>
+                <div class="card-body">Notices to Mariners issued regularly by Bermuda Radio. Check before every voyage.</div>
+              </div>
+            </div>
+            <div class="cta-row">
+              <a href="http://www.rccbermuda.bm/nav_warnings.aspx" target="_blank" class="btn-cta">📡 Navigational Warnings</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════ TUGS ════════════════════ -->
+      <section id="sect-tugs" class="content-section">
+        <div id="tugs-about" class="sub-section">
+          <h1 class="page-title">Tug Service</h1>
+          <div class="content-body">
+            <p>The Tug Service provides assistance to International Shipping and particularly to cruise ships and tankers in berthing, un-berthing and towing within local waters. It also provides limited towing and assistance to stranded vessels around Bermuda and offshore Rescue and Salvage.</p>
+            <div class="card-grid">
+              <div class="info-card">
+                <div class="card-icon">🛳</div>
+                <div class="card-title">Tug Powerful</div>
+                <div class="card-body">Large harbour tug with limited offshore capability. Can supply fuel, water and supplies. Advanced fire fighting and oil recovery capability.</div>
+              </div>
+              <div class="info-card">
+                <div class="card-icon">🛳</div>
+                <div class="card-title">Tug Faithful</div>
+                <div class="card-body">Large harbour tug with automatic towing winch and oil-dispersing booms. Can proceed to sea in favourable conditions.</div>
+              </div>
+              <div class="info-card">
+                <div class="card-icon">🛳</div>
+                <div class="card-title">Edward M. Stowe</div>
+                <div class="card-body">Medium tug operating as harbour tug with long range for SAR and ocean towing. Advanced fire-fighting capability.</div>
+              </div>
+            </div>
+            <h3>Employment</h3>
+            <p>Employment opportunities in tug service range from Seaman/Leading Seaman who handle lines on deck, and Tug Engineers assisted by Oilers who operate the mechanical and electrical plant. The Tug Pilot/Captain is in charge of the tug overall. Work hours are Monday through Friday 0830 to 1630 and may include weekends and overtime.</p>
+            <div class="cta-row">
+              <a href="http://www.rccbermuda.bm/Documents/BMOC/Ministry%20of%20Transport%20-%20TUG%20Faithful%20and%20Powerful%20Particulars.pdf" target="_blank" class="btn-cta">📄 Tug Faithful &amp; Powerful Particulars</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════ LINKS ════════════════════ -->
+      <section id="sect-links" class="content-section">
+        <div id="links-main" class="sub-section">
+          <h1 class="page-title">Relevant Links</h1>
+          <div class="content-body">
+            <ul class="links-list">
+              <li><a href="http://ais.marops.bm:82/ais/" target="_blank">BMOC AIS Webserver — Live vessel tracking</a></li>
+              <li><a href="http://www.rccbermuda.bm/legislation.aspx" target="_blank">Marine Legislation (Bermuda)</a></li>
+              <li><a href="http://bermudamaritimeacademy.com/" target="_blank">Bermuda Maritime Academy</a></li>
+              <li><a href="http://www.bermudashipping.bm/" target="_blank">Bermuda Shipping Registry</a></li>
+              <li><a href="https://www.imo.org/" target="_blank">International Maritime Organisation (IMO)</a></li>
+              <li><a href="http://www.rccbermuda.bm/Documents/Legals/Overview%20of%20Maritime%20Administration.pdf" target="_blank">Overview of Maritime Administration in Bermuda (PDF)</a></li>
+              <li><a href="http://www.rccbermuda.bm/Documents/BMOC/Ministry%20of%20Transport%20-%20Pati%20Information%20Statement%20(January%202022).pdf" target="_blank">Ministry of Transport – PATI Information Statement 2022 (PDF)</a></li>
+              <li><a href="https://www.gov.bm" target="_blank">Government of Bermuda (gov.bm)</a></li>
+              <li><a href="https://www.weather.bm" target="_blank">Bermuda Weather Service</a></li>
+              <li><a href="https://experience.arcgis.com/experience/9ab66adc4990422bb0668696d88fb62d" target="_blank">Marine &amp; Ports Moorings Location Map (ArcGIS)</a></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════ CONTACT ══════════════════ -->
+      <section id="sect-contact" class="content-section">
+        <div id="contact-main" class="sub-section">
+          <h1 class="page-title">Contact Us</h1>
+          <div class="content-body">
+            <h3>Department of Marine &amp; Ports Services</h3>
+            <table class="contact-table">
+              <tr><td>Mailing Address</td><td>East Broadway, 4 Crow Lane, Hamilton HM19, Bermuda</td></tr>
+              <tr><td>Telephone</td><td>(441) 295-6575 &nbsp;|&nbsp; (441) 294-4453</td></tr>
+              <tr><td>Fax</td><td>(441) 295-5523</td></tr>
+              <tr><td>Boats &amp; Moorings</td><td>(441) 444-1221 &nbsp;|&nbsp; (441) 246-8222</td></tr>
+              <tr><td>B&amp;M Email</td><td><a href="mailto:boatsandmoorings@gov.bm">boatsandmoorings@gov.bm</a></td></tr>
+              <tr><td>24-hr Emergency</td><td>VHF Channel 16 &nbsp;|&nbsp; (441) 297-1010</td></tr>
+              <tr><td>Office Hours</td><td>Monday – Friday, 8:30 am – 4:30 pm</td></tr>
+            </table>
+            <h3 style="margin-top:1.5rem">Quick Actions</h3>
+            <div class="cta-row">
+              <a href="register.html" class="btn-cta">📝 Register Boat / Mooring</a>
+              <button class="btn-cta outline" onclick="openModal('login')">🔑 Sign In</button>
+              <a href="map.html?view=public" class="btn-cta outline">🗺 View Marine Map</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div><!-- /.site-body -->
+
+  <!-- ── FOOTER ─────────────────────────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-inner">
+      <div>
+        <h4>⚓ Marine &amp; Ports Services</h4>
+        <p>East Broadway, 4 Crow Lane<br>Hamilton HM19, Bermuda<br>Tel: (441) 295-6575</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="#" onclick="showSection('bam','bam-private'); return false;">Private Boat Registration</a></li>
+          <li><a href="#" onclick="showSection('bam','bam-moorings'); return false;">Moorings</a></li>
+          <li><a href="#" onclick="showSection('ferry','ferry-about'); return false;">Ferry Service</a></li>
+          <li><a href="#" onclick="showSection('marops','marops-sar'); return false;">Search &amp; Rescue</a></li>
+          <li><a href="#" onclick="showSection('links','links-main'); return false;">Relevant Links</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Online Services</h4>
+        <ul>
+          <li><a href="register.html">Register / Create Account</a></li>
+          <li><a href="#" onclick="openModal('login'); return false;">Sign In</a></li>
+          <li><a href="map.html?view=public">Live Marine Map</a></li>
+          <li><a href="admin.html">Admin Panel</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Emergency</h4>
+        <p style="line-height:1.8">
+          VHF Channel 16<br>
+          Bermuda Radio ZBR<br>
+          <strong style="color:#fff">(441) 297-1010</strong><br>
+          <span style="font-size:0.72rem;opacity:0.7">24 hours · 7 days a week</span>
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Department of Marine &amp; Ports Services, Government of Bermuda. All rights reserved.</span>
+      <span><a href="#" onclick="showSection('contact','contact-main'); return false;">Contact Us</a></span>
+    </div>
+  </footer>
+
+  <!-- ── AUTH MODAL ─────────────────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal-box">
+      <div class="modal-tabs">
+        <div class="modal-tab active" id="tabLogin" onclick="switchTab('login')">Sign In</div>
+        <div class="modal-tab" id="tabRegister" onclick="window.location.href='register.html'">Register</div>
+        <button class="modal-close-btn" onclick="closeModal()" style="margin-left:auto;margin-right:0.75rem">✕</button>
+      </div>
+      <div class="modal-panel active" id="panelLogin">
+        <h3>Sign in to your account</h3>
+        <div class="form-row">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" placeholder="you@example.bm" autocomplete="username" />
+        </div>
+        <div class="form-row">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" />
+        </div>
+        <div id="loginError" style="color:#c0392b;font-size:0.8rem;margin-bottom:0.5rem;display:none"></div>
+        <button class="btn-submit-modal" onclick="doLogin()">Sign In</button>
+        <div class="modal-note">
+          Don't have an account? <a href="register.html">Register here</a>.<br>
+          For assistance contact <a href="mailto:boatsandmoorings@gov.bm">boatsandmoorings@gov.bm</a>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Ticker: apply admin-saved items if present ────────────────────────────
+    (function() {
+      const stored = localStorage.getItem('mp_admin_ticker');
+      if (stored) {
+        try {
+          const items = JSON.parse(stored);
+          if (Array.isArray(items) && items.length) {
+            document.getElementById('tickerSpan').textContent = items.join(' \u00a0|\u00a0 ');
+          }
+        } catch(e) { /* ignore corrupt data */ }
+      }
+    })();
+
+    // ── Site navigation – sidebar config per section ──────────────────────────
+    const API_BASE = window.API_BASE;
+
+    const SECTIONS = {
+      home:    { title: 'Marine & Ports', subs: [] },
+      marops:  { title: 'Maritime Operations', subs: [
+        { id: 'marops-about',   label: 'About MOC' },
+        { id: 'marops-sar',     label: 'Search & Rescue' },
+        { id: 'marops-seaport', label: 'Seaport Security' },
+        { id: 'marops-vhf',     label: 'VHF Radios / Licensing' },
+        { id: 'marops-weather', label: 'Weather' },
+        { id: 'marops-sailing', label: 'Sailing to Bermuda' },
+        { id: 'marops-events',  label: 'Upcoming Events' },
+        { id: 'marops-contact', label: 'Contact MOC' },
+      ]},
+      bam:     { title: 'Boats & Moorings', subs: [
+        { id: 'bam-private',    label: 'Private Boats' },
+        { id: 'bam-charter',    label: 'Charter Boats' },
+        { id: 'bam-moorings',   label: 'Moorings' },
+        { id: 'bam-wreck',      label: 'Wreck Removal' },
+        { id: 'bam-recreation', label: 'Marine Recreation' },
+        { id: 'bam-forms',      label: 'Forms & Applications' },
+        { id: 'bam-contact',    label: 'Contact B&M' },
+      ]},
+      ferry:   { title: 'Ferry Service', subs: [
+        { id: 'ferry-about',  label: 'About the Service' },
+        { id: 'ferry-routes', label: 'Routes & Terminals' },
+      ]},
+      pilots:  { title: 'Pilot Service', subs: [
+        { id: 'pilots-about', label: 'About Pilot Service' },
+        { id: 'pilots-rates', label: 'Rate Sheet' },
+      ]},
+      aton:    { title: 'Aids to Navigation', subs: [
+        { id: 'aton-about', label: 'About AtoN' },
+      ]},
+      tugs:    { title: 'Tug Service', subs: [
+        { id: 'tugs-about', label: 'About Tugs' },
+      ]},
+      links:   { title: 'Links', subs: [
+        { id: 'links-main', label: 'Relevant Links' },
+      ]},
+      contact: { title: 'Contact Us', subs: [
+        { id: 'contact-main', label: 'Contact Us' },
+      ]},
+    };
+
+    let currentSection = 'home';
+    let currentSub     = '';
+
+    function showSection(section, subId) {
+      // Hide all sections
+      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+      // Show target
+      const sect = document.getElementById('sect-' + section);
+      if (!sect) return;
+      sect.classList.add('active');
+      currentSection = section;
+
+      // Show correct sub-section
+      const cfg = SECTIONS[section];
+      if (cfg && cfg.subs.length > 0) {
+        const firstSub = subId || cfg.subs[0].id;
+        sect.querySelectorAll('.sub-section').forEach(s => s.style.display = 'none');
+        const target = document.getElementById(firstSub);
+        if (target) target.style.display = 'block';
+        currentSub = firstSub;
+        updateSidebar(section, firstSub);
+      } else {
+        updateSidebar(section, '');
+      }
+
+      // Update active nav item
+      document.querySelectorAll('#primaryNav li').forEach(li => li.classList.remove('active'));
+      const navItem = document.getElementById('nav-' + section);
+      if (navItem) navItem.classList.add('active');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateSidebar(section, activeSub) {
+      const cfg = SECTIONS[section];
+      const sidebarEl = document.getElementById('sidebar');
+      const bodyEl    = document.querySelector('.site-body');
+      if (!cfg || cfg.subs.length === 0) {
+        sidebarEl.style.display = 'none';
+        bodyEl.classList.remove('has-sidebar');
+        return;
+      }
+      sidebarEl.style.display = '';
+      bodyEl.classList.add('has-sidebar');
+      document.getElementById('sidebarTitle').textContent = cfg.title;
+      const ul = document.getElementById('sidebarLinks');
+      ul.innerHTML = cfg.subs.map(s => `
+        <li><a href="#" class="${s.id === activeSub ? 'active' : ''}"
+               onclick="showSubSection('${section}','${s.id}'); return false;">${s.label}</a></li>
+      `).join('');
+    }
+
+    function showSubSection(section, subId) {
+      const sect = document.getElementById('sect-' + section);
+      if (!sect) return;
+      sect.querySelectorAll('.sub-section').forEach(s => s.style.display = 'none');
+      const target = document.getElementById(subId);
+      if (target) target.style.display = 'block';
+      currentSub = subId;
+      // Update sidebar active state
+      document.querySelectorAll('#sidebarLinks a').forEach(a => {
+        a.classList.toggle('active', a.textContent.trim() ===
+          (SECTIONS[section].subs.find(s => s.id === subId) || {}).label);
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Fees modal ────────────────────────────────────────────────────────────
+    document.getElementById('feesModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('feesModal')) document.getElementById('feesModal').classList.remove('open');
+    });
+
+    // ── Auth modal ────────────────────────────────────────────────────────────
+    function openModal(tab) {
+      document.getElementById('authModal').classList.add('open');
+      document.getElementById('loginEmail').focus();
+    }
+    function closeModal() {
+      document.getElementById('authModal').classList.remove('open');
+    }
+    function switchTab(tab) { /* only login for now, register redirects */ }
+    document.getElementById('authModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('authModal')) closeModal();
+    });
+
+    // ── Login call ────────────────────────────────────────────────────────────
+    async function doLogin() {
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errEl    = document.getElementById('loginError');
+      errEl.style.display = 'none';
+
+      if (!email || !password) {
+        errEl.textContent = 'Please enter your email and password.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      try {
+        const res  = await fetch(`${API_BASE}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          errEl.textContent = data.message || 'Login failed.';
+          errEl.style.display = 'block';
+          return;
+        }
+
+        sessionStorage.setItem('mp_token',    data.token);
+        sessionStorage.setItem('mp_role',     data.role);
+        sessionStorage.setItem('mp_fullName', data.fullName);
+        sessionStorage.setItem('mp_userId',   data.userId);
+
+        closeModal();
+        const dest = data.role === 'Admin' ? 'admin.html' : 'map.html';
+        window.location.href = dest;
+      } catch {
+        errEl.textContent = 'Unable to connect to the server. Please try again.';
+        errEl.style.display = 'block';
+      }
+    }
+
+    // Allow Enter key in login form
+    ['loginEmail','loginPassword'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') doLogin();
+      });
+    });
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    showSection('home', '');
+  </script>
+</body>
+</html>
