@@ -101,9 +101,11 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Auto-run any pending EF Core migrations on startup.
-using (var scope = app.Services.CreateScope())
+// Auto-run migrations in Development only. In Production the database is
+// already migrated; running migrations via a pooled connection is unsupported.
+if (app.Environment.IsDevelopment())
 {
+    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
