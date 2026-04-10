@@ -320,6 +320,7 @@
     </p>
   </div><!-- /.card -->
 
+  <script src="config.js"></script>
   <script>
     /**
      * Marine & Ports Registration System – Registration Page JS
@@ -333,7 +334,7 @@
      */
 
     // ── Configuration ─────────────────────────────────────────────────────────
-    const API_BASE = 'http://localhost:5000';  // Change port if needed
+    const API_BASE = window.API_BASE || 'http://localhost:5000';
 
     // ── DOM references ────────────────────────────────────────────────────────
     const form         = document.getElementById('registrationForm');

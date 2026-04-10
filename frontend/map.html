@@ -77,6 +77,7 @@
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="config.js"></script>
 
   <script>
     /**
@@ -89,7 +90,7 @@
      * 5. Adds a colour legend.
      */
 
-    const API_BASE = 'http://localhost:5000';
+    const API_BASE = window.API_BASE || 'http://localhost:5000';
 
     // ── Auth guard ────────────────────────────────────────────────────────────
     const token    = sessionStorage.getItem('mp_token');

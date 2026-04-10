@@ -146,6 +146,7 @@
     </p>
   </div>
 
+  <script src="config.js"></script>
   <script>
     /**
      * Marine & Ports – Login Page JS
@@ -153,7 +154,7 @@
      * then redirects to the map dashboard on success.
      */
 
-    const API_BASE  = 'http://localhost:5000';
+    const API_BASE  = window.API_BASE || 'http://localhost:5000';
     const form      = document.getElementById('loginForm');
     const submitBtn = document.getElementById('submitBtn');
     const banner    = document.getElementById('statusBanner');

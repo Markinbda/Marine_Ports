@@ -291,6 +291,7 @@
 
   <div id="toast"></div>
 
+  <script src="config.js"></script>
   <script>
     /**
      * Marine & Ports – Admin Panel JS
@@ -300,7 +301,7 @@
      * Shows a bootstrap panel when no admin account exists yet.
      */
 
-    const API_BASE = 'http://localhost:5000';
+    const API_BASE = window.API_BASE || 'http://localhost:5000';
 
     // ── Auth ──────────────────────────────────────────────────────────────────
     const token    = sessionStorage.getItem('mp_token');
