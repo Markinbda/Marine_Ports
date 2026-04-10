@@ -13,10 +13,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://localhost:5000");
 
 // ─── Database ────────────────────────────────────────────────────────────────
-// Uses SQLite for local development. Swap connection string for SQL Server/Postgres
-// in appsettings.Production.json when deploying.
+// Resolve the Supabase hostname to an IPv4 address so the connection works on
+// hosts that don't support IPv6 outbound (e.g. Render free tier).
+var rawConnStr = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("DefaultConnection is not configured.");
+
+var hostMatch = System.Text.RegularExpressions.Regex.Match(rawConnStr, @"Host=([^;]+)");
+if (hostMatch.Success)
+{
+    var hostname = hostMatch.Groups[1].Value;
+    var ipv4 = (await System.Net.Dns.GetHostAddressesAsync(hostname))
+        .FirstOrDefault(a => a.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+    if (ipv4 != null)
+        rawConnStr = rawConnStr.Replace($"Host={hostname}", $"Host={ipv4}");
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(rawConnStr));
 
 // ─── JWT Authentication ───────────────────────────────────────────────────────
 // Tokens are signed with the secret key defined in appsettings.json.
