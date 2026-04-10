@@ -7,10 +7,10 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Explicitly bind to port 5000 so the URL is consistent regardless of
-// whether launchSettings.json is picked up by the host environment.
-// The ASPNETCORE_URLS environment variable (if set) takes precedence.
-builder.WebHost.UseUrls("http://localhost:5000");
+// Bind to 0.0.0.0 so Render can reach the port. Use $PORT if set (Render),
+// otherwise fall back to 5000 for local dev.
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // ─── Database ────────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
