@@ -3,6 +3,7 @@ using System;
 using MarinePorts.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MarinePorts.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260410104245_StripArcGisPrefixFromMooringNumber")]
+    partial class StripArcGisPrefixFromMooringNumber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -180,6 +183,7 @@ namespace MarinePorts.API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("RegistrationNumber")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("RegistrationYear")
@@ -196,8 +200,7 @@ namespace MarinePorts.API.Migrations
                     b.HasIndex("AppUserId");
 
                     b.HasIndex("RegistrationNumber")
-                        .IsUnique()
-                        .HasFilter("\"RegistrationNumber\" IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("Boats");
                 });

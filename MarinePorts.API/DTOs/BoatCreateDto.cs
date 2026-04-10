@@ -4,11 +4,11 @@ namespace MarinePorts.API.DTOs;
 
 /// <summary>
 /// Payload for creating or updating a boat registration.
-/// Used by both the authenticated user endpoint and the admin endpoint.
+/// Matches the official Dept. of Marine &amp; Ports Boat Registration Form.
 /// </summary>
 public class BoatCreateDto
 {
-    [Required(ErrorMessage = "Registration number is required.")]
+    // ── Identity ──────────────────────────────────────────────────────────────
     [StringLength(50)]
     public string RegistrationNumber { get; set; } = string.Empty;
 
@@ -20,23 +20,42 @@ public class BoatCreateDto
     [StringLength(150)]
     public string BoatName { get; set; } = string.Empty;
 
-    /// <summary>e.g. Dinghy, Sailboat, Motorboat, Yacht, Fishing Vessel</summary>
-    [StringLength(80)]
-    public string BoatType { get; set; } = string.Empty;
-
-    /// <summary>Length in feet – determines the colour code on the map.</summary>
-    [Required(ErrorMessage = "Boat length is required.")]
-    [Range(0.1, 2000, ErrorMessage = "Length must be between 0.1 and 2000 feet.")]
+    // ── Dimensions ────────────────────────────────────────────────────────────
+    [Required(ErrorMessage = "Boat length (feet) is required.")]
+    [Range(0.1, 2000)]
     public double LengthFeet { get; set; }
 
-    [Required(ErrorMessage = "Latitude is required.")]
-    [Range(-90, 90, ErrorMessage = "Latitude must be between -90 and 90.")]
-    public double Latitude { get; set; }
+    [Range(0, 11)] public int? LengthInches  { get; set; }
+    [Range(0, 999)] public int? BeamFeet     { get; set; }
+    [Range(0, 11)] public int? BeamInches    { get; set; }
+    [Range(0, 999)] public int? DraughtFeet  { get; set; }
+    [Range(0, 11)] public int? DraughtInches { get; set; }
 
-    [Required(ErrorMessage = "Longitude is required.")]
-    [Range(-180, 180, ErrorMessage = "Longitude must be between -180 and 180.")]
-    public double Longitude { get; set; }
+    // ── Colours ───────────────────────────────────────────────────────────────
+    [StringLength(50)] public string? ColorCabin    { get; set; }
+    [StringLength(50)] public string? ColorDecks    { get; set; }
+    [StringLength(50)] public string? ColorHull     { get; set; }
+    [StringLength(50)] public string? ColorBootLine { get; set; }
+    [StringLength(50)] public string? ColorBottom   { get; set; }
 
-    /// <summary>Relative URL populated after a successful photo upload, e.g. /images/boats/abc.jpg</summary>
+    // ── Description ───────────────────────────────────────────────────────────
+    [StringLength(80)]  public string  BoatType   { get; set; } = string.Empty;
+    [StringLength(100)] public string? Make       { get; set; }
+    [StringLength(100)] public string? WhereBuilt { get; set; }
+    [StringLength(80)]  public string? HullNumber { get; set; }
+    [StringLength(80)]  public string? Material   { get; set; }
+    [Range(1800, 2100)] public int?    YearBuilt  { get; set; }
+
+    // ── Engine ────────────────────────────────────────────────────────────────
+    [StringLength(50)]  public string? EngineType      { get; set; }
+    [StringLength(100)] public string? EngineMake      { get; set; }
+    [StringLength(100)] public string? EngineSerialVin { get; set; }
+    [Range(0, 10000)]   public double? PowerHp         { get; set; }
+    [StringLength(20)]  public string? Fuel             { get; set; }
+
+    // ── Location ──────────────────────────────────────────────────────────────
+    [Range(-90, 90)]   public double Latitude  { get; set; }
+    [Range(-180, 180)] public double Longitude { get; set; }
+
     public string? PhotoUrl { get; set; }
 }

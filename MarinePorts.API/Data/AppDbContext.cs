@@ -12,9 +12,11 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     // ── Entity sets ───────────────────────────────────────────────────────────
-    public DbSet<AppUser> Users    { get; set; }
-    public DbSet<Boat>    Boats    { get; set; }
-    public DbSet<Mooring> Moorings { get; set; }
+    public DbSet<AppUser>       Users           { get; set; }
+    public DbSet<Boat>          Boats           { get; set; }
+    public DbSet<Mooring>       Moorings        { get; set; }
+    public DbSet<Sector>        Sectors         { get; set; }
+    public DbSet<MooringRequest> MooringRequests { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -25,10 +27,11 @@ public class AppDbContext : DbContext
             .HasIndex(u => u.Email)
             .IsUnique();
 
-        // Enforce unique registration numbers for boats.
+        // Enforce unique registration numbers for boats (only when a number is assigned).
         modelBuilder.Entity<Boat>()
             .HasIndex(b => b.RegistrationNumber)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"RegistrationNumber\" IS NOT NULL");
 
         // Enforce unique mooring numbers.
         modelBuilder.Entity<Mooring>()
@@ -49,5 +52,19 @@ public class AppDbContext : DbContext
             .HasForeignKey(m => m.AppUserId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // A user can submit many mooring requests.
+        modelBuilder.Entity<MooringRequest>()
+            .HasOne(r => r.AppUser)
+            .WithMany(u => u.MooringRequests)
+            .HasForeignKey(r => r.AppUserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // A sector can have many mooring requests.
+        modelBuilder.Entity<MooringRequest>()
+            .HasOne(r => r.Sector)
+            .WithMany(s => s.MooringRequests)
+            .HasForeignKey(r => r.SectorId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

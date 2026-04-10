@@ -44,8 +44,11 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
 
         // Prevent public registration of Admin accounts – security boundary.
-        if (dto.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+        if (!string.IsNullOrEmpty(dto.Role) && dto.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
             return BadRequest(new { message = "Admin accounts cannot be self-registered." });
+
+        // Default role to BoatOwner when not specified
+        var assignedRole = string.IsNullOrWhiteSpace(dto.Role) ? "BoatOwner" : dto.Role;
 
         // Check for duplicate email (enforced at DB level too, but we surface a friendly message).
         bool emailTaken = await _db.Users.AnyAsync(u => u.Email == dto.Email.ToLower());
@@ -58,7 +61,8 @@ public class AuthController : ControllerBase
 
         var user = new AppUser
         {
-            FullName                     = dto.FullName.Trim(),
+            FirstName                    = dto.FirstName.Trim(),
+            LastName                     = dto.LastName.Trim(),
             Email                        = dto.Email.Trim().ToLower(),
             PasswordHash                 = passwordHash,
             PhoneNumber                  = dto.PhoneNumber.Trim(),
@@ -66,10 +70,10 @@ public class AuthController : ControllerBase
             AddressLine2                 = dto.AddressLine2.Trim(),
             Parish                       = dto.Parish.Trim(),
             OrganisationName             = dto.OrganisationName?.Trim(),
-            GovernmentIdOrLicenceNumber  = dto.GovernmentIdOrLicenceNumber.Trim(),
-            Role                         = dto.Role,
+            GovernmentIdOrLicenceNumber  = dto.GovernmentIdOrLicenceNumber?.Trim() ?? string.Empty,
+            Role                         = assignedRole,
             RegisteredAt                 = DateTime.UtcNow,
-            IsApproved                   = false   // Awaits administrator approval
+            IsApproved                   = true
         };
 
         _db.Users.Add(user);
@@ -77,7 +81,7 @@ public class AuthController : ControllerBase
 
         return CreatedAtAction(nameof(Register), new
         {
-            message    = "Registration successful. Your account is pending approval by the Port Authority.",
+            message    = "Registration successful. You can now sign in to your account.",
             userId     = user.Id,
             isApproved = user.IsApproved
         });

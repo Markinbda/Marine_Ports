@@ -37,6 +37,61 @@
     }
     .btn-sm:hover { background: rgba(255,255,255,0.27); }
 
+    /* ── Tariff Modal ─────────────────────────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); z-index: 9999;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 10px;
+      width: min(680px, 95vw); max-height: 88vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+      background: linear-gradient(135deg, #0d3b66, #1a6fa8);
+      color: #fff; padding: 1rem 1.4rem;
+      border-radius: 10px 10px 0 0;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+    }
+    .modal-header h2 { font-size: 1rem; line-height: 1.4; }
+    .modal-header .modal-close {
+      background: none; border: none; color: #fff;
+      font-size: 1.4rem; cursor: pointer; line-height: 1;
+      opacity: 0.8; flex-shrink: 0;
+    }
+    .modal-header .modal-close:hover { opacity: 1; }
+    .modal-body { overflow-y: auto; padding: 1.25rem 1.4rem; }
+    .tariff-section { margin-bottom: 1.4rem; }
+    .tariff-section h3 {
+      font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.8px;
+      color: #0d3b66; border-bottom: 2px solid #0d3b66;
+      padding-bottom: 0.3rem; margin-bottom: 0.6rem;
+    }
+    .tariff-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .tariff-table td { padding: 0.35rem 0.5rem; vertical-align: top; }
+    .tariff-table td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }
+    .tariff-table tr:nth-child(even) td { background: #f5f8fc; }
+    .tariff-note {
+      font-size: 0.78rem; color: #555; font-style: italic;
+      background: #fffbea; border-left: 3px solid #f0c040;
+      padding: 0.5rem 0.75rem; border-radius: 0 4px 4px 0;
+      margin-top: 0.5rem;
+    }
+    .modal-footer {
+      padding: 0.75rem 1.4rem;
+      border-top: 1px solid #e5e7eb;
+      text-align: right;
+    }
+    .modal-footer button {
+      background: #0d3b66; color: #fff;
+      border: none; border-radius: 6px;
+      padding: 0.45rem 1.1rem; cursor: pointer; font-size: 0.88rem;
+    }
+    .modal-footer button:hover { background: #1a6fa8; }
+
     /* ── Layout ───────────────────────────────────────────────────────────── */
     .page { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
 
@@ -139,6 +194,24 @@
     .btn-revoke   { background: #FF9800; color: #fff; }
     .btn-delete   { background: #f44336; color: #fff; }
     .btn-admin    { background: #7c4dff; color: #fff; }
+    .btn-edit     { background: #1a6fa8; color: #fff; }
+
+    /* ── Edit User Modal ─────────────────────────────────────────────────── */
+    #editUserModal .modal-box { max-width: 560px; }
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem 1rem;
+    }
+    .edit-grid .full { grid-column: 1 / -1; }
+    .edit-grid label { font-size: 0.8rem; color: #555; font-weight: 600; display: block; margin-bottom: 0.2rem; }
+    .edit-grid input, .edit-grid select {
+      width: 100%; padding: 0.45rem 0.65rem;
+      border: 1.5px solid #ccd6e0; border-radius: 6px;
+      font-size: 0.88rem; outline: none; box-sizing: border-box;
+    }
+    .edit-grid input:focus, .edit-grid select:focus { border-color: #1a6fa8; }
+    .edit-approved { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; }
 
     /* ── Toast ────────────────────────────────────────────────────────────── */
     #toast {
@@ -178,11 +251,45 @@
     }
     .btn-bootstrap:hover { background: #bf360c; }
 
+    /* ── Tabs ─────────────────────────────────────────────────────────────── */
+    .tabs {
+      display: flex; gap: 0; border-bottom: 2px solid #dce6f0;
+      margin-bottom: 1.5rem; background: #fff;
+      border-radius: 10px 10px 0 0; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .tab-btn {
+      padding: 0.85rem 1.75rem; cursor: pointer;
+      border: none; background: #fff;
+      font-size: 0.9rem; font-weight: 600; color: #666;
+      border-bottom: 3px solid transparent;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+      margin-bottom: -2px;
+    }
+    .tab-btn:hover { color: #1a6fa8; background: #f0f7ff; }
+    .tab-btn.active { color: #0d3b66; border-bottom-color: #1a6fa8; background: #f0f7ff; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
     /* ── Empty state ──────────────────────────────────────────────────────── */
     .empty { padding: 2.5rem; text-align: center; color: #aaa; font-size: 0.9rem; }
 
     /* ── Spinner ──────────────────────────────────────────────────────────── */
     .loading { padding: 2rem; text-align: center; color: #777; }
+
+    /* ── Import bar ──────────────────────────────────────────────────────── */
+    .import-bar {
+      padding: 0.75rem 1.5rem;
+      background: #e8f5e9; border-bottom: 1px solid #c8e6c9;
+      display: flex; align-items: center; gap: 1rem; font-size: 0.85rem; flex-wrap: wrap;
+    }
+    .import-bar span { color: #2e7d32; font-weight: 600; }
+    .btn-import {
+      padding: 0.4rem 1rem; border-radius: 6px;
+      background: #1a6fa8; color: #fff;
+      border: none; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+    }
+    .btn-import:hover { background: #0d3b66; }
 
     @media (max-width: 600px) {
       .stats { grid-template-columns: 1fr 1fr; }
@@ -196,10 +303,159 @@
     <div class="brand">⚓ Marine &amp; Ports – Admin Panel</div>
     <div class="header-right">
       <span id="adminName"></span>
+      <button class="btn-sm" id="tariffBtn">📋 Tariff</button>
       <a href="map.html" class="btn-sm">Map</a>
       <button class="btn-sm" id="logoutBtn">Sign Out</button>
     </div>
   </header>
+
+  <!-- ── Edit User Modal ────────────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="editUserModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>✏️ Edit User Profile</h2>
+        <button class="modal-close" onclick="closeEditModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="euId" />
+        <div class="edit-grid">
+          <div>
+            <label>First Name</label>
+            <input type="text" id="euFirstName" />
+          </div>
+          <div>
+            <label>Last Name</label>
+            <input type="text" id="euLastName" />
+          </div>
+          <div class="full">
+            <label>Email</label>
+            <input type="email" id="euEmail" />
+          </div>
+          <div>
+            <label>Phone Number</label>
+            <input type="text" id="euPhone" />
+          </div>
+          <div>
+            <label>Parish</label>
+            <input type="text" id="euParish" />
+          </div>
+          <div class="full">
+            <label>Address Line 1</label>
+            <input type="text" id="euAddr1" />
+          </div>
+          <div class="full">
+            <label>Address Line 2</label>
+            <input type="text" id="euAddr2" />
+          </div>
+          <div class="full">
+            <label>Organisation Name</label>
+            <input type="text" id="euOrg" />
+          </div>
+          <div class="full">
+            <label>Govt ID / Licence Number</label>
+            <input type="text" id="euGovId" />
+          </div>
+          <div>
+            <label>Role</label>
+            <select id="euRole">
+              <option value="BoatOwner">Boat Owner</option>
+              <option value="MooringOwner">Mooring Owner</option>
+              <option value="PortAuthority">Port Authority</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding-top:1.5rem;">
+            <input type="checkbox" id="euApproved" style="width:auto;" />
+            <label for="euApproved" style="margin:0;font-size:0.88rem;">Account Approved</label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="euSaveBtn" style="background:#1a6fa8;color:#fff;border:none;padding:0.55rem 1.4rem;border-radius:6px;font-size:0.9rem;font-weight:700;cursor:pointer;">Save Changes</button>
+        <button onclick="closeEditModal()" style="margin-left:0.5rem;padding:0.55rem 1rem;border-radius:6px;border:1.5px solid #ccd6e0;background:#fff;font-size:0.9rem;cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tariff Modal ──────────────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="tariffModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>⚓ Dept. of Marine &amp; Ports — Services New Tariff<br><small style="font-weight:400;opacity:0.85">Effective 1st April 2023</small></h2>
+        <button class="modal-close" id="tariffClose">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="tariff-section">
+          <h3>1 — Workboats (Basic Hourly Rate)</h3>
+          <table class="tariff-table">
+            <tr><td>Workboat</td><td>$525</td></tr>
+            <tr><td>Line boat</td><td>$525</td></tr>
+            <tr><td>Pilot Boat <em>(min. 2 hrs for transfers &amp; medicos)</em></td><td>$568</td></tr>
+            <tr><td>Buoy Tender</td><td>$657</td></tr>
+            <tr><td>Somerset Ferries</td><td>$657</td></tr>
+            <tr><td>Paget/Warwick Ferries</td><td>$525</td></tr>
+            <tr><td>350 Passenger Ferries</td><td>$767</td></tr>
+            <tr><td>250/177 Passenger Ferries</td><td>$767</td></tr>
+          </table>
+        </div>
+
+        <div class="tariff-section">
+          <h3>2 — Tug Service</h3>
+          <table class="tariff-table">
+            <tr><td>Berthing &amp; Unberthing movement</td><td>$1,531</td></tr>
+            <tr><td>Tug hourly rate</td><td>$931</td></tr>
+          </table>
+        </div>
+
+        <div class="tariff-section">
+          <h3>3 — Tender Service</h3>
+          <table class="tariff-table">
+            <tr><td>Per round trip to cruise vessel at anchor</td><td>$1,531</td></tr>
+            <tr><td>Per round trip to cruise vessel at Dockyard</td><td>$1,475</td></tr>
+            <tr><td>Hourly charter rate <em>(minimum 4 hours – Local Cruises)</em></td><td>$970</td></tr>
+          </table>
+          <div class="tariff-note">Note 1: All above rates are subject to 100% surcharge on weekends, public holidays and between 4:30 pm and 8:00 am Monday – Friday.</div>
+          <div class="tariff-note">Note 2: Cruise ships are subject to a minimum of three (3) round trips for the first twelve (12) hour period or a minimum of five (5) round trips in any twenty four (24) hour period.</div>
+        </div>
+
+        <div class="tariff-section">
+          <h3>4 — Off Shore Towage, Salvage</h3>
+          <table class="tariff-table">
+            <tr><td>Tug hourly rate</td><td>$1,537</td></tr>
+            <tr><td>Tender hourly rate</td><td>$1,405</td></tr>
+            <tr><td>Buoy tender</td><td>$863</td></tr>
+            <tr><td>Pilot boat</td><td>$767</td></tr>
+          </table>
+        </div>
+
+        <div class="tariff-section">
+          <h3>5 — Port Dues</h3>
+          <table class="tariff-table">
+            <tr><td>Minimum charge up to and including 100 metres length</td><td>$648</td></tr>
+            <tr><td>Over 100 metres (rate per metre thereafter)</td><td>$15.05</td></tr>
+          </table>
+          <div class="tariff-note">Note 3: After paying in full port dues for ten (10) consecutive days a 10% reduction may be applied for the remainder of the call.</div>
+        </div>
+
+        <div class="tariff-section">
+          <h3>6 — Pilot Dues per Metre or Draft <small style="text-transform:none;font-size:0.75rem">(minimum draft 3 metres)</small></h3>
+          <table class="tariff-table">
+            <tr><td>St. Georges / Esso Oil Docks / Five Fathom Hole</td><td>$151</td></tr>
+            <tr><td>Dockyard / Grassy Bay</td><td>$211</td></tr>
+            <tr><td>Hamilton / Great Sound / Port Royal Bay</td><td>$225</td></tr>
+            <tr><td>Port to port shift</td><td>$151</td></tr>
+            <tr><td>Shift within port</td><td>$103</td></tr>
+            <tr><td>Pilot detention (per hour)</td><td>$123</td></tr>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button id="tariffCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
 
   <div class="page">
 
@@ -240,50 +496,169 @@
       </div>
     </div>
 
-    <!-- ── Users table ────────────────────────────────────────────────────── -->
-    <div class="section">
-      <div class="section-head">
-        <h2>Registered Users</h2>
-        <button class="btn-sm" id="refreshBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">↻ Refresh</button>
-      </div>
+    <!-- ── Tabs ─────────────────────────────────────────────────────────── -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('users')">👥 Users</button>
+      <button class="tab-btn" onclick="showTab('moorings')">⚓ Moorings</button>
+      <button class="tab-btn" onclick="showTab('boats')">🚤 Boats</button>
+      <button class="tab-btn" onclick="showTab('ticker')">📢 Ticker</button>
+    </div>
 
-      <div class="filter-bar">
-        <input type="text" id="searchInput" placeholder="Search name or email…" style="width:220px;" />
-        <select id="filterStatus">
-          <option value="">All statuses</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-        </select>
-        <select id="filterRole">
-          <option value="">All roles</option>
-          <option value="Admin">Admin</option>
-          <option value="PortAuthority">Port Authority</option>
-          <option value="BoatOwner">Boat Owner</option>
-          <option value="MooringOwner">Mooring Owner</option>
-        </select>
-      </div>
+    <!-- ── Users panel ────────────────────────────────────────────────────── -->
+    <div id="tab-users" class="tab-panel active">
+      <div class="section">
+        <div class="section-head">
+          <h2>Registered Users</h2>
+          <button class="btn-sm" id="refreshBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">↻ Refresh</button>
+        </div>
 
-      <div class="tbl-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Full Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Parish</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Registered</th>
-              <th>Boats</th>
-              <th>Moorings</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="usersTbody">
-            <tr><td colspan="11" class="loading">Loading users…</td></tr>
-          </tbody>
-        </table>
+        <div class="filter-bar">
+          <input type="text" id="searchInput" placeholder="Search name or email…" style="width:220px;" />
+          <select id="filterStatus">
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+          </select>
+          <select id="filterRole">
+            <option value="">All roles</option>
+            <option value="Admin">Admin</option>
+            <option value="PortAuthority">Port Authority</option>
+            <option value="BoatOwner">Boat Owner</option>
+            <option value="MooringOwner">Mooring Owner</option>
+          </select>
+        </div>
+
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Phone</th>
+                <th>Parish</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Registered</th>
+                <th>Boats</th>
+                <th>Moorings</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTbody">
+              <tr><td colspan="10" class="loading">Loading users…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Moorings panel ─────────────────────────────────────────────────── -->
+    <div id="tab-moorings" class="tab-panel">
+      <div class="section">
+        <div class="section-head">
+          <h2>All Moorings</h2>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="btn-sm" id="refreshMooringsBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="import-bar">
+          <span>📡 ArcGIS Public Dataset (Government of Bermuda, 2014)</span>
+          <button class="btn-import" id="loadArcGisBtn">Load Moorings from ArcGIS</button>
+          <span id="arcgisStatus" style="color:#555;font-weight:normal;"></span>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="mooringSearch" placeholder="Search reg # or colour…" style="width:220px;" />
+          <select id="mooringFilter">
+            <option value="">All sources</option>
+            <option value="arcgis">ArcGIS (Public)</option>
+            <option value="local">Registered Users</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Reg #</th>
+                <th>Colour</th>
+                <th>Status</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Owner</th>
+                <th>Source</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="mooringsTbody">
+              <tr><td colspan="8" class="empty">Click "Load Moorings from ArcGIS" to import, or refresh to load registered moorings.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Boats panel ────────────────────────────────────────────────────── -->
+    <div id="tab-boats" class="tab-panel">
+      <div class="section">
+        <div class="section-head">
+          <h2>All Boats</h2>
+          <button class="btn-sm" id="refreshBoatsBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">↻ Refresh</button>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="boatSearch" placeholder="Search reg # or name…" style="width:220px;" />
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Reg #</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Length (ft)</th>
+                <th>Owner</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Registered</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="boatsTbody">
+              <tr><td colspan="9" class="loading">Loading boats…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    </div>
+
+    <!-- ── Ticker panel ─────────────────────────────────────────── -->
+    <div id="tab-ticker" class="tab-panel">
+      <div class="section">
+        <div class="section-head"><h2>📢 News Ticker Display</h2></div>
+        <p style="font-size:0.85rem;color:#555;margin-bottom:1rem">
+          Edit the scrolling news ticker shown at the top of the public website. Each item is separated by a pipe <code> | </code> divider. Use plain text — HTML tags are not supported.
+        </p>
+
+        <div style="margin-bottom:0.75rem">
+          <label style="font-size:0.82rem;font-weight:700;color:#0d3b66;display:block;margin-bottom:0.35rem">Ticker Items (one per line)</label>
+          <textarea id="tickerEditor"
+            style="width:100%;height:260px;font-size:0.84rem;font-family:monospace;padding:0.7rem;border:1.5px solid #c7d9f5;border-radius:6px;resize:vertical;line-height:1.7"
+            placeholder="Enter each ticker item on its own line…"></textarea>
+        </div>
+
+        <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
+          <button class="btn-sm" id="tickerSaveBtn" style="background:#0d3b66;color:#fff;border-color:#0d3b66;padding:0.45rem 1.2rem">✅ Save &amp; Apply</button>
+          <button class="btn-sm" id="tickerResetBtn" style="border-color:#e53935;color:#e53935">&#x21BA; Reset to Default</button>
+          <span id="tickerSaveMsg" style="font-size:0.8rem;color:#2e7d32;display:none">Saved!</span>
+        </div>
+
+        <div style="margin-top:1.25rem">
+          <label style="font-size:0.82rem;font-weight:700;color:#0d3b66;display:block;margin-bottom:0.5rem">Live Preview</label>
+          <div style="background:#003366;padding:0.4rem 0.75rem;border-radius:6px;overflow:hidden;white-space:nowrap">
+            <span style="color:#c8a84b;font-weight:700;font-size:0.78rem;margin-right:0.75rem">NEWS</span>
+            <span id="tickerPreviewText" style="color:#fff;font-size:0.82rem"></span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -308,6 +683,13 @@
     const fullName = sessionStorage.getItem('mp_fullName') || '';
 
     document.getElementById('adminName').textContent = fullName;
+
+    // ── Tariff modal ──────────────────────────────────────────────────────────
+    const tariffModal = document.getElementById('tariffModal');
+    document.getElementById('tariffBtn').addEventListener('click', () => tariffModal.classList.add('open'));
+    document.getElementById('tariffClose').addEventListener('click', () => tariffModal.classList.remove('open'));
+    document.getElementById('tariffCloseBtn').addEventListener('click', () => tariffModal.classList.remove('open'));
+    tariffModal.addEventListener('click', e => { if (e.target === tariffModal) tariffModal.classList.remove('open'); });
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
       sessionStorage.clear();
@@ -380,7 +762,7 @@
         }
 
         allUsers = await res.json();
-        updateStats(allUsers);
+        await updateStats(allUsers);
         renderTable(allUsers);
 
       } catch (e) {
@@ -390,12 +772,19 @@
     }
 
     // ── Stats ─────────────────────────────────────────────────────────────────
-    function updateStats(users) {
+    async function updateStats(users) {
       document.getElementById('statTotal').textContent    = users.length;
       document.getElementById('statPending').textContent  = users.filter(u => !u.isApproved).length;
       document.getElementById('statApproved').textContent = users.filter(u => u.isApproved).length;
       document.getElementById('statBoats').textContent    = users.reduce((s, u) => s + (u.boatCount || 0), 0);
-      document.getElementById('statMoorings').textContent = users.reduce((s, u) => s + (u.mooringCount || 0), 0);
+      // Get total moorings count from DB (includes ArcGIS imports)
+      try {
+        const res  = await fetch(`${API_BASE}/api/admin/moorings`, { headers: authHeaders() });
+        const data = await res.json();
+        document.getElementById('statMoorings').textContent = (data.length || 0).toLocaleString();
+      } catch {
+        document.getElementById('statMoorings').textContent = users.reduce((s, u) => s + (u.mooringCount || 0), 0);
+      }
     }
 
     // ── Render ────────────────────────────────────────────────────────────────
@@ -417,7 +806,7 @@
       });
 
       if (!filtered.length) {
-        tbody.innerHTML = '<tr><td colspan="11" class="empty">No users match the current filter.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="empty">No users match the current filter.</td></tr>';
         return;
       }
 
@@ -425,7 +814,6 @@
         <tr data-id="${u.id}">
           <td>${u.id}</td>
           <td><strong>${esc(u.fullName)}</strong><br><small style="color:#888">${esc(u.organisationName || '')}</small></td>
-          <td>${esc(u.email)}</td>
           <td>${esc(u.phoneNumber)}</td>
           <td>${esc(u.parish)}</td>
           <td>${roleBadge(u.role)}</td>
@@ -456,6 +844,52 @@
     );
 
     // ── Actions ───────────────────────────────────────────────────────────────
+    // ── Edit User Modal ────────────────────────────────────────────────────────
+    function openEditModal(id) {
+      const u = allUsers.find(x => x.id === id);
+      if (!u) return;
+      document.getElementById('euId').value        = u.id;
+      document.getElementById('euFirstName').value = u.firstName || '';
+      document.getElementById('euLastName').value  = u.lastName  || '';
+      document.getElementById('euEmail').value     = u.email || '';
+      document.getElementById('euPhone').value     = u.phoneNumber || '';
+      document.getElementById('euParish').value    = u.parish || '';
+      document.getElementById('euAddr1').value     = u.addressLine1 || '';
+      document.getElementById('euAddr2').value     = u.addressLine2 || '';
+      document.getElementById('euOrg').value       = u.organisationName || '';
+      document.getElementById('euGovId').value     = u.governmentIdOrLicenceNumber || '';
+      document.getElementById('euRole').value      = u.role || 'BoatOwner';
+      document.getElementById('euApproved').checked = u.isApproved;
+      document.getElementById('editUserModal').classList.add('open');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editUserModal').classList.remove('open');
+    }
+
+    document.getElementById('euSaveBtn').addEventListener('click', async () => {
+      const id = parseInt(document.getElementById('euId').value);
+      const body = {
+        firstName:                   document.getElementById('euFirstName').value.trim(),
+        lastName:                    document.getElementById('euLastName').value.trim(),
+        email:                       document.getElementById('euEmail').value.trim(),
+        phoneNumber:                 document.getElementById('euPhone').value.trim(),
+        parish:                      document.getElementById('euParish').value.trim(),
+        addressLine1:                document.getElementById('euAddr1').value.trim(),
+        addressLine2:                document.getElementById('euAddr2').value.trim(),
+        organisationName:            document.getElementById('euOrg').value.trim(),
+        governmentIdOrLicenceNumber: document.getElementById('euGovId').value.trim(),
+        role:                        document.getElementById('euRole').value,
+        isApproved:                  document.getElementById('euApproved').checked
+      };
+      const res = await apiCall('PUT', `/api/admin/users/${id}`, body);
+      if (res) {
+        toast('ok', res.message);
+        closeEditModal();
+        loadUsers();
+      }
+    });
+
     async function approveUser(id) {
       const res = await apiCall(`PUT`, `/api/admin/users/${id}/approve`);
       if (res) { toast('ok', res.message); loadUsers(); }
@@ -525,6 +959,261 @@
       el.textContent = msg;
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => { el.className = ''; }, 3500);
+    }
+
+    // ── Tab switching ──────────────────────────────────────────────────────────
+    function showTab(name) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        if (b.textContent.toLowerCase().includes(name)) b.classList.add('active');
+      });
+      if (name === 'moorings') loadMoorings();
+      if (name === 'boats')    loadBoats();
+      if (name === 'ticker')   initTickerTab();
+    }
+
+    // ── Ticker tab ──────────────────────────────────────────────────────────────
+    const DEFAULT_TICKER_ITEMS = [
+      '📅 ⚓ 2026–2027 Boat & Mooring Licence renewal period is April 1st – May 31st',
+      '⛴ 🗓️ Summer Ferry Schedule 2026 now available – click Ferry Service above',
+      '🧭 🔭 Bermuda Radio (ZBR) maintains 24-hour watchkeeping on international distress frequencies',
+      '🆘 🛡 Maritime emergency? Contact Bermuda Radio on VHF Ch. 16 or ☏️ (441) 297-1010',
+      '💰 📋 2022/2023 Licensing Fees now in effect – Class A boats from $56.00, Mooring Registration $190.00',
+      '🌊 🚤 Approximately 7,000 private boats are registered in Bermuda',
+      '🏕️ ⛵ Sail safely – always wear your lifejacket and file a float plan before heading offshore',
+      '🐬 🔔 New boat or mooring? Register online via the Portal Login link above'
+    ];
+    const TICKER_KEY = 'mp_admin_ticker';
+
+    function initTickerTab() {
+      const stored = localStorage.getItem(TICKER_KEY);
+      const items  = stored ? JSON.parse(stored) : DEFAULT_TICKER_ITEMS;
+      document.getElementById('tickerEditor').value = items.join('\n');
+      updateTickerPreview(items);
+    }
+
+    function updateTickerPreview(items) {
+      document.getElementById('tickerPreviewText').textContent = items.join(' \u00a0|  ');
+    }
+
+    document.getElementById('tickerSaveBtn').addEventListener('click', () => {
+      const raw   = document.getElementById('tickerEditor').value;
+      const items = raw.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+      localStorage.setItem(TICKER_KEY, JSON.stringify(items));
+      updateTickerPreview(items);
+      applyTickerToPage(items);
+      const msg = document.getElementById('tickerSaveMsg');
+      msg.style.display = 'inline';
+      setTimeout(() => msg.style.display = 'none', 2500);
+    });
+
+    document.getElementById('tickerResetBtn').addEventListener('click', () => {
+      if (!confirm('Reset ticker to default content?')) return;
+      localStorage.removeItem(TICKER_KEY);
+      document.getElementById('tickerEditor').value = DEFAULT_TICKER_ITEMS.join('\n');
+      updateTickerPreview(DEFAULT_TICKER_ITEMS);
+    });
+
+    function applyTickerToPage(items) {
+      // Saves to localStorage so index.html can pick it up on next load
+      // (index.html checks for mp_admin_ticker on startup)
+      toast('ok', 'Ticker saved. Reload the public site to see changes.');
+    }
+
+    // ── ARCGIS Mooring data ───────────────────────────────────────────────────
+    const ARCGIS_URL = 'https://services.arcgis.com/cP7zZzgbHVl9p7UQ/arcgis/rest/services/Mooring_Buoys_Poles_publish/FeatureServer/0/query';
+    let arcgisMoorings = [];
+    let localMoorings  = [];
+
+    document.getElementById('loadArcGisBtn').addEventListener('click', loadArcGisMoorings);
+    document.getElementById('refreshMooringsBtn').addEventListener('click', loadMoorings);
+    document.getElementById('refreshBoatsBtn').addEventListener('click', loadBoats);
+    document.getElementById('mooringSearch').addEventListener('input', renderMoorings);
+    document.getElementById('mooringFilter').addEventListener('change', renderMoorings);
+    document.getElementById('boatSearch').addEventListener('input', renderBoats);
+
+    async function loadArcGisMoorings() {
+      const statusEl = document.getElementById('arcgisStatus');
+      const btn      = document.getElementById('loadArcGisBtn');
+      btn.disabled   = true;
+      statusEl.textContent = 'Loading…';
+      arcgisMoorings = [];
+      let offset = 0;
+      const pageSize = 1000;
+      try {
+        while (true) {
+          const url = `${ARCGIS_URL}?where=1%3D1&outFields=OBJECTID,MooringRegNo,Colour,MooringStatus&outSR=4326&f=json&resultOffset=${offset}&resultRecordCount=${pageSize}`;
+          const res  = await fetch(url);
+          const data = await res.json();
+          if (!data.features || !data.features.length) break;
+          data.features.forEach(f => {
+            const rawReg = (f.attributes.MooringRegNo || '').trim();
+            // Use OBJECTID as synthetic key for blank/missing reg numbers
+            const regNo = rawReg || `ARCGIS-${f.attributes.OBJECTID}`;
+            arcgisMoorings.push({
+              regNo,
+              colour: f.attributes.Colour || '–',
+              status: f.attributes.MooringStatus === 1 ? 'Registered' :
+                      f.attributes.MooringStatus === 2 ? 'Unregistered' : 'Illegible',
+              lat:    f.geometry ? f.geometry.y.toFixed(5) : '–',
+              lon:    f.geometry ? f.geometry.x.toFixed(5) : '–',
+              source: 'arcgis'
+            });
+          });
+          if (!data.exceededTransferLimit) break;
+          offset += pageSize;
+        }
+        statusEl.textContent = `✓ ${arcgisMoorings.length.toLocaleString()} moorings loaded from ArcGIS — saving to database…`;
+        statusEl.style.color = '#1a6fa8';
+
+        // Save to Supabase via bulk-import (skips duplicates)
+        try {
+          const importRes  = await fetch(`${API_BASE}/api/admin/moorings/bulk-import`, {
+            method:  'POST',
+            headers: authHeaders(),
+            body:    JSON.stringify(arcgisMoorings.map(m => ({
+              regNo:  m.regNo,
+              colour: m.colour,
+              status: m.status,
+              lat:    parseFloat(m.lat) || 0,
+              lon:    parseFloat(m.lon) || 0
+            })))
+          });
+          const importData = await importRes.json();
+          statusEl.textContent = `✓ ${arcgisMoorings.length.toLocaleString()} loaded — ${importData.imported} new saved, ${importData.skipped} already existed. Total in DB: ${importData.totalMoorings.toLocaleString()}`;
+          statusEl.style.color = '#2e7d32';
+          document.getElementById('statMoorings').textContent = importData.totalMoorings.toLocaleString();
+        } catch (err) {
+          statusEl.textContent = `✓ ${arcgisMoorings.length.toLocaleString()} displayed (DB save failed: ${err.message || err})`;
+          statusEl.style.color = '#e65100';
+        }
+      } catch (err) {
+        statusEl.textContent = 'Failed to load ArcGIS data.';
+        statusEl.style.color = '#c62828';
+      }
+      btn.disabled = false;
+      renderMoorings();
+    }
+
+    async function loadMoorings() {
+      if (!token || role !== 'Admin') return;
+      const tbody = document.getElementById('mooringsTbody');
+      tbody.innerHTML = '<tr><td colspan="8" class="loading">Loading registered moorings…</td></tr>';
+      try {
+        const res  = await fetch(`${API_BASE}/api/admin/moorings`, { headers: authHeaders() });
+        const data = await res.json();
+        localMoorings = (data || []).map(m => ({
+          id:     m.id,
+          regNo:  m.mooringNumber,
+          colour: '–',
+          status: 'Registered (Local)',
+          lat:    m.latitude  ? m.latitude.toFixed(5)  : '–',
+          lon:    m.longitude ? m.longitude.toFixed(5) : '–',
+          owner:  m.ownerName,
+          source: 'local'
+        }));
+      } catch {
+        localMoorings = [];
+      }
+      renderMoorings();
+    }
+
+    function renderMoorings() {
+      const tbody  = document.getElementById('mooringsTbody');
+      const search = document.getElementById('mooringSearch').value.toLowerCase();
+      const filter = document.getElementById('mooringFilter').value;
+
+      let combined = [...arcgisMoorings, ...localMoorings];
+
+      if (filter === 'arcgis') combined = combined.filter(m => m.source === 'arcgis');
+      if (filter === 'local')  combined = combined.filter(m => m.source === 'local');
+      if (search) combined = combined.filter(m =>
+        (m.regNo  || '').toLowerCase().includes(search) ||
+        (m.colour || '').toLowerCase().includes(search) ||
+        (m.owner  || '').toLowerCase().includes(search)
+      );
+
+      if (!combined.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">No moorings found. Click "Load Moorings from ArcGIS" to import public data.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = combined.map(m => `
+        <tr>
+          <td><strong>${esc(m.regNo)}</strong></td>
+          <td>${esc(m.colour)}</td>
+          <td>${esc(m.status)}</td>
+          <td>${m.lat}</td>
+          <td>${m.lon}</td>
+          <td>${esc(m.owner || '–')}</td>
+          <td><span class="badge ${m.source === 'arcgis' ? 'role-port' : 'role-moor'}">${m.source === 'arcgis' ? 'ArcGIS' : 'Registered'}</span></td>
+          <td>${m.source === 'local' ? `<button class="btn-action btn-delete" onclick="deleteMooring(${m.id})">Delete</button>` : '–'}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function deleteMooring(id) {
+      if (!confirm('Delete this mooring record?')) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/moorings/${id}`, { method: 'DELETE', headers: authHeaders() });
+        if (res.status === 204) { toast('ok', 'Mooring deleted.'); loadMoorings(); }
+        else toast('err', 'Delete failed.');
+      } catch { toast('err', 'Server error.'); }
+    }
+
+    // ── Boats ─────────────────────────────────────────────────────────────────
+    let allBoats = [];
+
+    async function loadBoats() {
+      if (!token || role !== 'Admin') return;
+      const tbody = document.getElementById('boatsTbody');
+      tbody.innerHTML = '<tr><td colspan="9" class="loading">Loading boats…</td></tr>';
+      try {
+        const res  = await fetch(`${API_BASE}/api/admin/boats`, { headers: authHeaders() });
+        allBoats   = await res.json() || [];
+      } catch {
+        allBoats = [];
+      }
+      renderBoats();
+    }
+
+    function renderBoats() {
+      const tbody  = document.getElementById('boatsTbody');
+      const search = document.getElementById('boatSearch').value.toLowerCase();
+      let filtered = allBoats.filter(b =>
+        !search ||
+        (b.registrationNumber || '').toLowerCase().includes(search) ||
+        (b.boatName           || '').toLowerCase().includes(search) ||
+        (b.ownerName          || '').toLowerCase().includes(search)
+      );
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty">No boats found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = filtered.map(b => `
+        <tr>
+          <td><strong>${esc(b.registrationNumber)}</strong></td>
+          <td>${esc(b.boatName)}</td>
+          <td>${esc(b.boatType)}</td>
+          <td>${b.lengthFeet ?? '–'}</td>
+          <td>${esc(b.ownerName)}</td>
+          <td>${b.latitude  ? b.latitude.toFixed(5)  : '–'}</td>
+          <td>${b.longitude ? b.longitude.toFixed(5) : '–'}</td>
+          <td>${fmtDate(b.registeredAt)}</td>
+          <td><button class="btn-action btn-delete" onclick="deleteBoat(${b.id})">Delete</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function deleteBoat(id) {
+      if (!confirm('Delete this boat record?')) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/boats/${id}`, { method: 'DELETE', headers: authHeaders() });
+        if (res.status === 204) { toast('ok', 'Boat deleted.'); loadBoats(); }
+        else toast('err', 'Delete failed.');
+      } catch { toast('err', 'Server error.'); }
     }
 
     // ── Init ──────────────────────────────────────────────────────────────────

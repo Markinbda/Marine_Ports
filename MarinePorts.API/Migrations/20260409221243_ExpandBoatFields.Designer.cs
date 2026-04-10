@@ -3,6 +3,7 @@ using System;
 using MarinePorts.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MarinePorts.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260409221243_ExpandBoatFields")]
+    partial class ExpandBoatFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -180,10 +183,8 @@ namespace MarinePorts.API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("RegistrationNumber")
+                        .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("RegistrationYear")
-                        .HasColumnType("integer");
 
                     b.Property<string>("WhereBuilt")
                         .HasColumnType("text");
@@ -196,8 +197,7 @@ namespace MarinePorts.API.Migrations
                     b.HasIndex("AppUserId");
 
                     b.HasIndex("RegistrationNumber")
-                        .IsUnique()
-                        .HasFilter("\"RegistrationNumber\" IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("Boats");
                 });
@@ -236,9 +236,6 @@ namespace MarinePorts.API.Migrations
                     b.Property<DateTime>("RegisteredAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("RegistrationYear")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Source")
                         .HasColumnType("text");
 
@@ -250,89 +247,6 @@ namespace MarinePorts.API.Migrations
                         .IsUnique();
 
                     b.ToTable("Moorings");
-                });
-
-            modelBuilder.Entity("MarinePorts.API.Models.MooringRequest", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AppUserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ContactPhone")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double>("Latitude")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("Longitude")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("text");
-
-                    b.Property<string>("OwnerName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("RequestedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("ReviewedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("SectorId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.HasIndex("SectorId");
-
-                    b.ToTable("MooringRequests");
-                });
-
-            modelBuilder.Entity("MarinePorts.API.Models.Sector", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<double>("CenterLat")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("CenterLng")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("ContactEmail")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsFull")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Parish")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Zoom")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Sectors");
                 });
 
             modelBuilder.Entity("MarinePorts.API.Models.Boat", b =>
@@ -356,37 +270,11 @@ namespace MarinePorts.API.Migrations
                     b.Navigation("AppUser");
                 });
 
-            modelBuilder.Entity("MarinePorts.API.Models.MooringRequest", b =>
-                {
-                    b.HasOne("MarinePorts.API.Models.AppUser", "AppUser")
-                        .WithMany("MooringRequests")
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MarinePorts.API.Models.Sector", "Sector")
-                        .WithMany("MooringRequests")
-                        .HasForeignKey("SectorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
-
-                    b.Navigation("Sector");
-                });
-
             modelBuilder.Entity("MarinePorts.API.Models.AppUser", b =>
                 {
                     b.Navigation("Boats");
 
-                    b.Navigation("MooringRequests");
-
                     b.Navigation("Moorings");
-                });
-
-            modelBuilder.Entity("MarinePorts.API.Models.Sector", b =>
-                {
-                    b.Navigation("MooringRequests");
                 });
 #pragma warning restore 612, 618
         }

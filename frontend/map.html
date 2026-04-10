@@ -7,6 +7,9 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,6 +30,13 @@
       cursor: pointer; font-size: 0.82rem; transition: background 0.2s;
     }
     .btn-logout:hover, .btn-back:hover { background: rgba(255,255,255,0.25); }
+    .btn-add {
+      background: #c8a84b; color: #003366;
+      border: none; border-radius: 6px; padding: 0.4rem 0.9rem;
+      cursor: pointer; font-size: 0.82rem; font-weight: 700;
+      transition: background 0.2s;
+    }
+    .btn-add:hover { background: #e0b85a; }
     .header-actions { display: flex; align-items: center; gap: 0.5rem; }
 
     /* ── Map ────────────────────────────────────────────────────────────── */
@@ -46,6 +56,104 @@
     .legend-item { display: flex; align-items: center; gap: 0.5rem; }
     .swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
 
+    /* ── Add-record form modals ──────────────────────────────────────────── */
+    .form-modal-box {
+      background: #fff; border-radius: 10px;
+      width: min(500px, 96vw); max-height: 90vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .fm-header {
+      background: linear-gradient(135deg, #003366, #005fa3);
+      color: #fff; padding: 0.9rem 1.25rem;
+      border-radius: 10px 10px 0 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .fm-header h3 { font-size: 0.98rem; }
+    .fm-header button { background: none; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; opacity: 0.8; }
+    .fm-header button:hover { opacity: 1; }
+    .fm-body { overflow-y: auto; padding: 1.25rem; }
+    .fm-row { margin-bottom: 0.85rem; }
+    .fm-row label { display: block; font-size: 0.8rem; font-weight: 600; color: #003366; margin-bottom: 0.28rem; }
+    .fm-row input, .fm-row select {
+      width: 100%; padding: 0.48rem 0.7rem;
+      border: 1.5px solid #ccd6e0; border-radius: 6px;
+      font-size: 0.88rem; background: #f8fbff;
+      transition: border-color 0.15s;
+    }
+    .fm-row input:focus, .fm-row select:focus { outline: none; border-color: #005fa3; }
+    .fm-row .hint { font-size: 0.74rem; color: #6b7a8d; margin-top: 0.2rem; }
+    .fm-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+    .fm-footer { padding: 0.75rem 1.25rem; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 0.6rem; }
+    .fm-footer .btn-cancel { background: #f0f4f8; color: #333; border: 1px solid #ccd6e0; border-radius: 6px; padding: 0.42rem 1rem; cursor: pointer; font-size: 0.86rem; }
+    .fm-footer .btn-cancel:hover { background: #e2e8f0; }
+    .fm-footer .btn-save { background: #003366; color: #fff; border: none; border-radius: 6px; padding: 0.42rem 1.1rem; cursor: pointer; font-size: 0.86rem; font-weight: 700; }
+    .fm-footer .btn-save:hover { background: #005fa3; }
+    .fm-footer .btn-save:disabled { opacity: 0.55; cursor: not-allowed; }
+    .fm-status { font-size: 0.82rem; padding: 0.5rem 0.75rem; border-radius: 5px; display: none; margin-bottom: 0.75rem; }
+    .fm-status.ok  { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+    .fm-status.err { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+    .fm-pick-hint {
+      background: #e8f2fb; border: 1px dashed #005fa3;
+      border-radius: 6px; padding: 0.5rem 0.75rem;
+      font-size: 0.8rem; color: #003366; margin-bottom: 0.85rem;
+    }
+
+    /* ── Tariff Modal ─────────────────────────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55); z-index: 9999;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff; border-radius: 10px;
+      width: min(680px, 95vw); max-height: 88vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+      background: linear-gradient(135deg, #0d3b66, #1a6fa8);
+      color: #fff; padding: 1rem 1.4rem;
+      border-radius: 10px 10px 0 0;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+    }
+    .modal-header h2 { font-size: 1rem; line-height: 1.4; }
+    .modal-header .modal-close {
+      background: none; border: none; color: #fff;
+      font-size: 1.4rem; cursor: pointer; line-height: 1;
+      opacity: 0.8; flex-shrink: 0;
+    }
+    .modal-header .modal-close:hover { opacity: 1; }
+    .modal-body { overflow-y: auto; padding: 1.25rem 1.4rem; }
+    .tariff-section { margin-bottom: 1.4rem; }
+    .tariff-section h3 {
+      font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.8px;
+      color: #0d3b66; border-bottom: 2px solid #0d3b66;
+      padding-bottom: 0.3rem; margin-bottom: 0.6rem;
+    }
+    .tariff-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .tariff-table td { padding: 0.35rem 0.5rem; vertical-align: top; }
+    .tariff-table td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }
+    .tariff-table tr:nth-child(even) td { background: #f5f8fc; }
+    .tariff-note {
+      font-size: 0.78rem; color: #555; font-style: italic;
+      background: #fffbea; border-left: 3px solid #f0c040;
+      padding: 0.5rem 0.75rem; border-radius: 0 4px 4px 0;
+      margin-top: 0.5rem;
+    }
+    .modal-footer {
+      padding: 0.75rem 1.4rem;
+      border-top: 1px solid #e5e7eb;
+      text-align: right;
+    }
+    .modal-footer button {
+      background: #0d3b66; color: #fff;
+      border: none; border-radius: 6px;
+      padding: 0.45rem 1.1rem; cursor: pointer; font-size: 0.88rem;
+    }
+    .modal-footer button:hover { background: #1a6fa8; }
+
     /* ── Popup ───────────────────────────────────────────────────────────── */
     .pin-popup { text-align: center; min-width: 160px; max-width: 220px; }
     .pin-popup img {
@@ -58,6 +166,145 @@
     }
     .pin-popup .pin-label { font-weight: 600; font-size: 0.88rem; color: #1a1a2e; }
     .pin-popup .pin-type  { font-size: 0.75rem; color: #777; margin-top: 0.15rem; }
+
+    /* ── Reg# zoom labels ───────────────────────────────────────────────────────── */
+    .leaflet-tooltip.reg-label {
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 4px;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.22);
+      color: #0d3b66;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      padding: 1px 5px;
+      white-space: nowrap;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .leaflet-tooltip.reg-label::before { display: none; }
+
+    /* ── Search bar ──────────────────────────────────────────────────────── */
+    .search-wrap {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(255,255,255,0.12); border-radius: 20px;
+      padding: 0.25rem 0.6rem 0.25rem 0.9rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      position: relative;
+    }
+    .search-wrap input {
+      background: none; border: none; outline: none;
+      color: #fff; font-size: 0.82rem; width: 180px;
+    }
+    .search-wrap input::placeholder { color: rgba(255,255,255,0.55); }
+    .search-wrap button {
+      background: rgba(255,255,255,0.15); color: #fff;
+      border: none; border-radius: 12px; padding: 0.2rem 0.55rem;
+      cursor: pointer; font-size: 0.8rem;
+    }
+    .search-wrap button:hover { background: rgba(255,255,255,0.28); }
+
+    /* ── Search results dropdown ─────────────────────────────────────────── */
+    .search-results {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: #fff; border-radius: 8px; z-index: 9000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      max-height: 320px; overflow-y: auto; display: none;
+    }
+    .search-results.open { display: block; }
+    .sr-item {
+      padding: 0.65rem 0.9rem; border-bottom: 1px solid #f0f0f0;
+      cursor: pointer; display: flex; align-items: flex-start; gap: 0.7rem;
+    }
+    .sr-item:hover { background: #f5f8ff; }
+    .sr-item:last-child { border-bottom: none; }
+    .sr-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.05rem; }
+    .sr-body { flex: 1; }
+    .sr-label { font-weight: 600; font-size: 0.83rem; color: #1a1a2e; }
+    .sr-sub   { font-size: 0.73rem; color: #666; margin-top: 0.1rem; }
+    .status-badge {
+      display: inline-block; font-size: 0.67rem; font-weight: 700;
+      padding: 0.1rem 0.45rem; border-radius: 10px; margin-left: 0.4rem;
+    }
+    .badge-active   { background: #e8f5e9; color: #2e7d32; }
+    .badge-expired  { background: #fff3e0; color: #e65100; }
+    .badge-renew    { background: #fce4ec; color: #b71c1c; }
+    .sr-reregister {
+      margin-top: 0.35rem;
+      background: #c8a84b; color: #003366;
+      border: none; border-radius: 5px;
+      padding: 0.25rem 0.7rem; cursor: pointer; font-size: 0.73rem; font-weight: 700;
+    }
+    .sr-reregister:hover { background: #e0b85a; }
+
+    /* ── Parish sector modal ─────────────────────────────────────────────── */
+    .parish-grid {
+      display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
+      gap: 0.75rem; padding: 0.25rem 0;
+    }
+    .parish-card {
+      border: 2px solid #e5e7eb; border-radius: 8px;
+      padding: 0.8rem 0.9rem; cursor: pointer; transition: all 0.18s;
+      text-align: center;
+    }
+    .parish-card:hover:not(.parish-full) { border-color: #0d3b66; background: #f0f5ff; }
+    .parish-card.parish-full {
+      cursor: not-allowed; opacity: 0.55; background: #fafafa;
+    }
+    .parish-name { font-weight: 700; font-size: 0.88rem; color: #1a1a2e; }
+    .parish-status {
+      display: inline-block; margin-top: 0.3rem; font-size: 0.7rem; font-weight: 700;
+      padding: 0.15rem 0.5rem; border-radius: 8px;
+    }
+    .status-available { background: #e8f5e9; color: #2e7d32; }
+    .status-full      { background: #fce4ec; color: #b71c1c; }
+
+    /* ── Location-type toggle ────────────────────────────────────────────── */
+    .loc-toggle {
+      display: flex; border: 1px solid #d1d5db; border-radius: 7px; overflow: hidden;
+      margin-bottom: 0.75rem;
+    }
+    .loc-toggle button {
+      flex: 1; border: none; padding: 0.45rem 0.6rem;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      background: #f5f8fc; color: #555; transition: background 0.15s, color 0.15s;
+    }
+    .loc-toggle button.active {
+      background: #0d3b66; color: #fff;
+    }
+    .loc-toggle button:first-child { border-right: 1px solid #d1d5db; }
+
+    /* ── Mooring lookup ──────────────────────────────────────────────────── */
+    .mooring-lookup {
+      background: #f0f5ff; border: 1px solid #c7d9f5;
+      border-radius: 7px; padding: 0.7rem 0.85rem; margin-bottom: 0.6rem;
+    }
+    .mooring-lookup label { font-size: 0.78rem; font-weight: 600; color: #0d3b66; display: block; margin-bottom: 0.35rem; }
+    .mooring-lookup-row { display: flex; gap: 0.4rem; align-items: center; }
+    .mooring-lookup-row input { flex: 1; }
+    .mooring-lookup-row button {
+      background: #0d3b66; color: #fff; border: none; border-radius: 5px;
+      padding: 0.38rem 0.75rem; cursor: pointer; font-size: 0.8rem; white-space: nowrap;
+    }
+    .mooring-lookup-row button:hover { background: #1a6fa8; }
+    .mooring-result {
+      margin-top: 0.5rem; font-size: 0.8rem; display: none;
+    }
+    .mooring-result.found {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: #e8f5e9; border-left: 3px solid #43a047;
+      padding: 0.4rem 0.6rem; border-radius: 0 5px 5px 0;
+    }
+    .mooring-result.notfound {
+      display: block; background: #fff3e0;
+      border-left: 3px solid #fb8c00; padding: 0.4rem 0.6rem;
+      border-radius: 0 5px 5px 0;
+    }
+    .mooring-result .mr-use {
+      background: #43a047; color: #fff; border: none; border-radius: 5px;
+      padding: 0.25rem 0.65rem; cursor: pointer; font-size: 0.76rem; white-space: nowrap;
+    }
+    .mooring-result .mr-use:hover { background: #2e7d32; }
   </style>
 </head>
 <body>
@@ -65,18 +312,282 @@
   <!-- ── Top navigation bar ─────────────────────────────────────────────── -->
   <header>
     <div class="brand">⚓ Marine &amp; Ports – Bermuda</div>
+
+    <!-- Search bar -->
+    <div class="search-wrap" id="searchWrap">
+      <input type="text" id="searchInput" placeholder="Search by boat/mooring number…" autocomplete="off" />
+      <button id="searchBtn">🔍</button>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+
     <span class="user-info" id="userInfo"></span>
     <div class="header-actions">
+      <button class="btn-add" id="addBoatBtn">➕ Add Boat</button>
+      <button class="btn-add" id="addMooringBtn">⚓ Request Mooring</button>
+      <button class="btn-back" id="myMapBtn" style="display:none">📍 My Map</button>
+      <button class="btn-back" id="tariffBtn">📋 Tariff</button>
       <button class="btn-back" id="backBtn">⬅ Back</button>
+      <button class="btn-back" id="signInBtn" style="display:none;background:#c8a84b;color:#003366;border-color:#c8a84b">🔑 Sign In</button>
       <button class="btn-logout" id="logoutBtn">Sign Out</button>
     </div>
   </header>
+
+  <!-- ── Tariff Modal ──────────────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="tariffModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>⚓ Dept. of Marine &amp; Ports — Services New Tariff<br><small style="font-weight:400;opacity:0.85">Effective 1st April 2023</small></h2>
+        <button class="modal-close" id="tariffClose">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="tariff-section">
+          <h3>1 — Workboats (Basic Hourly Rate)</h3>
+          <table class="tariff-table">
+            <tr><td>Workboat</td><td>$525</td></tr>
+            <tr><td>Line boat</td><td>$525</td></tr>
+            <tr><td>Pilot Boat <em>(min. 2 hrs for transfers &amp; medicos)</em></td><td>$568</td></tr>
+            <tr><td>Buoy Tender</td><td>$657</td></tr>
+            <tr><td>Somerset Ferries</td><td>$657</td></tr>
+            <tr><td>Paget/Warwick Ferries</td><td>$525</td></tr>
+            <tr><td>350 Passenger Ferries</td><td>$767</td></tr>
+            <tr><td>250/177 Passenger Ferries</td><td>$767</td></tr>
+          </table>
+        </div>
+
+        <div class="tariff-section">
+          <h3>2 — Tug Service</h3>
+          <table class="tariff-table">
+            <tr><td>Berthing &amp; Unberthing movement</td><td>$1,531</td></tr>
+            <tr><td>Tug hourly rate</td><td>$931</td></tr>
+          </table>
+        </div>
+
+        <div class="tariff-section">
+          <h3>3 — Tender Service</h3>
+          <table class="tariff-table">
+            <tr><td>Per round trip to cruise vessel at anchor</td><td>$1,531</td></tr>
+            <tr><td>Per round trip to cruise vessel at Dockyard</td><td>$1,475</td></tr>
+            <tr><td>Hourly charter rate <em>(minimum 4 hours – Local Cruises)</em></td><td>$970</td></tr>
+          </table>
+          <div class="tariff-note">Note 1: All above rates are subject to 100% surcharge on weekends, public holidays and between 4:30 pm and 8:00 am Monday – Friday.</div>
+          <div class="tariff-note">Note 2: Cruise ships are subject to a minimum of three (3) round trips for the first twelve (12) hour period or a minimum of five (5) round trips in any twenty four (24) hour period.</div>
+        </div>
+
+        <div class="tariff-section">
+          <h3>4 — Off Shore Towage, Salvage</h3>
+          <table class="tariff-table">
+            <tr><td>Tug hourly rate</td><td>$1,537</td></tr>
+            <tr><td>Tender hourly rate</td><td>$1,405</td></tr>
+            <tr><td>Buoy tender</td><td>$863</td></tr>
+            <tr><td>Pilot boat</td><td>$767</td></tr>
+          </table>
+        </div>
+
+        <div class="tariff-section">
+          <h3>5 — Port Dues</h3>
+          <table class="tariff-table">
+            <tr><td>Minimum charge up to and including 100 metres length</td><td>$648</td></tr>
+            <tr><td>Over 100 metres (rate per metre thereafter)</td><td>$15.05</td></tr>
+          </table>
+          <div class="tariff-note">Note 3: After paying in full port dues for ten (10) consecutive days a 10% reduction may be applied for the remainder of the call.</div>
+        </div>
+
+        <div class="tariff-section">
+          <h3>6 — Pilot Dues per Metre or Draft <small style="text-transform:none;font-size:0.75rem">(minimum draft 3 metres)</small></h3>
+          <table class="tariff-table">
+            <tr><td>St. Georges / Esso Oil Docks / Five Fathom Hole</td><td>$151</td></tr>
+            <tr><td>Dockyard / Grassy Bay</td><td>$211</td></tr>
+            <tr><td>Hamilton / Great Sound / Port Royal Bay</td><td>$225</td></tr>
+            <tr><td>Port to port shift</td><td>$151</td></tr>
+            <tr><td>Shift within port</td><td>$103</td></tr>
+            <tr><td>Pilot detention (per hour)</td><td>$123</td></tr>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button id="tariffCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Add Boat Modal ────────────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="addBoatModal">
+    <div class="form-modal-box">
+      <div class="fm-header">
+        <h3>🚤 Register a New Boat</h3>
+        <button id="addBoatClose">✕</button>
+      </div>
+      <div class="fm-body">
+        <div class="fm-pick-hint" id="boatPickHint">
+          📍 After filling the form, click <strong>Pick Location on Map</strong> to place your boat, then click <strong>Save Boat</strong>.
+        </div>
+        <div class="fm-status" id="boatStatus"></div>
+
+        <div class="fm-row">
+          <label>Boat Name <span style="color:#e53935">*</span></label>
+          <input type="text" id="bBoatName" placeholder="e.g. Sea Breeze" />
+        </div>
+        <div class="fm-row">
+          <label>Owner Name <span style="color:#e53935">*</span></label>
+          <input type="text" id="bOwnerName" placeholder="Full name" />
+        </div>
+        <div class="fm-2col">
+          <div class="fm-row">
+            <label>Boat Type</label>
+            <select id="bBoatType">
+              <option value="">— Select —</option>
+              <option>Power Boat</option>
+              <option>Sail Boat</option>
+              <option>Jet Ski</option>
+              <option>Punt</option>
+              <option>Barge</option>
+              <option>Kayak</option>
+            </select>
+          </div>
+          <div class="fm-row">
+            <label>Length (feet) <span style="color:#e53935">*</span></label>
+            <input type="number" id="bLengthFeet" min="1" max="999" placeholder="e.g. 24" />
+          </div>
+        </div>
+        <div class="fm-2col">
+          <div class="fm-row">
+            <label>Make / Manufacturer</label>
+            <input type="text" id="bMake" placeholder="e.g. Boston Whaler" />
+          </div>
+          <div class="fm-row">
+            <label>Year Built</label>
+            <input type="number" id="bYearBuilt" min="1900" max="2100" placeholder="e.g. 2018" />
+          </div>
+        </div>
+        <div class="fm-row">
+          <label>Hull Colour</label>
+          <input type="text" id="bColorHull" placeholder="e.g. White" />
+        </div>
+
+        <div class="fm-row" id="boatLocRow">
+          <label>Vessel Location <span style="color:#e53935">*</span></label>
+
+          <!-- Toggle: On Land / On Mooring -->
+          <div class="loc-toggle">
+            <button id="bLocLandBtn" class="active" onclick="setBoatLocType('land')">🏠 On Land / Trailer</button>
+            <button id="bLocMooringBtn" onclick="setBoatLocType('mooring')">⚓ On Mooring</button>
+          </div>
+
+          <!-- On Land panel -->
+          <div id="bLandPanel">
+            <button id="boatPickLocBtn" style="background:#005fa3;color:#fff;border:none;border-radius:5px;padding:0.42rem 0.7rem;cursor:pointer;font-size:0.8rem;white-space:nowrap">📍 Pick on Map</button>
+            <div class="hint" style="margin-top:0.25rem">Click "Pick on Map" then click your boat's location on the map.</div>
+          </div>
+
+          <!-- On Mooring panel -->
+          <div id="bMooringPanel" style="display:none">
+            <div class="mooring-lookup">
+              <label>Find mooring by registration number</label>
+              <div class="mooring-lookup-row">
+                <input type="text" id="bMooringSearch" placeholder="e.g. PEM-042" style="text-transform:uppercase"/>
+                <button id="bMooringLookupBtn">🔍 Find Mooring</button>
+              </div>
+              <div class="mooring-result" id="bMooringResult"></div>
+            </div>
+            <div style="font-size:0.8rem;color:#666;margin-bottom:0.5rem;text-align:center">— or browse the map and click a mooring —</div>
+            <button id="boatPickLocBtnMooring" style="background:#005fa3;color:#fff;border:none;border-radius:5px;padding:0.42rem 0.7rem;cursor:pointer;font-size:0.8rem;white-space:nowrap;width:100%">🗺️ Browse Map (zoom in to see mooring numbers)</button>
+            <div class="hint" style="margin-top:0.25rem">Mooring registration numbers appear on the map when zoomed in.</div>
+          </div>
+
+          <!-- Shared coords (always present) -->
+          <div style="display:flex;gap:0.5rem;margin-top:0.6rem;align-items:center">
+            <input type="number" id="bLat" placeholder="Latitude"  step="0.00001" style="flex:1" readonly />
+            <input type="number" id="bLng" placeholder="Longitude" step="0.00001" style="flex:1" readonly />
+          </div>
+        </div>
+      </div>
+      <div class="fm-footer">
+        <button class="btn-cancel" id="addBoatCancel">Cancel</button>
+        <button class="btn-save" id="addBoatSave">Save Boat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Parish Sector Selection Modal ───────────────────────────────────── -->
+  <div class="modal-overlay" id="parishModal">
+    <div class="form-modal-box" style="width:min(560px,96vw)">
+      <div class="fm-header">
+        <h3>⚓ Request Mooring — Select Parish</h3>
+        <button id="parishModalClose">✕</button>
+      </div>
+      <div class="fm-body">
+        <p style="font-size:0.83rem;color:#555;margin-bottom:0.85rem">
+          Select the parish where you wish to moor your vessel. Green = availability; Red = sector full.
+        </p>
+        <div class="parish-grid" id="parishGrid">
+          <!-- populated by JS -->
+        </div>
+        <!-- Shown when sector is full -->
+        <div id="sectorFullMsg" style="display:none;margin-top:1rem;padding:0.85rem 1rem;background:#fce4ec;border-left:4px solid #e53935;border-radius:4px;font-size:0.84rem">
+          <strong>⚠ This sector is currently full.</strong><br>
+          Please contact the Department of Marine &amp; Ports at
+          <a id="sectorFullEmail" href="" style="color:#b71c1c;font-weight:700"></a>
+          to be placed on the waiting list.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Mooring Request Form Modal ────────────────────────────────────────── -->
+  <div class="modal-overlay" id="mooringRequestModal">
+    <div class="form-modal-box">
+      <div class="fm-header">
+        <h3>⚓ Request Mooring Location</h3>
+        <button id="mooringReqClose">✕</button>
+      </div>
+      <div class="fm-body">
+        <div class="fm-pick-hint" id="mooringReqPickHint">
+          📍 Fill in your details, then click <strong>Pick Location on Map</strong> to pin your desired mooring spot.
+        </div>
+        <div class="fm-status" id="mooringReqStatus"></div>
+
+        <div class="fm-row" style="background:#f0f5ff;border-radius:6px;padding:0.5rem 0.75rem;margin-bottom:0.5rem">
+          <span style="font-size:0.78rem;color:#0d3b66">Parish: <strong id="mooringReqParish"></strong></span>
+        </div>
+
+        <div class="fm-row">
+          <label>Owner Name <span style="color:#e53935">*</span></label>
+          <input type="text" id="mrOwnerName" placeholder="Full legal name" />
+        </div>
+        <div class="fm-row">
+          <label>Contact Phone</label>
+          <input type="tel" id="mrPhone" placeholder="e.g. +1 441 555 0100" />
+        </div>
+        <div class="fm-row">
+          <label>Notes / Reason</label>
+          <textarea id="mrNotes" rows="2" placeholder="e.g. Long-term anchorage for 28ft sailboat" style="resize:vertical;width:100%;font-size:0.88rem;padding:0.4rem;border:1px solid #d1d5db;border-radius:5px"></textarea>
+        </div>
+        <div class="fm-row" id="mooringReqLocRow">
+          <label>Desired Location <span style="color:#e53935">*</span></label>
+          <div style="display:flex;gap:0.5rem;align-items:center">
+            <input type="number" id="mrLat" placeholder="Latitude"  step="0.00001" style="flex:1" readonly />
+            <input type="number" id="mrLng" placeholder="Longitude" step="0.00001" style="flex:1" readonly />
+            <button id="mooringReqPickBtn" style="background:#005fa3;color:#fff;border:none;border-radius:5px;padding:0.42rem 0.7rem;cursor:pointer;font-size:0.8rem;white-space:nowrap">📍 Pick on Map</button>
+          </div>
+          <div class="hint" style="margin-top:0.25rem">Click "Pick on Map", then click your desired mooring location.</div>
+        </div>
+      </div>
+      <div class="fm-footer">
+        <button class="btn-cancel" id="mooringReqCancel">Cancel</button>
+        <button class="btn-save"   id="mooringReqSave">Submit Request</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ── Map container ──────────────────────────────────────────────────── -->
   <div id="map"></div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Leaflet MarkerCluster JS -->
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
   <script>
     /**
@@ -95,10 +606,34 @@
     const token    = sessionStorage.getItem('mp_token');
     const fullName = sessionStorage.getItem('mp_fullName') || 'Guest';
     const role     = sessionStorage.getItem('mp_role')     || '';
+    const publicView = new URLSearchParams(window.location.search).get('view') === 'public';
+    let   myMapMode  = false; // true = showing only the user's own pins
 
     // Show user info in header
     document.getElementById('userInfo').textContent =
-      `${fullName}${role ? ' (' + role + ')' : ''}`;
+      token ? `${fullName}${role ? ' (' + role + ')' : ''}` : (publicView ? '🗺 Public View' : '');
+
+    // Header visibility by state
+    if (publicView && !token) {
+      // Unauthenticated public view: hide logged-in actions, show Sign In
+      document.getElementById('addBoatBtn').style.display    = 'none';
+      document.getElementById('addMooringBtn').style.display = 'none';
+      document.getElementById('logoutBtn').style.display     = 'none';
+      document.getElementById('backBtn').style.display       = 'none';
+      document.getElementById('signInBtn').style.display     = 'inline-flex';
+    } else if (token && role !== 'Admin') {
+      // Logged-in non-admin: show My Map toggle button
+      document.getElementById('myMapBtn').style.display = 'inline-flex';
+      // Default for non-admins is their own pins; label the button to show what clicking WILL do
+      document.getElementById('myMapBtn').textContent = '🌐 All Pins';
+    }
+
+    // ── Tariff modal ──────────────────────────────────────────────────────────
+    const tariffModal = document.getElementById('tariffModal');
+    document.getElementById('tariffBtn').addEventListener('click', () => tariffModal.classList.add('open'));
+    document.getElementById('tariffClose').addEventListener('click', () => tariffModal.classList.remove('open'));
+    document.getElementById('tariffCloseBtn').addEventListener('click', () => tariffModal.classList.remove('open'));
+    tariffModal.addEventListener('click', e => { if (e.target === tariffModal) tariffModal.classList.remove('open'); });
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
       sessionStorage.clear();
@@ -106,7 +641,351 @@
     });
 
     document.getElementById('backBtn').addEventListener('click', () => {
-      window.location.href = role === 'Admin' ? 'admin.html' : 'login.html';
+      window.location.href = role === 'Admin' ? 'admin.html' : 'index.html';
+    });
+
+    document.getElementById('signInBtn').addEventListener('click', () => {
+      window.location.href = 'login.html';
+    });
+
+    // ── My Map toggle ────────────────────────────────────────────────────────────
+    document.getElementById('myMapBtn').addEventListener('click', () => {
+      myMapMode = !myMapMode;
+      const btn = document.getElementById('myMapBtn');
+      if (myMapMode) {
+        // myMapMode ON = show ALL pins (overrides the /mine default)
+        btn.textContent = '📍 My Boats Only';
+        btn.style.background  = '#0d3b66';
+        btn.style.color       = '#fff';
+        btn.style.borderColor = '#0d3b66';
+      } else {
+        // myMapMode OFF = back to own pins (the default for non-admins)
+        btn.textContent = '🌐 All Pins';
+        btn.style.background  = '';
+        btn.style.color       = '';
+        btn.style.borderColor = '';
+      }
+      loadPins();
+    });
+
+    // ── Add Boat / Add Mooring modals ─────────────────────────────────────────
+    // Hide buttons if not logged in
+    if (!token) {
+      document.getElementById('addBoatBtn').style.display    = 'none';
+      document.getElementById('addMooringBtn').style.display = 'none';
+    }
+
+    let pickingMode = null; // 'boat' | 'mooring'
+
+    function openModal(id)  { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function fmStatus(elId, type, msg) {
+      const el = document.getElementById(elId);
+      el.className = `fm-status ${type}`; el.textContent = msg; el.style.display = 'block';
+    }
+    function clearFmStatus(elId) {
+      const el = document.getElementById(elId);
+      el.style.display = 'none'; el.textContent = '';
+    }
+
+    // Boat modal open/close
+    document.getElementById('addBoatBtn').addEventListener('click', () => {
+      if (!token) { alert('Please sign in to add a boat.'); return; }
+      clearFmStatus('boatStatus');
+      // Pre-fill owner from session
+      document.getElementById('bOwnerName').value = fullName;
+      // Always reset location type to "On Land" when opening
+      setBoatLocType('land');
+      openModal('addBoatModal');
+    });
+    ['addBoatClose','addBoatCancel'].forEach(id =>
+      document.getElementById(id).addEventListener('click', () => {
+        closeModal('addBoatModal');
+        if (pickingMode === 'boat') stopPickingMode();
+      })
+    );
+    document.getElementById('addBoatModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('addBoatModal')) {
+        closeModal('addBoatModal');
+        if (pickingMode === 'boat') stopPickingMode();
+      }
+    });
+
+    // Mooring modal open/close — now opens parish selector
+    document.getElementById('addMooringBtn').addEventListener('click', () => {
+      if (!token) { alert('Please sign in to request a mooring.'); return; }
+      loadAndShowParishes();
+    });
+    document.getElementById('parishModalClose').addEventListener('click', () => closeModal('parishModal'));
+    document.getElementById('parishModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('parishModal')) closeModal('parishModal');
+    });
+
+    // Mooring request form close
+    ['mooringReqClose','mooringReqCancel'].forEach(id =>
+      document.getElementById(id).addEventListener('click', () => {
+        closeModal('mooringRequestModal');
+        if (pickingMode === 'mooringReq') stopPickingMode();
+      })
+    );
+    document.getElementById('mooringRequestModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('mooringRequestModal')) {
+        closeModal('mooringRequestModal');
+        if (pickingMode === 'mooringReq') stopPickingMode();
+      }
+    });
+
+    // ── Parish sector loading ─────────────────────────────────────────────────
+    let selectedSector = null;
+
+    async function loadAndShowParishes() {
+      document.getElementById('sectorFullMsg').style.display = 'none';
+      try {
+        const res = await fetch(`${API_BASE}/api/sectors`);
+        const sectors = await res.json();
+        const grid = document.getElementById('parishGrid');
+        grid.innerHTML = '';
+        sectors.forEach(s => {
+          const card = document.createElement('div');
+          card.className = 'parish-card' + (s.isFull ? ' parish-full' : '');
+          card.innerHTML = `
+            <div class="parish-name">${escapeHtml(s.parish)}</div>
+            <span class="parish-status ${s.isFull ? 'status-full' : 'status-available'}">
+              ${s.isFull ? 'Full' : 'Available'}
+            </span>`;
+          card.addEventListener('click', () => {
+            if (s.isFull) {
+              const msg  = document.getElementById('sectorFullMsg');
+              const link = document.getElementById('sectorFullEmail');
+              link.textContent = s.contactEmail;
+              link.href        = `mailto:${s.contactEmail}`;
+              msg.style.display = 'block';
+            } else {
+              selectedSector = s;
+              closeModal('parishModal');
+              openMooringRequestForm(s);
+            }
+          });
+          grid.appendChild(card);
+        });
+        openModal('parishModal');
+      } catch { alert('Could not load sectors. Please try again.'); }
+    }
+
+    function openMooringRequestForm(sector) {
+      document.getElementById('mooringReqParish').textContent = sector.parish;
+      document.getElementById('mrOwnerName').value = fullName;
+      document.getElementById('mrPhone').value     = '';
+      document.getElementById('mrNotes').value     = '';
+      document.getElementById('mrLat').value       = '';
+      document.getElementById('mrLng').value       = '';
+      clearFmStatus('mooringReqStatus');
+      // Fly to the sector centre
+      map.flyTo([sector.centerLat, sector.centerLng], sector.zoom, { duration: 1.2 });
+      openModal('mooringRequestModal');
+    }
+
+    // ── Location picking ──────────────────────────────────────────────────────
+    function startPickingMode(mode) {
+      pickingMode = mode;
+      document.getElementById('map').style.cursor = 'crosshair';
+    }
+
+    function stopPickingMode() {
+      pickingMode = null;
+      document.getElementById('map').style.cursor = '';
+    }
+
+    document.getElementById('boatPickLocBtn').addEventListener('click', () => {
+      closeModal('addBoatModal');
+      startPickingMode('boat');
+      showPickToast('Click on the map to set the boat location');
+    });
+
+    // ── On Land / On Mooring toggle ───────────────────────────────────────────
+    let boatLocType = 'land'; // 'land' | 'mooring'
+
+    window.setBoatLocType = function(type) {
+      boatLocType = type;
+      document.getElementById('bLandPanel').style.display    = type === 'land'    ? '' : 'none';
+      document.getElementById('bMooringPanel').style.display = type === 'mooring' ? '' : 'none';
+      document.getElementById('bLocLandBtn').classList.toggle('active',    type === 'land');
+      document.getElementById('bLocMooringBtn').classList.toggle('active', type === 'mooring');
+      // Clear coords when switching
+      document.getElementById('bLat').value = '';
+      document.getElementById('bLng').value = '';
+      document.getElementById('bMooringResult').className = 'mooring-result';
+      document.getElementById('bMooringResult').innerHTML = '';
+    };
+
+    // Browse map button (mooring panel)
+    document.getElementById('boatPickLocBtnMooring').addEventListener('click', () => {
+      closeModal('addBoatModal');
+      startPickingMode('boat');
+      showPickToast('Zoom in to see mooring numbers, then click a mooring to place your boat');
+    });
+
+    // Mooring lookup by reg#
+    document.getElementById('bMooringLookupBtn').addEventListener('click', async () => {
+      const q      = document.getElementById('bMooringSearch').value.trim();
+      const result = document.getElementById('bMooringResult');
+      if (!q) { result.className = 'mooring-result notfound'; result.textContent = 'Enter a mooring registration number first.'; return; }
+      result.className = 'mooring-result'; result.innerHTML = 'Searching…';
+
+      try {
+        const res  = await fetch(`${API_BASE}/api/map/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        const hit  = data.find(d => d.type === 'Mooring');
+        if (!hit) {
+          result.className = 'mooring-result notfound';
+          result.textContent = 'No mooring found with that registration number.';
+          return;
+        }
+        result.className = 'mooring-result found';
+        result.innerHTML  = `<span>⚓ <strong>${escapeHtml(hit.label)}</strong></span>
+          <button class="mr-use" onclick="useMooringLocation(${hit.latitude},${hit.longitude})">Use this location</button>`;
+        // Fly map to the mooring
+        map.flyTo([hit.latitude, hit.longitude], 17);
+      } catch {
+        result.className = 'mooring-result notfound';
+        result.textContent = 'Could not reach the server.';
+      }
+    });
+
+    // Allow Enter key on mooring search input
+    document.getElementById('bMooringSearch').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('bMooringLookupBtn').click();
+    });
+
+    window.useMooringLocation = function(lat, lng) {
+      document.getElementById('bLat').value = lat.toFixed(6);
+      document.getElementById('bLng').value = lng.toFixed(6);
+    };
+
+    document.getElementById('mooringReqPickBtn').addEventListener('click', () => {
+      closeModal('mooringRequestModal');
+      startPickingMode('mooringReq');
+      showPickToast('Click on the map to set your desired mooring location');
+    });
+
+    // Single toast element for pick-mode hint
+    const pickToast = document.createElement('div');
+    pickToast.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#003366;color:#fff;padding:0.6rem 1.4rem;border-radius:20px;font-size:0.85rem;z-index:9000;display:none;box-shadow:0 3px 12px rgba(0,0,0,0.3)';
+    document.body.appendChild(pickToast);
+
+    function showPickToast(msg) {
+      pickToast.textContent = msg + ' — press Esc to cancel';
+      pickToast.style.display = 'block';
+    }
+    function hidePickToast() { pickToast.style.display = 'none'; }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && pickingMode) {
+        const mode = pickingMode;
+        stopPickingMode(); hidePickToast();
+        if (mode === 'boat')       openModal('addBoatModal');
+        if (mode === 'mooringReq') openModal('mooringRequestModal');
+      }
+    });
+
+    // ── Save Boat ─────────────────────────────────────────────────────────────
+    document.getElementById('addBoatSave').addEventListener('click', async () => {
+      const boatName   = document.getElementById('bBoatName').value.trim();
+      const ownerName  = document.getElementById('bOwnerName').value.trim();
+      const lengthFeet = parseFloat(document.getElementById('bLengthFeet').value) || 0;
+      const lat        = parseFloat(document.getElementById('bLat').value) || 0;
+      const lng        = parseFloat(document.getElementById('bLng').value) || 0;
+
+      if (!boatName || !ownerName || !lengthFeet) {
+        fmStatus('boatStatus','err','Please fill in Boat Name, Owner Name and Length.'); return;
+      }
+      if (!lat || !lng) {
+        fmStatus('boatStatus','err','Please pick a location on the map first.'); return;
+      }
+
+      const btn = document.getElementById('addBoatSave');
+      btn.disabled = true; btn.textContent = 'Saving…';
+      clearFmStatus('boatStatus');
+
+      try {
+        const payload = {
+          boatName,
+          ownerName,
+          boatType:   document.getElementById('bBoatType').value,
+          lengthFeet,
+          make:       document.getElementById('bMake').value.trim() || null,
+          yearBuilt:  parseInt(document.getElementById('bYearBuilt').value) || null,
+          colorHull:  document.getElementById('bColorHull').value.trim() || null,
+          latitude:   lat,
+          longitude:  lng
+        };
+
+        const res = await fetch(`${API_BASE}/api/boats`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          fmStatus('boatStatus','ok','✔ Boat registered successfully!');
+          ['bBoatName','bMake','bYearBuilt','bColorHull','bLat','bLng'].forEach(id => document.getElementById(id).value = '');
+          document.getElementById('bBoatType').value = '';
+          document.getElementById('bLengthFeet').value = '';
+          setTimeout(() => { closeModal('addBoatModal'); loadPins(); }, 1500);
+        } else {
+          const err = await res.json().catch(() => ({}));
+          fmStatus('boatStatus','err', err.message || `Error ${res.status}`);
+        }
+      } catch { fmStatus('boatStatus','err','Could not reach the server.'); }
+      finally { btn.disabled = false; btn.textContent = 'Save Boat'; }
+    });
+
+    // ── Submit Mooring Request ─────────────────────────────────────────────────
+    document.getElementById('mooringReqSave').addEventListener('click', async () => {
+      const ownerName = document.getElementById('mrOwnerName').value.trim();
+      const lat       = parseFloat(document.getElementById('mrLat').value) || 0;
+      const lng       = parseFloat(document.getElementById('mrLng').value) || 0;
+
+      if (!ownerName) {
+        fmStatus('mooringReqStatus','err','Owner name is required.'); return;
+      }
+      if (!lat || !lng) {
+        fmStatus('mooringReqStatus','err','Please pick a location on the map first.'); return;
+      }
+      if (!selectedSector) {
+        fmStatus('mooringReqStatus','err','No sector selected.'); return;
+      }
+
+      const btn = document.getElementById('mooringReqSave');
+      btn.disabled = true; btn.textContent = 'Submitting…';
+      clearFmStatus('mooringReqStatus');
+
+      try {
+        const res = await fetch(`${API_BASE}/api/mooringrequests`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({
+            sectorId:     selectedSector.id,
+            ownerName,
+            contactPhone: document.getElementById('mrPhone').value.trim(),
+            notes:        document.getElementById('mrNotes').value.trim() || null,
+            latitude:     lat,
+            longitude:    lng
+          })
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+          fmStatus('mooringReqStatus','ok','✔ Request submitted! You will be notified once reviewed.');
+          setTimeout(() => { closeModal('mooringRequestModal'); loadPins(); }, 2500);
+        } else if (res.status === 409 && data.isFull) {
+          fmStatus('mooringReqStatus','err',
+            `The ${data.parish} sector is full. Please contact ${data.email}.`);
+        } else {
+          fmStatus('mooringReqStatus','err', data.message || `Error ${res.status}`);
+        }
+      } catch { fmStatus('mooringReqStatus','err','Could not reach the server.'); }
+      finally { btn.disabled = false; btn.textContent = 'Submit Request'; }
     });
 
     // ── Initialise Leaflet map centred on Bermuda ─────────────────────────────
@@ -147,10 +1026,162 @@
         <div class="legend-item"><span class="swatch" style="background:#4CAF50"></span> Boat 10–20 ft (Color B)</div>
         <div class="legend-item"><span class="swatch" style="background:#FF9800"></span> Boat > 20 ft (Color C)</div>
         <div class="legend-item"><span class="swatch" style="background:#E91E63"></span> Mooring (Color D)</div>
+        <div class="legend-item"><span class="swatch" style="background:#9E9E9E"></span> Pending Request</div>
       `;
       return div;
     };
     legend.addTo(map);
+
+    // ── Reg# label zoom threshold ─────────────────────────────────────────────
+    const LABEL_ZOOM = 16;
+    const allMarkers = [];
+
+    // Marker cluster group — handles 5000+ pins without freezing
+    const clusterGroup = L.markerClusterGroup({
+      maxClusterRadius: 50,
+      disableClusteringAtZoom: 16,   // show individual markers when zoomed in
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      chunkedLoading: true           // add markers in async chunks
+    });
+    map.addLayer(clusterGroup);
+
+    function updateLabels() {
+      const show = map.getZoom() >= LABEL_ZOOM;
+      allMarkers.forEach(m => {
+        const tt = m.getTooltip();
+        if (tt) tt.setOpacity(show ? 1 : 0);
+      });
+    }
+    map.on('zoomend', updateLabels);
+
+    // ── Map click — location picking mode ─────────────────────────────────────
+    map.on('click', function(e) {
+      if (!pickingMode) return;
+      const { lat, lng } = e.latlng;
+      if (pickingMode === 'boat') {
+        document.getElementById('bLat').value = lat.toFixed(6);
+        document.getElementById('bLng').value = lng.toFixed(6);
+        stopPickingMode(); hidePickToast();
+        openModal('addBoatModal');
+      } else if (pickingMode === 'mooringReq') {
+        document.getElementById('mrLat').value = lat.toFixed(6);
+        document.getElementById('mrLng').value = lng.toFixed(6);
+        stopPickingMode(); hidePickToast();
+        openModal('mooringRequestModal');
+      }
+    });
+
+    // ── Search bar ────────────────────────────────────────────────────────────
+    const searchInput   = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    let searchTimer;
+
+    async function doSearch() {
+      const q = searchInput.value.trim();
+      if (q.length < 2) { searchResults.classList.remove('open'); return; }
+      try {
+        const opts = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {};
+        const res  = await fetch(`${API_BASE}/api/map/search?q=${encodeURIComponent(q)}`, opts);
+        const data = await res.json();
+        renderSearchResults(data);
+      } catch { /* silent */ }
+    }
+
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(doSearch, 350);
+    });
+    document.getElementById('searchBtn').addEventListener('click', doSearch);
+    searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+
+    // Close results when clicking outside
+    document.addEventListener('click', e => {
+      if (!document.getElementById('searchWrap').contains(e.target))
+        searchResults.classList.remove('open');
+    });
+
+    function renderSearchResults(items) {
+      searchResults.innerHTML = '';
+      if (!items.length) {
+        searchResults.innerHTML = '<div style="padding:0.7rem 1rem;font-size:0.82rem;color:#888">No results found.</div>';
+        searchResults.classList.add('open');
+        return;
+      }
+      items.forEach(item => {
+        const icon  = item.type === 'Boat' ? '🚤' : '⚓';
+        const today = new Date();
+        const inWindow = today.getMonth() === 3 || today.getMonth() === 4; // April=3, May=4
+        const expired  = item.registrationYear < today.getFullYear();
+        const badgeCls = !expired ? 'badge-active' : (inWindow ? 'badge-renew' : 'badge-expired');
+        const yearNote = item.registrationYear ? `Registered ${item.registrationYear}` : '';
+
+        // Public mooring result – only number + location, no owner/status detail
+        const isMooringPublic = item.type === 'Mooring' && !item.statusLabel;
+
+        const div = document.createElement('div');
+        div.className = 'sr-item';
+        div.innerHTML = isMooringPublic
+          ? `
+          <div class="sr-icon">${icon}</div>
+          <div class="sr-body">
+            <div class="sr-label">${escapeHtml(item.label)}</div>
+            <div class="sr-sub">Tap to view location on map</div>
+          </div>`
+          : `
+          <div class="sr-icon">${icon}</div>
+          <div class="sr-body">
+            <div class="sr-label">
+              ${escapeHtml(item.label)}
+              <span class="status-badge ${badgeCls}">${escapeHtml(item.statusLabel)}</span>
+            </div>
+            <div class="sr-sub">${yearNote}${item.registrationNumber ? ' · Reg# ' + escapeHtml(item.registrationNumber) : ''}${item.mooringNumber ? ' · Mooring ' + escapeHtml(item.mooringNumber) : ''}</div>
+            ${item.canReRegister && token
+              ? `<button class="sr-reregister" data-id="${item.id}" data-type="${item.type}">🔄 Re-register now</button>`
+              : ''}
+          </div>`;
+
+        // Fly to location on click (but not if clicking the re-register button)
+        div.addEventListener('click', e => {
+          if (e.target.classList.contains('sr-reregister')) return;
+          map.flyTo([item.latitude, item.longitude], 16, { duration: 1.3 });
+          searchResults.classList.remove('open');
+        });
+
+        // Re-register button
+        const reregBtn = div.querySelector('.sr-reregister');
+        if (reregBtn) {
+          reregBtn.addEventListener('click', async e => {
+            e.stopPropagation();
+            const id   = reregBtn.dataset.id;
+            const type = reregBtn.dataset.type;
+            const url  = type === 'Boat'
+              ? `${API_BASE}/api/boats/${id}/reregister`
+              : `${API_BASE}/api/moorings/${id}/reregister`;
+            reregBtn.disabled = true; reregBtn.textContent = 'Processing…';
+            try {
+              const res  = await fetch(url, { method:'POST', headers:{'Authorization':`Bearer ${token}`} });
+              const data = await res.json().catch(() => ({}));
+              if (res.ok) {
+                reregBtn.textContent = '✔ Renewed!';
+                reregBtn.style.background = '#2e7d32';
+                reregBtn.style.color = '#fff';
+                loadPins();
+              } else {
+                alert(data.message || 'Re-registration failed.');
+                reregBtn.disabled = false; reregBtn.textContent = '🔄 Re-register now';
+              }
+            } catch {
+              alert('Could not reach the server.');
+              reregBtn.disabled = false; reregBtn.textContent = '🔄 Re-register now';
+            }
+          });
+        }
+
+        searchResults.appendChild(div);
+      });
+      searchResults.classList.add('open');
+    }
 
     // ── Helper: create a coloured SVG circle icon ─────────────────────────────
     function circleIcon(color) {
@@ -167,37 +1198,90 @@
 
     // ── Fetch and render pins ─────────────────────────────────────────────────
     async function loadPins() {
+      // Clear existing markers
+      allMarkers.forEach(m => m.remove());
+      allMarkers.length = 0;
+      clusterGroup.clearLayers();
+
       try {
-        const res  = await fetch(`${API_BASE}/api/map/pins`);
+        let url     = `${API_BASE}/api/map/pins`;
+        let options = {};
+        if (token && role !== 'Admin' && !publicView && !myMapMode) {
+          // Default for logged-in non-admins: show only their own pins (fast)
+          url     = `${API_BASE}/api/map/pins/mine`;
+          options = { headers: { 'Authorization': `Bearer ${token}` } };
+        }
+        // publicView=true OR Admin OR guest OR myMapMode=true → /api/map/pins (all pins)
+
+        const res  = await fetch(url, options);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const pins = await res.json();
+
+        const today    = new Date();
+        const inWindow = today.getMonth() === 3 || today.getMonth() === 4;
 
         pins.forEach(pin => {
           const icon   = circleIcon(pin.colorCode);
           const marker = L.marker([pin.latitude, pin.longitude], { icon });
 
-          // Build popup content
+          marker.bindTooltip(escapeHtml(pin.label), {
+            permanent: true, className: 'reg-label',
+            direction: 'top', offset: [0, -12]
+          });
+          allMarkers.push(marker);
+
           const photoHtml = pin.photoUrl
             ? `<img src="${API_BASE}${pin.photoUrl}" alt="Photo" />`
             : `<div class="no-photo">📷 No photo available</div>`;
+
+          // Registration year + status badge in popup
+          let statusHtml = '';
+          if (pin.type !== 'MooringRequest' && pin.registrationYear) {
+            const expired  = pin.registrationYear < today.getFullYear();
+            const badgeCls = !expired ? 'badge-active' : (inWindow ? 'badge-renew' : 'badge-expired');
+            const label    = !expired ? 'Active' : (inWindow ? 'Expired – Renew now' : 'Expired');
+            statusHtml = `<div style="margin-top:0.3rem">
+              <span style="font-size:0.7rem;color:#555">Reg year: ${pin.registrationYear}</span>
+              <span class="status-badge ${badgeCls}" style="margin-left:0.3rem">${label}</span>
+            </div>`;
+            if (expired && inWindow && token) {
+              const type = pin.type;
+              const id   = pin.id;
+              statusHtml += `<button onclick="reRegisterFromPopup(${id},'${type}')" style="margin-top:0.5rem;background:#c8a84b;color:#003366;border:none;border-radius:5px;padding:0.3rem 0.8rem;cursor:pointer;font-size:0.75rem;font-weight:700;width:100%">🔄 Re-register now</button>`;
+            }
+          }
 
           marker.bindPopup(`
             <div class="pin-popup">
               ${photoHtml}
               <div class="pin-label">${escapeHtml(pin.label)}</div>
-              <div class="pin-type">${escapeHtml(pin.type)}</div>
+              <div class="pin-type">${escapeHtml(pin.isPending ? '⏳ Pending approval' : pin.type)}</div>
+              ${statusHtml}
             </div>
           `);
 
-          marker.addTo(map);
+          marker.addTo(clusterGroup);
         });
 
+        updateLabels();
         console.info(`Loaded ${pins.length} pin(s) onto the map.`);
       } catch (err) {
         console.error('Failed to load map pins:', err);
-        // Non-blocking – user still sees the base map
       }
     }
+
+    // Re-register called from popup button (global scope needed for onclick attr)
+    window.reRegisterFromPopup = async function(id, type) {
+      const url = type === 'Boat'
+        ? `${API_BASE}/api/boats/${id}/reregister`
+        : `${API_BASE}/api/moorings/${id}/reregister`;
+      try {
+        const res  = await fetch(url, { method:'POST', headers:{'Authorization':`Bearer ${token}`} });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) { alert(data.message || 'Registration renewed!'); loadPins(); }
+        else         { alert(data.message || 'Re-registration failed.'); }
+      } catch { alert('Could not reach the server.'); }
+    };
 
     // Sanitise strings inserted into innerHTML to prevent XSS
     function escapeHtml(str) {

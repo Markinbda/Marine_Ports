@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace MarinePorts.API.Models;
 
 /// <summary>
@@ -9,8 +11,15 @@ public class AppUser
     public int Id { get; set; }
 
     // ── Personal details ──────────────────────────────────────────────────────
-    /// <summary>Full legal name as per government ID.</summary>
-    public string FullName { get; set; } = string.Empty;
+    /// <summary>Legal first name.</summary>
+    public string FirstName { get; set; } = string.Empty;
+
+    /// <summary>Legal last name.</summary>
+    public string LastName { get; set; } = string.Empty;
+
+    /// <summary>Computed full name – not stored in the database.</summary>
+    [NotMapped]
+    public string FullName => $"{FirstName} {LastName}".Trim();
 
     /// <summary>Email used for login and correspondence.</summary>
     public string Email { get; set; } = string.Empty;
@@ -53,6 +62,7 @@ public class AppUser
     public bool IsApproved { get; set; } = false;
 
     // ── Navigation properties ─────────────────────────────────────────────────
-    public ICollection<Boat>    Boats    { get; set; } = new List<Boat>();
-    public ICollection<Mooring> Moorings { get; set; } = new List<Mooring>();
+    public ICollection<Boat>           Boats           { get; set; } = new List<Boat>();
+    public ICollection<Mooring>        Moorings        { get; set; } = new List<Mooring>();
+    public ICollection<MooringRequest> MooringRequests { get; set; } = new List<MooringRequest>();
 }

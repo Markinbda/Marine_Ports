@@ -23,6 +23,9 @@ public class Mooring
 
     public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
 
+    /// <summary>The calendar year this registration is valid for (renewed Apr 1–May 31 each year).</summary>
+    public int RegistrationYear { get; set; } = DateTime.UtcNow.Year;
+
     // ── ArcGIS import fields ──────────────────────────────────────────────────
     /// <summary>Colour as recorded in the ArcGIS survey (e.g. White, Yellow).</summary>
     public string? Colour { get; set; }

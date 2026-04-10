@@ -61,9 +61,13 @@ public class AdminController : ControllerBase
             .Select(u => new
             {
                 u.Id,
+                u.FirstName,
+                u.LastName,
                 u.FullName,
                 u.Email,
                 u.PhoneNumber,
+                u.AddressLine1,
+                u.AddressLine2,
                 u.Parish,
                 u.OrganisationName,
                 u.GovernmentIdOrLicenceNumber,
@@ -128,6 +132,35 @@ public class AdminController : ControllerBase
         return Ok(new { message = $"{user.FullName} is now {user.Role}.", userId = user.Id });
     }
 
+    // ── PUT /api/admin/users/{id} ─────────────────────────────────────────────
+    /// <summary>Admin: edit any field of a user's profile.</summary>
+    [HttpPut("users/{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] AdminUpdateUserDto dto)
+    {
+        var user = await _db.Users.FindAsync(id);
+        if (user is null) return NotFound();
+
+        user.FirstName                    = dto.FirstName.Trim();
+        user.LastName                     = dto.LastName.Trim();
+        user.Email                        = dto.Email.Trim().ToLower();
+        user.PhoneNumber                  = dto.PhoneNumber?.Trim() ?? string.Empty;
+        user.AddressLine1                 = dto.AddressLine1?.Trim() ?? string.Empty;
+        user.AddressLine2                 = dto.AddressLine2?.Trim() ?? string.Empty;
+        user.Parish                       = dto.Parish?.Trim() ?? string.Empty;
+        user.OrganisationName             = string.IsNullOrWhiteSpace(dto.OrganisationName) ? null : dto.OrganisationName.Trim();
+        user.GovernmentIdOrLicenceNumber  = dto.GovernmentIdOrLicenceNumber?.Trim() ?? string.Empty;
+
+        var allowed = new[] { "BoatOwner", "MooringOwner", "PortAuthority", "Admin" };
+        if (allowed.Contains(dto.Role))
+            user.Role = dto.Role;
+
+        user.IsApproved = dto.IsApproved;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"{user.FullName} updated.", userId = user.Id });
+    }
+
     // ── DELETE /api/admin/users/{id} ──────────────────────────────────────────
     /// <summary>Permanently deletes a user and all their boats/moorings.</summary>
     [HttpDelete("users/{id:int}")]
@@ -189,7 +222,7 @@ public class AdminController : ControllerBase
 
         var boat = new Boat
         {
-            RegistrationNumber = dto.RegistrationNumber.Trim(),
+            RegistrationNumber = string.IsNullOrWhiteSpace(dto.RegistrationNumber) ? null : dto.RegistrationNumber.Trim(),
             OwnerName          = dto.OwnerName.Trim(),
             BoatName           = dto.BoatName.Trim(),
             BoatType           = dto.BoatType.Trim(),
@@ -296,21 +329,26 @@ public class AdminController : ControllerBase
         if (items is null || items.Count == 0)
             return BadRequest(new { message = "No items provided." });
 
-        // Load existing mooring numbers for fast duplicate check
+        // Load existing ArcGIS mooring numbers for fast duplicate check
         var existing = (await _db.Moorings
             .Where(m => m.Source == "ArcGIS")
             .Select(m => m.MooringNumber)
             .ToListAsync()).ToHashSet();
 
-        var toAdd = new List<Mooring>();
+        var toAdd   = new List<Mooring>();
+        var seenNos = new HashSet<string>(); // prevent dups within this batch
+
         foreach (var item in items)
         {
-            if (string.IsNullOrWhiteSpace(item.RegNo)) continue;
-            if (existing.Contains(item.RegNo)) continue;
+            // Use the synthetic key as-is (ARCGIS-OBJECTID-nnn for blanks)
+            var regNo = string.IsNullOrWhiteSpace(item.RegNo) ? null : item.RegNo.Trim();
+            if (regNo is null) continue;            // skip truly blank
+            if (existing.Contains(regNo)) continue; // already in DB
+            if (!seenNos.Add(regNo)) continue;      // duplicate within batch
 
             toAdd.Add(new Mooring
             {
-                MooringNumber = item.RegNo.Trim(),
+                MooringNumber = regNo,
                 OwnerName     = "ArcGIS Import",
                 Latitude      = item.Lat,
                 Longitude     = item.Lon,
@@ -321,14 +359,21 @@ public class AdminController : ControllerBase
             });
         }
 
+        int imported = 0;
         if (toAdd.Count > 0)
         {
-            _db.Moorings.AddRange(toAdd);
-            await _db.SaveChangesAsync();
+            // Insert in chunks of 500 to avoid oversized transactions
+            const int chunkSize = 500;
+            for (int i = 0; i < toAdd.Count; i += chunkSize)
+            {
+                _db.Moorings.AddRange(toAdd.Skip(i).Take(chunkSize));
+                await _db.SaveChangesAsync();
+                imported += Math.Min(chunkSize, toAdd.Count - i);
+            }
         }
 
         int total = await _db.Moorings.CountAsync();
-        return Ok(new { imported = toAdd.Count, skipped = items.Count - toAdd.Count, totalMoorings = total });
+        return Ok(new { imported, skipped = items.Count - imported, totalMoorings = total });
     }
 
     public record ArcGisMooringDto(string RegNo, string? Colour, string? Status, double Lat, double Lon);
@@ -409,6 +454,21 @@ public record BootstrapDto(string Email);
 public record SetRoleDto(string Role);
 public record ResetPasswordDto(string NewPassword);
 public record BootstrapResetDto(string Email, string NewPassword);
+
+public class AdminUpdateUserDto
+{
+    public string  FirstName                   { get; set; } = string.Empty;
+    public string  LastName                    { get; set; } = string.Empty;
+    public string  Email                       { get; set; } = string.Empty;
+    public string? PhoneNumber                 { get; set; }
+    public string? AddressLine1                { get; set; }
+    public string? AddressLine2                { get; set; }
+    public string? Parish                      { get; set; }
+    public string? OrganisationName            { get; set; }
+    public string? GovernmentIdOrLicenceNumber { get; set; }
+    public string  Role                        { get; set; } = "BoatOwner";
+    public bool    IsApproved                  { get; set; }
+}
 
 /// <summary>Admin version of BoatCreateDto – includes optional UserId to assign ownership.</summary>
 public class AdminBoatCreateDto : BoatCreateDto

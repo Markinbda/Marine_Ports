@@ -110,4 +110,25 @@ public class MooringsController : ControllerBase
         await _db.SaveChangesAsync();
         return NoContent();
     }
+
+    // POST /api/moorings/{id}/reregister – renew annual registration (Apr 1–May 31)
+    [HttpPost("{id:int}/reregister")]
+    public async Task<IActionResult> ReRegister(int id)
+    {
+        var today = DateTime.UtcNow;
+        if (!(today.Month == 4 || today.Month == 5))
+            return BadRequest(new { message = "Re-registration is only permitted between 1 April and 31 May each year." });
+
+        var mooring = await _db.Moorings.FindAsync(id);
+        if (mooring is null) return NotFound();
+
+        int callerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (mooring.AppUserId != callerId && !User.IsInRole("Admin"))
+            return Forbid();
+
+        mooring.RegistrationYear = today.Year;
+        mooring.RegisteredAt     = today;
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"Mooring registration renewed for {today.Year}.", registrationYear = today.Year });
+    }
 }

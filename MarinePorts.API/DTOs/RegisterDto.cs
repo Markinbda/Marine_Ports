@@ -9,9 +9,13 @@ namespace MarinePorts.API.DTOs;
 public class RegisterDto
 {
     // ── Personal details ──────────────────────────────────────────────────────
-    [Required(ErrorMessage = "Full name is required.")]
-    [StringLength(150)]
-    public string FullName { get; set; } = string.Empty;
+    [Required(ErrorMessage = "First name is required.")]
+    [StringLength(75)]
+    public string FirstName { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Last name is required.")]
+    [StringLength(75)]
+    public string LastName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Email address is required.")]
     [EmailAddress(ErrorMessage = "Please enter a valid email address.")]

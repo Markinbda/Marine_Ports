@@ -2,6 +2,12 @@
 MarinePorts.API/bin/
 MarinePorts.API/obj/
 
+# Temp/scratch projects
+TempMigFix/
+
+# Temporary SQL scripts
+MarinePorts.API/migration_fix.sql
+
 # Sensitive config – use environment variables or secrets manager in production
 MarinePorts.API/appsettings.json
 

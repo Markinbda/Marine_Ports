@@ -58,11 +58,31 @@ public class BoatsController : ControllerBase
 
         var boat = new Boat
         {
-            RegistrationNumber = dto.RegistrationNumber.Trim(),
+            RegistrationNumber = string.IsNullOrWhiteSpace(dto.RegistrationNumber) ? null : dto.RegistrationNumber.Trim(),
             OwnerName          = dto.OwnerName.Trim(),
             BoatName           = dto.BoatName.Trim(),
-            BoatType           = dto.BoatType.Trim(),
+            BoatType           = dto.BoatType?.Trim() ?? string.Empty,
             LengthFeet         = dto.LengthFeet,
+            LengthInches       = dto.LengthInches,
+            BeamFeet           = dto.BeamFeet,
+            BeamInches         = dto.BeamInches,
+            DraughtFeet        = dto.DraughtFeet,
+            DraughtInches      = dto.DraughtInches,
+            ColorCabin         = dto.ColorCabin,
+            ColorDecks         = dto.ColorDecks,
+            ColorHull          = dto.ColorHull,
+            ColorBootLine      = dto.ColorBootLine,
+            ColorBottom        = dto.ColorBottom,
+            Make               = dto.Make,
+            WhereBuilt         = dto.WhereBuilt,
+            HullNumber         = dto.HullNumber,
+            Material           = dto.Material,
+            YearBuilt          = dto.YearBuilt,
+            EngineType         = dto.EngineType,
+            EngineMake         = dto.EngineMake,
+            EngineSerialVin    = dto.EngineSerialVin,
+            PowerHp            = dto.PowerHp,
+            Fuel               = dto.Fuel,
             Latitude           = dto.Latitude,
             Longitude          = dto.Longitude,
             PhotoUrl           = dto.PhotoUrl,
@@ -88,11 +108,31 @@ public class BoatsController : ControllerBase
         if (boat.AppUserId != callerId && !User.IsInRole("Admin"))
             return Forbid();
 
-        boat.RegistrationNumber = dto.RegistrationNumber.Trim();
+        boat.RegistrationNumber = string.IsNullOrWhiteSpace(dto.RegistrationNumber) ? null : dto.RegistrationNumber.Trim();
         boat.OwnerName          = dto.OwnerName.Trim();
         boat.BoatName           = dto.BoatName.Trim();
-        boat.BoatType           = dto.BoatType.Trim();
+        boat.BoatType           = dto.BoatType?.Trim() ?? string.Empty;
         boat.LengthFeet         = dto.LengthFeet;
+        boat.LengthInches       = dto.LengthInches;
+        boat.BeamFeet           = dto.BeamFeet;
+        boat.BeamInches         = dto.BeamInches;
+        boat.DraughtFeet        = dto.DraughtFeet;
+        boat.DraughtInches      = dto.DraughtInches;
+        boat.ColorCabin         = dto.ColorCabin;
+        boat.ColorDecks         = dto.ColorDecks;
+        boat.ColorHull          = dto.ColorHull;
+        boat.ColorBootLine      = dto.ColorBootLine;
+        boat.ColorBottom        = dto.ColorBottom;
+        boat.Make               = dto.Make;
+        boat.WhereBuilt         = dto.WhereBuilt;
+        boat.HullNumber         = dto.HullNumber;
+        boat.Material           = dto.Material;
+        boat.YearBuilt          = dto.YearBuilt;
+        boat.EngineType         = dto.EngineType;
+        boat.EngineMake         = dto.EngineMake;
+        boat.EngineSerialVin    = dto.EngineSerialVin;
+        boat.PowerHp            = dto.PowerHp;
+        boat.Fuel               = dto.Fuel;
         boat.Latitude           = dto.Latitude;
         boat.Longitude          = dto.Longitude;
         boat.PhotoUrl           = dto.PhotoUrl;
@@ -115,5 +155,26 @@ public class BoatsController : ControllerBase
         _db.Boats.Remove(boat);
         await _db.SaveChangesAsync();
         return NoContent();
+    }
+
+    // POST /api/boats/{id}/reregister – renew annual registration (Apr 1–May 31)
+    [HttpPost("{id:int}/reregister")]
+    public async Task<IActionResult> ReRegister(int id)
+    {
+        var today = DateTime.UtcNow;
+        if (!(today.Month == 4 || today.Month == 5))
+            return BadRequest(new { message = "Re-registration is only permitted between 1 April and 31 May each year." });
+
+        var boat = await _db.Boats.FindAsync(id);
+        if (boat is null) return NotFound();
+
+        int callerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (boat.AppUserId != callerId && !User.IsInRole("Admin"))
+            return Forbid();
+
+        boat.RegistrationYear = today.Year;
+        boat.RegisteredAt     = today;
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"Boat registration renewed for {today.Year}.", registrationYear = today.Year });
     }
 }

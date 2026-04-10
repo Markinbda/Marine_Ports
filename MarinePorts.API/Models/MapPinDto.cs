@@ -22,5 +22,10 @@ public class MapPinDto
     /// Boats:    "{OwnerName} – {LengthFeet} ft"
     /// Moorings: "{OwnerName} – Mooring {MooringNumber}"
     /// </summary>
-    public string Label     { get; set; } = string.Empty;
+    public string Label            { get; set; } = string.Empty;
+
+    public int    Id               { get; set; }
+    public int    RegistrationYear { get; set; }
+    /// <summary>True for pending mooring requests (shown differently on the map).</summary>
+    public bool   IsPending        { get; set; }
 }
