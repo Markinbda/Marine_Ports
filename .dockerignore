@@ -1,0 +1,7 @@
+MarinePorts.API/bin/
+MarinePorts.API/obj/
+frontend/
+TempMigFix/
+*.md
+.git/
+.vscode/
