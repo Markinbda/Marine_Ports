@@ -7,10 +7,9 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Explicitly bind to port 5000 so the URL is consistent regardless of
-// whether launchSettings.json is picked up by the host environment.
-// The ASPNETCORE_URLS environment variable (if set) takes precedence.
-builder.WebHost.UseUrls("http://localhost:5000");
+// Railway (and most PaaS) sets $PORT at runtime. Fall back to 5000 locally.
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // ─── Database ────────────────────────────────────────────────────────────────
 // Uses SQLite for local development. Swap connection string for SQL Server/Postgres
@@ -44,12 +43,17 @@ builder.Services.AddAuthorization();
 // ─── Controllers & CORS ──────────────────────────────────────────────────────
 builder.Services.AddControllers();
 
-// Allow the frontend (served from any origin during development) to call the API.
-// Tighten the AllowedOrigins list before going to production.
+// Allow the Netlify frontend and local dev to call the API.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(
+                "https://bdamarineports.netlify.app",
+                "http://localhost:5000",
+                "http://127.0.0.1:5000",
+                "http://localhost:3000",
+                "null"            // file:// origin used during local dev
+              )
               .AllowAnyHeader()
               .AllowAnyMethod());
 });

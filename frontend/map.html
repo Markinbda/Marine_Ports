@@ -306,6 +306,7 @@
     }
     .mooring-result .mr-use:hover { background: #2e7d32; }
   </style>
+  <script src="config.js"></script>
 </head>
 <body>
 
@@ -600,7 +601,7 @@
      * 5. Adds a colour legend.
      */
 
-    const API_BASE = 'http://localhost:5000';
+    const API_BASE = window.API_BASE;
 
     // ── Auth guard ────────────────────────────────────────────────────────────
     const token    = sessionStorage.getItem('mp_token');

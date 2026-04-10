@@ -1,0 +1,11 @@
+[build]
+  # Tell Railway the API project is in the MarinePorts.API subfolder
+  builder = "dockerfile"
+  dockerfilePath = "MarinePorts.API/Dockerfile"
+
+[deploy]
+  startCommand = "dotnet MarinePorts.API.dll"
+  restartPolicyType = "on_failure"
+
+[[services]]
+  name = "marineports-api"

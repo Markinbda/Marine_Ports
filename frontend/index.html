@@ -578,6 +578,7 @@
       .header-tagline { display: none; }
     }
   </style>
+  <script src="config.js"></script>
 </head>
 <body>
 
@@ -1309,7 +1310,7 @@
     })();
 
     // ── Site navigation – sidebar config per section ──────────────────────────
-    const API_BASE = 'http://localhost:5000';
+    const API_BASE = window.API_BASE;
 
     const SECTIONS = {
       home:    { title: 'Marine & Ports', subs: [] },

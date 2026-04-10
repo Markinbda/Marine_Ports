@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel – Marine &amp; Ports</title>
+  <title>Admin Panel â€“ Marine &amp; Ports</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -13,7 +13,7 @@
       min-height: 100vh;
     }
 
-    /* ── Header ───────────────────────────────────────────────────────────── */
+    /* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     header {
       background: linear-gradient(135deg, #0d3b66, #1a6fa8);
       color: #fff;
@@ -37,7 +37,7 @@
     }
     .btn-sm:hover { background: rgba(255,255,255,0.27); }
 
-    /* ── Tariff Modal ─────────────────────────────────────────────────────── */
+    /* â”€â”€ Tariff Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
       background: rgba(0,0,0,0.55); z-index: 9999;
@@ -92,10 +92,10 @@
     }
     .modal-footer button:hover { background: #1a6fa8; }
 
-    /* ── Layout ───────────────────────────────────────────────────────────── */
+    /* â”€â”€ Layout â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .page { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
 
-    /* ── Stats bar ────────────────────────────────────────────────────────── */
+    /* â”€â”€ Stats bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .stats {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -115,7 +115,7 @@
     .stat-card .val { font-size: 2rem; font-weight: 800; color: #0d3b66; }
     .stat-card .lbl { font-size: 0.78rem; color: #777; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* ── Section card ─────────────────────────────────────────────────────── */
+    /* â”€â”€ Section card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .section {
       background: #fff;
       border-radius: 12px;
@@ -132,7 +132,7 @@
     }
     .section-head h2 { font-size: 1rem; color: #0d3b66; }
 
-    /* ── Filter bar ───────────────────────────────────────────────────────── */
+    /* â”€â”€ Filter bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .filter-bar {
       padding: 0.75rem 1.5rem;
       background: #f8fbff;
@@ -154,7 +154,7 @@
     .filter-bar input:focus,
     .filter-bar select:focus { border-color: #1a6fa8; }
 
-    /* ── Table ────────────────────────────────────────────────────────────── */
+    /* â”€â”€ Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .tbl-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
     thead tr { background: #f0f4f8; }
@@ -163,7 +163,7 @@
     td { padding: 0.75rem 1rem; border-top: 1px solid #edf1f5; vertical-align: middle; }
     tr:hover td { background: #f8fbff; }
 
-    /* ── Badges ───────────────────────────────────────────────────────────── */
+    /* â”€â”€ Badges â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .badge {
       display: inline-block;
       padding: 0.2rem 0.6rem;
@@ -178,7 +178,7 @@
     .badge.role-boat  { background: #e8f5e9; color: #1b5e20; }
     .badge.role-moor  { background: #fce4ec; color: #880e4f; }
 
-    /* ── Action buttons ───────────────────────────────────────────────────── */
+    /* â”€â”€ Action buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
     .btn-action {
       padding: 0.3rem 0.7rem;
@@ -196,7 +196,7 @@
     .btn-admin    { background: #7c4dff; color: #fff; }
     .btn-edit     { background: #1a6fa8; color: #fff; }
 
-    /* ── Edit User Modal ─────────────────────────────────────────────────── */
+    /* â”€â”€ Edit User Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     #editUserModal .modal-box { max-width: 560px; }
     .edit-grid {
       display: grid;
@@ -213,7 +213,7 @@
     .edit-grid input:focus, .edit-grid select:focus { border-color: #1a6fa8; }
     .edit-approved { display: flex; align-items: center; gap: 0.5rem; font-size: 0.88rem; }
 
-    /* ── Toast ────────────────────────────────────────────────────────────── */
+    /* â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     #toast {
       position: fixed; bottom: 1.5rem; right: 1.5rem;
       background: #323232; color: #fff;
@@ -227,7 +227,7 @@
     #toast.ok   { background: #2e7d32; }
     #toast.err  { background: #c62828; }
 
-    /* ── Bootstrap panel (shown when no admin yet) ─────────────────────── */
+    /* â”€â”€ Bootstrap panel (shown when no admin yet) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     #bootstrapBox {
       background: #fff8e1;
       border: 2px solid #ffd54f;
@@ -251,7 +251,7 @@
     }
     .btn-bootstrap:hover { background: #bf360c; }
 
-    /* ── Tabs ─────────────────────────────────────────────────────────────── */
+    /* â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .tabs {
       display: flex; gap: 0; border-bottom: 2px solid #dce6f0;
       margin-bottom: 1.5rem; background: #fff;
@@ -271,13 +271,13 @@
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
-    /* ── Empty state ──────────────────────────────────────────────────────── */
+    /* â”€â”€ Empty state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .empty { padding: 2.5rem; text-align: center; color: #aaa; font-size: 0.9rem; }
 
-    /* ── Spinner ──────────────────────────────────────────────────────────── */
+    /* â”€â”€ Spinner â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .loading { padding: 2rem; text-align: center; color: #777; }
 
-    /* ── Import bar ──────────────────────────────────────────────────────── */
+    /* â”€â”€ Import bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
     .import-bar {
       padding: 0.75rem 1.5rem;
       background: #e8f5e9; border-bottom: 1px solid #c8e6c9;
@@ -295,26 +295,27 @@
       .stats { grid-template-columns: 1fr 1fr; }
     }
   </style>
+  <script src="config.js"></script>
 </head>
 <body>
 
-  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <!-- â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <header>
-    <div class="brand">⚓ Marine &amp; Ports – Admin Panel</div>
+    <div class="brand">âš“ Marine &amp; Ports â€“ Admin Panel</div>
     <div class="header-right">
       <span id="adminName"></span>
-      <button class="btn-sm" id="tariffBtn">📋 Tariff</button>
+      <button class="btn-sm" id="tariffBtn">ðŸ“‹ Tariff</button>
       <a href="map.html" class="btn-sm">Map</a>
       <button class="btn-sm" id="logoutBtn">Sign Out</button>
     </div>
   </header>
 
-  <!-- ── Edit User Modal ────────────────────────────────────────────────────── -->
+  <!-- â”€â”€ Edit User Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <div class="modal-overlay" id="editUserModal">
     <div class="modal-box">
       <div class="modal-header">
-        <h2>✏️ Edit User Profile</h2>
-        <button class="modal-close" onclick="closeEditModal()">✕</button>
+        <h2>âœï¸ Edit User Profile</h2>
+        <button class="modal-close" onclick="closeEditModal()">âœ•</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="euId" />
@@ -377,17 +378,17 @@
     </div>
   </div>
 
-  <!-- ── Tariff Modal ──────────────────────────────────────────────────────── -->
+  <!-- â”€â”€ Tariff Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <div class="modal-overlay" id="tariffModal">
     <div class="modal-box">
       <div class="modal-header">
-        <h2>⚓ Dept. of Marine &amp; Ports — Services New Tariff<br><small style="font-weight:400;opacity:0.85">Effective 1st April 2023</small></h2>
-        <button class="modal-close" id="tariffClose">✕</button>
+        <h2>âš“ Dept. of Marine &amp; Ports â€” Services New Tariff<br><small style="font-weight:400;opacity:0.85">Effective 1st April 2023</small></h2>
+        <button class="modal-close" id="tariffClose">âœ•</button>
       </div>
       <div class="modal-body">
 
         <div class="tariff-section">
-          <h3>1 — Workboats (Basic Hourly Rate)</h3>
+          <h3>1 â€” Workboats (Basic Hourly Rate)</h3>
           <table class="tariff-table">
             <tr><td>Workboat</td><td>$525</td></tr>
             <tr><td>Line boat</td><td>$525</td></tr>
@@ -401,7 +402,7 @@
         </div>
 
         <div class="tariff-section">
-          <h3>2 — Tug Service</h3>
+          <h3>2 â€” Tug Service</h3>
           <table class="tariff-table">
             <tr><td>Berthing &amp; Unberthing movement</td><td>$1,531</td></tr>
             <tr><td>Tug hourly rate</td><td>$931</td></tr>
@@ -409,18 +410,18 @@
         </div>
 
         <div class="tariff-section">
-          <h3>3 — Tender Service</h3>
+          <h3>3 â€” Tender Service</h3>
           <table class="tariff-table">
             <tr><td>Per round trip to cruise vessel at anchor</td><td>$1,531</td></tr>
             <tr><td>Per round trip to cruise vessel at Dockyard</td><td>$1,475</td></tr>
-            <tr><td>Hourly charter rate <em>(minimum 4 hours – Local Cruises)</em></td><td>$970</td></tr>
+            <tr><td>Hourly charter rate <em>(minimum 4 hours â€“ Local Cruises)</em></td><td>$970</td></tr>
           </table>
-          <div class="tariff-note">Note 1: All above rates are subject to 100% surcharge on weekends, public holidays and between 4:30 pm and 8:00 am Monday – Friday.</div>
+          <div class="tariff-note">Note 1: All above rates are subject to 100% surcharge on weekends, public holidays and between 4:30 pm and 8:00 am Monday â€“ Friday.</div>
           <div class="tariff-note">Note 2: Cruise ships are subject to a minimum of three (3) round trips for the first twelve (12) hour period or a minimum of five (5) round trips in any twenty four (24) hour period.</div>
         </div>
 
         <div class="tariff-section">
-          <h3>4 — Off Shore Towage, Salvage</h3>
+          <h3>4 â€” Off Shore Towage, Salvage</h3>
           <table class="tariff-table">
             <tr><td>Tug hourly rate</td><td>$1,537</td></tr>
             <tr><td>Tender hourly rate</td><td>$1,405</td></tr>
@@ -430,7 +431,7 @@
         </div>
 
         <div class="tariff-section">
-          <h3>5 — Port Dues</h3>
+          <h3>5 â€” Port Dues</h3>
           <table class="tariff-table">
             <tr><td>Minimum charge up to and including 100 metres length</td><td>$648</td></tr>
             <tr><td>Over 100 metres (rate per metre thereafter)</td><td>$15.05</td></tr>
@@ -439,7 +440,7 @@
         </div>
 
         <div class="tariff-section">
-          <h3>6 — Pilot Dues per Metre or Draft <small style="text-transform:none;font-size:0.75rem">(minimum draft 3 metres)</small></h3>
+          <h3>6 â€” Pilot Dues per Metre or Draft <small style="text-transform:none;font-size:0.75rem">(minimum draft 3 metres)</small></h3>
           <table class="tariff-table">
             <tr><td>St. Georges / Esso Oil Docks / Five Fathom Hole</td><td>$151</td></tr>
             <tr><td>Dockyard / Grassy Bay</td><td>$211</td></tr>
@@ -459,9 +460,9 @@
 
   <div class="page">
 
-    <!-- ── Bootstrap notice (only visible when no admin exists) ─────────────── -->
+    <!-- â”€â”€ Bootstrap notice (only visible when no admin exists) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div id="bootstrapBox" style="display:none;">
-      <h3>⚠ First-Run Setup: No Admin Exists</h3>
+      <h3>âš  First-Run Setup: No Admin Exists</h3>
       <p>
         Enter the email address of an already-registered user to grant them Admin access.
         This panel disappears permanently once the first admin is created.
@@ -472,48 +473,48 @@
       </div>
     </div>
 
-    <!-- ── Stats ──────────────────────────────────────────────────────────── -->
+    <!-- â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="stats">
       <div class="stat-card total">
-        <div class="val" id="statTotal">–</div>
+        <div class="val" id="statTotal">â€“</div>
         <div class="lbl">Total Users</div>
       </div>
       <div class="stat-card pending">
-        <div class="val" id="statPending">–</div>
+        <div class="val" id="statPending">â€“</div>
         <div class="lbl">Pending Approval</div>
       </div>
       <div class="stat-card approved">
-        <div class="val" id="statApproved">–</div>
+        <div class="val" id="statApproved">â€“</div>
         <div class="lbl">Approved</div>
       </div>
       <div class="stat-card">
-        <div class="val" id="statBoats">–</div>
+        <div class="val" id="statBoats">â€“</div>
         <div class="lbl">Total Boats</div>
       </div>
       <div class="stat-card">
-        <div class="val" id="statMoorings">–</div>
+        <div class="val" id="statMoorings">â€“</div>
         <div class="lbl">Total Moorings</div>
       </div>
     </div>
 
-    <!-- ── Tabs ─────────────────────────────────────────────────────────── -->
+    <!-- â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div class="tabs">
-      <button class="tab-btn active" onclick="showTab('users')">👥 Users</button>
-      <button class="tab-btn" onclick="showTab('moorings')">⚓ Moorings</button>
-      <button class="tab-btn" onclick="showTab('boats')">🚤 Boats</button>
-      <button class="tab-btn" onclick="showTab('ticker')">📢 Ticker</button>
+      <button class="tab-btn active" onclick="showTab('users')">ðŸ‘¥ Users</button>
+      <button class="tab-btn" onclick="showTab('moorings')">âš“ Moorings</button>
+      <button class="tab-btn" onclick="showTab('boats')">ðŸš¤ Boats</button>
+      <button class="tab-btn" onclick="showTab('ticker')">ðŸ“¢ Ticker</button>
     </div>
 
-    <!-- ── Users panel ────────────────────────────────────────────────────── -->
+    <!-- â”€â”€ Users panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div id="tab-users" class="tab-panel active">
       <div class="section">
         <div class="section-head">
           <h2>Registered Users</h2>
-          <button class="btn-sm" id="refreshBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">↻ Refresh</button>
+          <button class="btn-sm" id="refreshBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">â†» Refresh</button>
         </div>
 
         <div class="filter-bar">
-          <input type="text" id="searchInput" placeholder="Search name or email…" style="width:220px;" />
+          <input type="text" id="searchInput" placeholder="Search name or emailâ€¦" style="width:220px;" />
           <select id="filterStatus">
             <option value="">All statuses</option>
             <option value="pending">Pending</option>
@@ -545,29 +546,29 @@
               </tr>
             </thead>
             <tbody id="usersTbody">
-              <tr><td colspan="10" class="loading">Loading users…</td></tr>
+              <tr><td colspan="10" class="loading">Loading usersâ€¦</td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- ── Moorings panel ─────────────────────────────────────────────────── -->
+    <!-- â”€â”€ Moorings panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div id="tab-moorings" class="tab-panel">
       <div class="section">
         <div class="section-head">
           <h2>All Moorings</h2>
           <div style="display:flex;gap:0.5rem;">
-            <button class="btn-sm" id="refreshMooringsBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">↻ Refresh</button>
+            <button class="btn-sm" id="refreshMooringsBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">â†» Refresh</button>
           </div>
         </div>
         <div class="import-bar">
-          <span>📡 ArcGIS Public Dataset (Government of Bermuda, 2014)</span>
+          <span>ðŸ“¡ ArcGIS Public Dataset (Government of Bermuda, 2014)</span>
           <button class="btn-import" id="loadArcGisBtn">Load Moorings from ArcGIS</button>
           <span id="arcgisStatus" style="color:#555;font-weight:normal;"></span>
         </div>
         <div class="filter-bar">
-          <input type="text" id="mooringSearch" placeholder="Search reg # or colour…" style="width:220px;" />
+          <input type="text" id="mooringSearch" placeholder="Search reg # or colourâ€¦" style="width:220px;" />
           <select id="mooringFilter">
             <option value="">All sources</option>
             <option value="arcgis">ArcGIS (Public)</option>
@@ -596,15 +597,15 @@
       </div>
     </div>
 
-    <!-- ── Boats panel ────────────────────────────────────────────────────── -->
+    <!-- â”€â”€ Boats panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div id="tab-boats" class="tab-panel">
       <div class="section">
         <div class="section-head">
           <h2>All Boats</h2>
-          <button class="btn-sm" id="refreshBoatsBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">↻ Refresh</button>
+          <button class="btn-sm" id="refreshBoatsBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">â†» Refresh</button>
         </div>
         <div class="filter-bar">
-          <input type="text" id="boatSearch" placeholder="Search reg # or name…" style="width:220px;" />
+          <input type="text" id="boatSearch" placeholder="Search reg # or nameâ€¦" style="width:220px;" />
         </div>
         <div class="tbl-wrap">
           <table>
@@ -622,7 +623,7 @@
               </tr>
             </thead>
             <tbody id="boatsTbody">
-              <tr><td colspan="9" class="loading">Loading boats…</td></tr>
+              <tr><td colspan="9" class="loading">Loading boatsâ€¦</td></tr>
             </tbody>
           </table>
         </div>
@@ -631,23 +632,23 @@
 
     </div>
 
-    <!-- ── Ticker panel ─────────────────────────────────────────── -->
+    <!-- â”€â”€ Ticker panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
     <div id="tab-ticker" class="tab-panel">
       <div class="section">
-        <div class="section-head"><h2>📢 News Ticker Display</h2></div>
+        <div class="section-head"><h2>ðŸ“¢ News Ticker Display</h2></div>
         <p style="font-size:0.85rem;color:#555;margin-bottom:1rem">
-          Edit the scrolling news ticker shown at the top of the public website. Each item is separated by a pipe <code> | </code> divider. Use plain text — HTML tags are not supported.
+          Edit the scrolling news ticker shown at the top of the public website. Each item is separated by a pipe <code> | </code> divider. Use plain text â€” HTML tags are not supported.
         </p>
 
         <div style="margin-bottom:0.75rem">
           <label style="font-size:0.82rem;font-weight:700;color:#0d3b66;display:block;margin-bottom:0.35rem">Ticker Items (one per line)</label>
           <textarea id="tickerEditor"
             style="width:100%;height:260px;font-size:0.84rem;font-family:monospace;padding:0.7rem;border:1.5px solid #c7d9f5;border-radius:6px;resize:vertical;line-height:1.7"
-            placeholder="Enter each ticker item on its own line…"></textarea>
+            placeholder="Enter each ticker item on its own lineâ€¦"></textarea>
         </div>
 
         <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
-          <button class="btn-sm" id="tickerSaveBtn" style="background:#0d3b66;color:#fff;border-color:#0d3b66;padding:0.45rem 1.2rem">✅ Save &amp; Apply</button>
+          <button class="btn-sm" id="tickerSaveBtn" style="background:#0d3b66;color:#fff;border-color:#0d3b66;padding:0.45rem 1.2rem">âœ… Save &amp; Apply</button>
           <button class="btn-sm" id="tickerResetBtn" style="border-color:#e53935;color:#e53935">&#x21BA; Reset to Default</button>
           <span id="tickerSaveMsg" style="font-size:0.8rem;color:#2e7d32;display:none">Saved!</span>
         </div>
@@ -668,23 +669,23 @@
 
   <script>
     /**
-     * Marine & Ports – Admin Panel JS
-     * ─────────────────────────────────────────────────────────────────────
+     * Marine & Ports â€“ Admin Panel JS
+     * â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
      * Loads users from GET /api/admin/users (requires Admin JWT).
      * Provides approve / revoke / promote / delete actions per row.
      * Shows a bootstrap panel when no admin account exists yet.
      */
 
-    const API_BASE = 'http://localhost:5000';
+    const API_BASE = window.API_BASE;
 
-    // ── Auth ──────────────────────────────────────────────────────────────────
+    // â”€â”€ Auth â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const token    = sessionStorage.getItem('mp_token');
     const role     = sessionStorage.getItem('mp_role');
     const fullName = sessionStorage.getItem('mp_fullName') || '';
 
     document.getElementById('adminName').textContent = fullName;
 
-    // ── Tariff modal ──────────────────────────────────────────────────────────
+    // â”€â”€ Tariff modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const tariffModal = document.getElementById('tariffModal');
     document.getElementById('tariffBtn').addEventListener('click', () => tariffModal.classList.add('open'));
     document.getElementById('tariffClose').addEventListener('click', () => tariffModal.classList.remove('open'));
@@ -698,7 +699,7 @@
 
     document.getElementById('refreshBtn').addEventListener('click', loadUsers);
 
-    // ── Auth headers helper ───────────────────────────────────────────────────
+    // â”€â”€ Auth headers helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function authHeaders() {
       return {
         'Content-Type': 'application/json',
@@ -706,7 +707,7 @@
       };
     }
 
-    // ── Bootstrap (first-run no-admin setup) ──────────────────────────────────
+    // â”€â”€ Bootstrap (first-run no-admin setup) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     document.getElementById('bootstrapBtn').addEventListener('click', async () => {
       const email = document.getElementById('bootstrapEmail').value.trim();
       if (!email) { toast('err', 'Enter an email address.'); return; }
@@ -735,13 +736,13 @@
       }
     });
 
-    // ── User data store ───────────────────────────────────────────────────────
+    // â”€â”€ User data store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     let allUsers = [];
 
-    // ── Load users ────────────────────────────────────────────────────────────
+    // â”€â”€ Load users â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     async function loadUsers() {
       const tbody = document.getElementById('usersTbody');
-      tbody.innerHTML = '<tr><td colspan="11" class="loading">Loading…</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11" class="loading">Loadingâ€¦</td></tr>';
 
       // If not logged in as Admin, show bootstrap box and bail
       if (!token || role !== 'Admin') {
@@ -771,7 +772,7 @@
       }
     }
 
-    // ── Stats ─────────────────────────────────────────────────────────────────
+    // â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     async function updateStats(users) {
       document.getElementById('statTotal').textContent    = users.length;
       document.getElementById('statPending').textContent  = users.filter(u => !u.isApproved).length;
@@ -787,7 +788,7 @@
       }
     }
 
-    // ── Render ────────────────────────────────────────────────────────────────
+    // â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function renderTable(users) {
       const tbody  = document.getElementById('usersTbody');
       const search = document.getElementById('searchInput').value.toLowerCase();
@@ -838,13 +839,13 @@
       `).join('');
     }
 
-    // ── Live filter ───────────────────────────────────────────────────────────
+    // â”€â”€ Live filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     ['searchInput', 'filterStatus', 'filterRole'].forEach(id =>
       document.getElementById(id).addEventListener('input', () => renderTable(allUsers))
     );
 
-    // ── Actions ───────────────────────────────────────────────────────────────
-    // ── Edit User Modal ────────────────────────────────────────────────────────
+    // â”€â”€ Actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // â”€â”€ Edit User Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function openEditModal(id) {
       const u = allUsers.find(x => x.id === id);
       if (!u) return;
@@ -930,7 +931,7 @@
       } catch { toast('err', 'Server unreachable.'); return null; }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function roleBadge(role) {
       const map = {
         Admin:        'role-admin',
@@ -942,7 +943,7 @@
     }
 
     function fmtDate(iso) {
-      return iso ? new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '–';
+      return iso ? new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : 'â€“';
     }
 
     function esc(s) {
@@ -951,7 +952,7 @@
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // ── Toast ─────────────────────────────────────────────────────────────────
+    // â”€â”€ Toast â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     let toastTimer;
     function toast(type, msg) {
       const el = document.getElementById('toast');
@@ -961,7 +962,7 @@
       toastTimer = setTimeout(() => { el.className = ''; }, 3500);
     }
 
-    // ── Tab switching ──────────────────────────────────────────────────────────
+    // â”€â”€ Tab switching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     function showTab(name) {
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -974,16 +975,16 @@
       if (name === 'ticker')   initTickerTab();
     }
 
-    // ── Ticker tab ──────────────────────────────────────────────────────────────
+    // â”€â”€ Ticker tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const DEFAULT_TICKER_ITEMS = [
-      '📅 ⚓ 2026–2027 Boat & Mooring Licence renewal period is April 1st – May 31st',
-      '⛴ 🗓️ Summer Ferry Schedule 2026 now available – click Ferry Service above',
-      '🧭 🔭 Bermuda Radio (ZBR) maintains 24-hour watchkeeping on international distress frequencies',
-      '🆘 🛡 Maritime emergency? Contact Bermuda Radio on VHF Ch. 16 or ☏️ (441) 297-1010',
-      '💰 📋 2022/2023 Licensing Fees now in effect – Class A boats from $56.00, Mooring Registration $190.00',
-      '🌊 🚤 Approximately 7,000 private boats are registered in Bermuda',
-      '🏕️ ⛵ Sail safely – always wear your lifejacket and file a float plan before heading offshore',
-      '🐬 🔔 New boat or mooring? Register online via the Portal Login link above'
+      'ðŸ“… âš“ 2026â€“2027 Boat & Mooring Licence renewal period is April 1st â€“ May 31st',
+      'â›´ ðŸ—“ï¸ Summer Ferry Schedule 2026 now available â€“ click Ferry Service above',
+      'ðŸ§­ ðŸ”­ Bermuda Radio (ZBR) maintains 24-hour watchkeeping on international distress frequencies',
+      'ðŸ†˜ ðŸ›¡ Maritime emergency? Contact Bermuda Radio on VHF Ch. 16 or â˜ï¸ (441) 297-1010',
+      'ðŸ’° ðŸ“‹ 2022/2023 Licensing Fees now in effect â€“ Class A boats from $56.00, Mooring Registration $190.00',
+      'ðŸŒŠ ðŸš¤ Approximately 7,000 private boats are registered in Bermuda',
+      'ðŸ•ï¸ â›µ Sail safely â€“ always wear your lifejacket and file a float plan before heading offshore',
+      'ðŸ¬ ðŸ”” New boat or mooring? Register online via the Portal Login link above'
     ];
     const TICKER_KEY = 'mp_admin_ticker';
 
@@ -995,7 +996,7 @@
     }
 
     function updateTickerPreview(items) {
-      document.getElementById('tickerPreviewText').textContent = items.join(' \u00a0|  ');
+      document.getElementById('tickerPreviewText').textContent = items.join(' \u00a0|Â  ');
     }
 
     document.getElementById('tickerSaveBtn').addEventListener('click', () => {
@@ -1022,7 +1023,7 @@
       toast('ok', 'Ticker saved. Reload the public site to see changes.');
     }
 
-    // ── ARCGIS Mooring data ───────────────────────────────────────────────────
+    // â”€â”€ ARCGIS Mooring data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const ARCGIS_URL = 'https://services.arcgis.com/cP7zZzgbHVl9p7UQ/arcgis/rest/services/Mooring_Buoys_Poles_publish/FeatureServer/0/query';
     let arcgisMoorings = [];
     let localMoorings  = [];
@@ -1038,7 +1039,7 @@
       const statusEl = document.getElementById('arcgisStatus');
       const btn      = document.getElementById('loadArcGisBtn');
       btn.disabled   = true;
-      statusEl.textContent = 'Loading…';
+      statusEl.textContent = 'Loadingâ€¦';
       arcgisMoorings = [];
       let offset = 0;
       const pageSize = 1000;
@@ -1054,18 +1055,18 @@
             const regNo = rawReg || `ARCGIS-${f.attributes.OBJECTID}`;
             arcgisMoorings.push({
               regNo,
-              colour: f.attributes.Colour || '–',
+              colour: f.attributes.Colour || 'â€“',
               status: f.attributes.MooringStatus === 1 ? 'Registered' :
                       f.attributes.MooringStatus === 2 ? 'Unregistered' : 'Illegible',
-              lat:    f.geometry ? f.geometry.y.toFixed(5) : '–',
-              lon:    f.geometry ? f.geometry.x.toFixed(5) : '–',
+              lat:    f.geometry ? f.geometry.y.toFixed(5) : 'â€“',
+              lon:    f.geometry ? f.geometry.x.toFixed(5) : 'â€“',
               source: 'arcgis'
             });
           });
           if (!data.exceededTransferLimit) break;
           offset += pageSize;
         }
-        statusEl.textContent = `✓ ${arcgisMoorings.length.toLocaleString()} moorings loaded from ArcGIS — saving to database…`;
+        statusEl.textContent = `âœ“ ${arcgisMoorings.length.toLocaleString()} moorings loaded from ArcGIS â€” saving to databaseâ€¦`;
         statusEl.style.color = '#1a6fa8';
 
         // Save to Supabase via bulk-import (skips duplicates)
@@ -1082,11 +1083,11 @@
             })))
           });
           const importData = await importRes.json();
-          statusEl.textContent = `✓ ${arcgisMoorings.length.toLocaleString()} loaded — ${importData.imported} new saved, ${importData.skipped} already existed. Total in DB: ${importData.totalMoorings.toLocaleString()}`;
+          statusEl.textContent = `âœ“ ${arcgisMoorings.length.toLocaleString()} loaded â€” ${importData.imported} new saved, ${importData.skipped} already existed. Total in DB: ${importData.totalMoorings.toLocaleString()}`;
           statusEl.style.color = '#2e7d32';
           document.getElementById('statMoorings').textContent = importData.totalMoorings.toLocaleString();
         } catch (err) {
-          statusEl.textContent = `✓ ${arcgisMoorings.length.toLocaleString()} displayed (DB save failed: ${err.message || err})`;
+          statusEl.textContent = `âœ“ ${arcgisMoorings.length.toLocaleString()} displayed (DB save failed: ${err.message || err})`;
           statusEl.style.color = '#e65100';
         }
       } catch (err) {
@@ -1100,17 +1101,17 @@
     async function loadMoorings() {
       if (!token || role !== 'Admin') return;
       const tbody = document.getElementById('mooringsTbody');
-      tbody.innerHTML = '<tr><td colspan="8" class="loading">Loading registered moorings…</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="loading">Loading registered mooringsâ€¦</td></tr>';
       try {
         const res  = await fetch(`${API_BASE}/api/admin/moorings`, { headers: authHeaders() });
         const data = await res.json();
         localMoorings = (data || []).map(m => ({
           id:     m.id,
           regNo:  m.mooringNumber,
-          colour: '–',
+          colour: 'â€“',
           status: 'Registered (Local)',
-          lat:    m.latitude  ? m.latitude.toFixed(5)  : '–',
-          lon:    m.longitude ? m.longitude.toFixed(5) : '–',
+          lat:    m.latitude  ? m.latitude.toFixed(5)  : 'â€“',
+          lon:    m.longitude ? m.longitude.toFixed(5) : 'â€“',
           owner:  m.ownerName,
           source: 'local'
         }));
@@ -1147,9 +1148,9 @@
           <td>${esc(m.status)}</td>
           <td>${m.lat}</td>
           <td>${m.lon}</td>
-          <td>${esc(m.owner || '–')}</td>
+          <td>${esc(m.owner || 'â€“')}</td>
           <td><span class="badge ${m.source === 'arcgis' ? 'role-port' : 'role-moor'}">${m.source === 'arcgis' ? 'ArcGIS' : 'Registered'}</span></td>
-          <td>${m.source === 'local' ? `<button class="btn-action btn-delete" onclick="deleteMooring(${m.id})">Delete</button>` : '–'}</td>
+          <td>${m.source === 'local' ? `<button class="btn-action btn-delete" onclick="deleteMooring(${m.id})">Delete</button>` : 'â€“'}</td>
         </tr>
       `).join('');
     }
@@ -1163,13 +1164,13 @@
       } catch { toast('err', 'Server error.'); }
     }
 
-    // ── Boats ─────────────────────────────────────────────────────────────────
+    // â”€â”€ Boats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     let allBoats = [];
 
     async function loadBoats() {
       if (!token || role !== 'Admin') return;
       const tbody = document.getElementById('boatsTbody');
-      tbody.innerHTML = '<tr><td colspan="9" class="loading">Loading boats…</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="loading">Loading boatsâ€¦</td></tr>';
       try {
         const res  = await fetch(`${API_BASE}/api/admin/boats`, { headers: authHeaders() });
         allBoats   = await res.json() || [];
@@ -1197,10 +1198,10 @@
           <td><strong>${esc(b.registrationNumber)}</strong></td>
           <td>${esc(b.boatName)}</td>
           <td>${esc(b.boatType)}</td>
-          <td>${b.lengthFeet ?? '–'}</td>
+          <td>${b.lengthFeet ?? 'â€“'}</td>
           <td>${esc(b.ownerName)}</td>
-          <td>${b.latitude  ? b.latitude.toFixed(5)  : '–'}</td>
-          <td>${b.longitude ? b.longitude.toFixed(5) : '–'}</td>
+          <td>${b.latitude  ? b.latitude.toFixed(5)  : 'â€“'}</td>
+          <td>${b.longitude ? b.longitude.toFixed(5) : 'â€“'}</td>
           <td>${fmtDate(b.registeredAt)}</td>
           <td><button class="btn-action btn-delete" onclick="deleteBoat(${b.id})">Delete</button></td>
         </tr>
@@ -1216,8 +1217,9 @@
       } catch { toast('err', 'Server error.'); }
     }
 
-    // ── Init ──────────────────────────────────────────────────────────────────
+    // â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     loadUsers();
   </script>
 </body>
 </html>
+
