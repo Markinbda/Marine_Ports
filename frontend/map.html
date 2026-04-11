@@ -169,21 +169,8 @@
     };
     legend.addTo(map);
 
-    const LABEL_ZOOM = 16; // zoom level at which Reg# / Mooring# labels appear
-    const labelMarkers = []; // markers that have a label tooltip
-
-    // ── Helper: create a coloured SVG circle icon ─────────────────────────────
-    function circleIcon(color) {
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22">
-        <circle cx="11" cy="11" r="9" fill="${color}" stroke="#fff" stroke-width="2.5"/>
-      </svg>`;
-      return L.icon({
-        iconUrl:     'data:image/svg+xml;base64,' + btoa(svg),
-        iconSize:    [22, 22],
-        iconAnchor:  [11, 11],
-        popupAnchor: [0, -14]
-      });
-    }
+    const LABEL_ZOOM   = 18; // labels appear only at this zoom or closer
+    const labelMarkers = [];
 
     // ── Fetch and render pins ─────────────────────────────────────────────────
     async function loadPins() {
@@ -193,16 +180,23 @@
         const pins = await res.json();
 
         pins.forEach(pin => {
-          const icon   = circleIcon(pin.colorCode);
-          const marker = L.marker([pin.latitude, pin.longitude], { icon });
+          // L.circleMarker is canvas-rendered – far faster than base64 SVG icon markers
+          const marker = L.circleMarker([pin.latitude, pin.longitude], {
+            radius:      8,
+            fillColor:   pin.colorCode,
+            color:       '#fff',
+            weight:      2,
+            opacity:     1,
+            fillOpacity: 0.92
+          });
 
-          // Permanent tooltip showing short label – open/close on zoom, never permanent by default
+          // Label tooltip – only opened at LABEL_ZOOM via updateLabels()
           if (pin.shortLabel) {
             marker.bindTooltip(escapeHtml(pin.shortLabel), {
-              permanent:  false,
-              direction:  'top',
-              offset:     [0, -13],
-              className:  'marker-label'
+              permanent:   false,
+              direction:   'top',
+              offset:      [0, -10],
+              className:   'marker-label'
             });
             labelMarkers.push(marker);
           }
