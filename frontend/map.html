@@ -144,10 +144,12 @@
       const div = L.DomUtil.create('div', 'legend');
       div.innerHTML = `
         <h4>Legend</h4>
-        <div class="legend-item"><span class="swatch" style="background:#2196F3"></span> Boat ≤ 10 ft (Color A)</div>
-        <div class="legend-item"><span class="swatch" style="background:#4CAF50"></span> Boat 10–20 ft (Color B)</div>
-        <div class="legend-item"><span class="swatch" style="background:#FF9800"></span> Boat > 20 ft (Color C)</div>
-        <div class="legend-item"><span class="swatch" style="background:#E91E63"></span> Mooring (Color D)</div>
+        <div class="legend-item"><span class="swatch" style="background:#2196F3"></span> Boat ≤ 10 ft</div>
+        <div class="legend-item"><span class="swatch" style="background:#4CAF50"></span> Boat 10–20 ft</div>
+        <div class="legend-item"><span class="swatch" style="background:#FF9800"></span> Boat &gt; 20 ft / Mooring (Unknown)</div>
+        <div class="legend-item"><span class="swatch" style="background:#9C27B0"></span> Mooring – Small</div>
+        <div class="legend-item"><span class="swatch" style="background:#E91E63"></span> Mooring – Medium</div>
+        <div class="legend-item"><span class="swatch" style="background:#F44336"></span> Mooring – Large</div>
       `;
       return div;
     };

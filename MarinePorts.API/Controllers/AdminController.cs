@@ -245,7 +245,7 @@ public class AdminController : ControllerBase
             .Select(m => new
             {
                 m.Id, m.MooringNumber, m.OwnerName,
-                m.Latitude, m.Longitude, m.PhotoUrl, m.RegisteredAt,
+                m.Latitude, m.Longitude, m.BoatSize, m.PhotoUrl, m.RegisteredAt,
                 m.AppUserId,
                 UserEmail = m.AppUser != null ? m.AppUser.Email : null
             })
@@ -278,6 +278,7 @@ public class AdminController : ControllerBase
             OwnerName     = dto.OwnerName.Trim(),
             Latitude      = dto.Latitude,
             Longitude     = dto.Longitude,
+            BoatSize      = dto.BoatSize?.Trim(),
             PhotoUrl      = dto.PhotoUrl,
             AppUserId     = targetUserId,
             RegisteredAt  = DateTime.UtcNow
@@ -299,51 +300,6 @@ public class AdminController : ControllerBase
         await _db.SaveChangesAsync();
         return NoContent();
     }
-
-    // POST /api/admin/moorings/bulk-import  – import ArcGIS moorings, skip duplicates
-    [HttpPost("moorings/bulk-import")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> BulkImportMoorings([FromBody] List<ArcGisMooringDto> items)
-    {
-        if (items is null || items.Count == 0)
-            return BadRequest(new { message = "No items provided." });
-
-        // Load existing mooring numbers for fast duplicate check
-        var existing = (await _db.Moorings
-            .Where(m => m.Source == "ArcGIS")
-            .Select(m => m.MooringNumber)
-            .ToListAsync()).ToHashSet();
-
-        var toAdd = new List<Mooring>();
-        foreach (var item in items)
-        {
-            if (string.IsNullOrWhiteSpace(item.RegNo)) continue;
-            if (existing.Contains(item.RegNo)) continue;
-
-            toAdd.Add(new Mooring
-            {
-                MooringNumber = item.RegNo.Trim(),
-                OwnerName     = "ArcGIS Import",
-                Latitude      = item.Lat,
-                Longitude     = item.Lon,
-                Colour        = item.Colour,
-                Source        = "ArcGIS",
-                AppUserId     = null,
-                RegisteredAt  = DateTime.UtcNow
-            });
-        }
-
-        if (toAdd.Count > 0)
-        {
-            _db.Moorings.AddRange(toAdd);
-            await _db.SaveChangesAsync();
-        }
-
-        int total = await _db.Moorings.CountAsync();
-        return Ok(new { imported = toAdd.Count, skipped = items.Count - toAdd.Count, totalMoorings = total });
-    }
-
-    public record ArcGisMooringDto(string RegNo, string? Colour, string? Status, double Lat, double Lon);
 
     // GET /api/admin/users/list  – simple id+name list for dropdowns
     [HttpGet("users/list")]

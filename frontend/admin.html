@@ -241,10 +241,13 @@
     </div>
 
     <!-- ── Users table ────────────────────────────────────────────────────── -->
-    <div class="section">
+    <div class="section" id="usersSection">
       <div class="section-head">
         <h2>Registered Users</h2>
-        <button class="btn-sm" id="refreshBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">↻ Refresh</button>
+        <div style="display:flex;gap:0.5rem;align-items:center;">
+          <button class="btn-sm" id="showMooringsBtn" style="border-color:#388E3C;color:#388E3C;background:#e8f5e9;">⚓ View Moorings</button>
+          <button class="btn-sm" id="refreshBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">↻ Refresh</button>
+        </div>
       </div>
 
       <div class="filter-bar">
@@ -282,6 +285,67 @@
           </thead>
           <tbody id="usersTbody">
             <tr><td colspan="11" class="loading">Loading users…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Moorings table ─────────────────────────────────────────────────── -->
+    <div class="section" id="mooringsSection" style="display:none;">
+      <div class="section-head">
+        <h2>Moorings</h2>
+        <button class="btn-sm" id="addMooringBtn" style="background:#4CAF50;border-color:#388E3C;">+ Add Mooring</button>
+      </div>
+
+      <!-- Add mooring form (hidden by default) -->
+      <div id="addMooringForm" style="display:none; padding:1rem 1.5rem; background:#f8fbff; border-bottom:1px solid #e8edf2;">
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end;">
+          <div>
+            <label style="font-size:0.8rem;color:#555;display:block;margin-bottom:0.25rem;">Mooring #</label>
+            <input type="text" id="mMooringNum" placeholder="e.g. BDA-001" style="padding:0.45rem 0.7rem;border:1.5px solid #ccd6e0;border-radius:6px;font-size:0.84rem;" />
+          </div>
+          <div>
+            <label style="font-size:0.8rem;color:#555;display:block;margin-bottom:0.25rem;">Owner Name</label>
+            <input type="text" id="mOwnerName" placeholder="Owner name" style="padding:0.45rem 0.7rem;border:1.5px solid #ccd6e0;border-radius:6px;font-size:0.84rem;" />
+          </div>
+          <div>
+            <label style="font-size:0.8rem;color:#555;display:block;margin-bottom:0.25rem;">Latitude</label>
+            <input type="number" id="mLat" step="any" placeholder="32.3xxx" style="padding:0.45rem 0.7rem;border:1.5px solid #ccd6e0;border-radius:6px;font-size:0.84rem;width:120px;" />
+          </div>
+          <div>
+            <label style="font-size:0.8rem;color:#555;display:block;margin-bottom:0.25rem;">Longitude</label>
+            <input type="number" id="mLon" step="any" placeholder="-64.7xxx" style="padding:0.45rem 0.7rem;border:1.5px solid #ccd6e0;border-radius:6px;font-size:0.84rem;width:120px;" />
+          </div>
+          <div>
+            <label style="font-size:0.8rem;color:#555;display:block;margin-bottom:0.25rem;">Boat Size</label>
+            <select id="mBoatSize" style="padding:0.45rem 0.7rem;border:1.5px solid #ccd6e0;border-radius:6px;font-size:0.84rem;">
+              <option value="">Unknown</option>
+              <option value="Small">Small</option>
+              <option value="Medium">Medium</option>
+              <option value="Large">Large</option>
+            </select>
+          </div>
+          <button class="btn-action btn-approve" onclick="submitAddMooring()">Save</button>
+          <button class="btn-action" style="background:#aaa;color:#fff;" onclick="document.getElementById('addMooringForm').style.display='none'">Cancel</button>
+        </div>
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Mooring #</th>
+              <th>Owner</th>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Boat Size</th>
+              <th>Registered</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="mooringsTbody">
+            <tr><td colspan="8" class="loading">Loading moorings…</td></tr>
           </tbody>
         </table>
       </div>
@@ -536,6 +600,94 @@
       el.textContent = msg;
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => { el.className = ''; }, 3500);
+    }
+
+    // ── Toggle Users ↔ Moorings views ───────────────────────────────────────
+    document.getElementById('showMooringsBtn').addEventListener('click', () => {
+      document.getElementById('usersSection').style.display = 'none';
+      document.getElementById('mooringsSection').style.display = 'block';
+      loadMoorings();
+    });
+
+    // ── Moorings ──────────────────────────────────────────────────────────────
+    async function loadMoorings() {
+      const tbody = document.getElementById('mooringsTbody');
+      if (!token || role !== 'Admin') return;
+      tbody.innerHTML = '<tr><td colspan="8" class="loading">Loading…</td></tr>';
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/moorings`, { headers: authHeaders() });
+        if (!res.ok) throw new Error();
+        const moorings = await res.json();
+        if (!moorings.length) {
+          tbody.innerHTML = '<tr><td colspan="8" class="empty">No moorings found.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = moorings.map(m => `
+          <tr>
+            <td>${m.id}</td>
+            <td><strong>${esc(m.mooringNumber)}</strong></td>
+            <td>${esc(m.ownerName)}</td>
+            <td>${m.latitude.toFixed(5)}</td>
+            <td>${m.longitude.toFixed(5)}</td>
+            <td>${esc(m.boatSize || '–')}</td>
+            <td style="white-space:nowrap">${fmtDate(m.registeredAt)}</td>
+            <td>
+              <div class="actions">
+                <button class="btn-action btn-delete" onclick="deleteMooring(${m.id}, '${esc(m.mooringNumber)}')">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">Could not load moorings.</td></tr>';
+      }
+    }
+
+    document.getElementById('addMooringBtn').addEventListener('click', () => {
+      const f = document.getElementById('addMooringForm');
+      f.style.display = f.style.display === 'none' ? 'block' : 'none';
+    });
+
+    async function submitAddMooring() {
+      const num  = document.getElementById('mMooringNum').value.trim();
+      const name = document.getElementById('mOwnerName').value.trim();
+      const lat  = parseFloat(document.getElementById('mLat').value);
+      const lon  = parseFloat(document.getElementById('mLon').value);
+      const size = document.getElementById('mBoatSize').value;
+      if (!num || !name || isNaN(lat) || isNaN(lon)) {
+        toast('err', 'Mooring #, Owner Name, Latitude and Longitude are required.');
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/moorings`, {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify({ mooringNumber: num, ownerName: name, latitude: lat, longitude: lon, boatSize: size || null })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          toast('ok', data.message);
+          document.getElementById('addMooringForm').style.display = 'none';
+          ['mMooringNum','mOwnerName','mLat','mLon'].forEach(id => document.getElementById(id).value = '');
+          document.getElementById('mBoatSize').value = '';
+          loadMoorings();
+        } else {
+          toast('err', data.message || 'Failed to add mooring.');
+        }
+      } catch {
+        toast('err', 'Server unreachable.');
+      }
+    }
+
+    async function deleteMooring(id, num) {
+      if (!confirm(`Delete mooring "${num}"? This cannot be undone.`)) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/moorings/${id}`, {
+          method: 'DELETE', headers: authHeaders()
+        });
+        if (res.status === 204) { toast('ok', `Mooring ${num} deleted.`); loadMoorings(); }
+        else toast('err', 'Delete failed.');
+      } catch { toast('err', 'Server error.'); }
     }
 
     // ── Init ──────────────────────────────────────────────────────────────────

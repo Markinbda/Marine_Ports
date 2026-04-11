@@ -2,9 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MarinePorts.API.DTOs;
 
-/// <summary>
-/// Payload for creating or updating a mooring registration.
-/// </summary>
 public class MooringCreateDto
 {
     [Required(ErrorMessage = "Mooring number is required.")]
@@ -23,6 +20,7 @@ public class MooringCreateDto
     [Range(-180, 180, ErrorMessage = "Longitude must be between -180 and 180.")]
     public double Longitude { get; set; }
 
-    /// <summary>Relative URL populated after a successful photo upload, e.g. /images/moorings/abc.jpg</summary>
+    public string? BoatSize { get; set; }
+
     public string? PhotoUrl { get; set; }
 }

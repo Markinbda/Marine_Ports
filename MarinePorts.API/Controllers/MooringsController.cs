@@ -62,6 +62,7 @@ public class MooringsController : ControllerBase
             OwnerName     = dto.OwnerName.Trim(),
             Latitude      = dto.Latitude,
             Longitude     = dto.Longitude,
+            BoatSize      = dto.BoatSize?.Trim(),
             PhotoUrl      = dto.PhotoUrl,
             AppUserId     = userId,
             RegisteredAt  = DateTime.UtcNow
@@ -89,6 +90,7 @@ public class MooringsController : ControllerBase
         mooring.OwnerName     = dto.OwnerName.Trim();
         mooring.Latitude      = dto.Latitude;
         mooring.Longitude     = dto.Longitude;
+        mooring.BoatSize      = dto.BoatSize?.Trim();
         mooring.PhotoUrl      = dto.PhotoUrl;
 
         await _db.SaveChangesAsync();

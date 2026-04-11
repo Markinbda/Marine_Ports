@@ -35,19 +35,30 @@ public class MapController : ControllerBase
             })
             .ToListAsync();
 
-        // Fetch moorings and project to MapPinDto
-        var mooringPins = await _db.Moorings
-            .Select(m => new MapPinDto
-            {
-                Type      = "Mooring",
-                Latitude  = m.Latitude,
-                Longitude = m.Longitude,
-                ColorCode = "#E91E63",  // Color D – Pink/Red (all moorings)
-                PhotoUrl  = m.PhotoUrl,
-                Label     = $"{m.OwnerName} – Mooring {m.MooringNumber}"
-            })
+        // Fetch moorings – color after DB fetch so we can use C# string logic
+        var mooringData = await _db.Moorings
+            .Select(m => new { m.Latitude, m.Longitude, m.PhotoUrl, m.OwnerName, m.MooringNumber, m.BoatSize })
             .ToListAsync();
 
+        var mooringPins = mooringData.Select(m => new MapPinDto
+        {
+            Type      = "Mooring",
+            Latitude  = m.Latitude,
+            Longitude = m.Longitude,
+            ColorCode = MooringColor(m.BoatSize),
+            PhotoUrl  = m.PhotoUrl,
+            Label     = $"{m.OwnerName} \u2013 Mooring {m.MooringNumber}"
+        }).ToList();
+
         return Ok(boatPins.Concat(mooringPins));
+    }
+
+    private static string MooringColor(string? boatSize)
+    {
+        var s = boatSize?.ToLowerInvariant() ?? string.Empty;
+        if (s.Contains("small"))  return "#9C27B0"; // Purple  – small mooring
+        if (s.Contains("med"))    return "#E91E63"; // Pink    – medium mooring
+        if (s.Contains("large")) return "#F44336"; // Red     – large mooring
+        return "#FF9800"; // Orange – unknown size
     }
 }
