@@ -14,7 +14,8 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // ─── Database ────────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+        npgsql => npgsql.MaxBatchSize(1)));
 
 // ─── JWT Authentication ───────────────────────────────────────────────────────
 // Tokens are signed with the secret key defined in appsettings.json.
