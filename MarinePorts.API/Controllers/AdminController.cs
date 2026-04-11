@@ -364,6 +364,55 @@ public class AdminController : ControllerBase
         return Ok(new { message = $"Mooring {mooring.MooringNumber} updated." });
     }
 
+    // ── GET /api/admin/users/{id} ─────────────────────────────────────────────
+    /// <summary>Returns full profile + associated boats and moorings for one user.</summary>
+    [HttpGet("users/{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetUser(int id)
+    {
+        var user = await _db.Users
+            .Where(u => u.Id == id)
+            .Select(u => new
+            {
+                u.Id,
+                u.FirstName,
+                u.LastName,
+                FullName = u.FirstName + " " + u.LastName,
+                u.Email,
+                u.PhoneNumber,
+                u.Parish,
+                u.OrganisationName,
+                u.GovernmentIdOrLicenceNumber,
+                u.Role,
+                u.IsApproved,
+                u.RegisteredAt,
+                Boats = u.Boats.Select(b => new
+                {
+                    b.Id,
+                    b.RegistrationNumber,
+                    b.BoatName,
+                    b.BoatType,
+                    b.LengthFeet,
+                    b.Latitude,
+                    b.Longitude,
+                    b.RegisteredAt
+                }).ToList(),
+                Moorings = u.Moorings.Select(m => new
+                {
+                    m.Id,
+                    m.MooringNumber,
+                    m.BoatSize,
+                    m.Latitude,
+                    m.Longitude,
+                    m.RegisteredAt
+                }).ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        if (user is null) return NotFound();
+        return Ok(user);
+    }
+
     // GET /api/admin/users/list  – simple id+name list for dropdowns
     [HttpGet("users/list")]
     [Authorize(Roles = "Admin")]
