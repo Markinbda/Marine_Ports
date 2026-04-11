@@ -72,7 +72,41 @@
       text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
       pointer-events: none;
     }
-  </style>
+    /* ── Admin filter/search bar ───────────────────────────────────────────── */
+    #adminBar {
+      position: fixed;
+      top: 62px; left: 50px;
+      z-index: 999;
+      display: none; /* shown only for Admin */
+      gap: 0.5rem; align-items: center; flex-wrap: wrap;
+      background: rgba(255,255,255,0.97);
+      border-radius: 9px; padding: 0.5rem 0.85rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.22);
+      font-size: 0.82rem;
+    }
+    .filter-toggle {
+      padding: 0.3rem 0.8rem; border-radius: 6px; border: 2px solid;
+      cursor: pointer; font-size: 0.8rem; font-weight: 600;
+      background: #fff; transition: background 0.15s, color 0.15s;
+    }
+    .filter-boats   { border-color: #1565C0; color: #1565C0; }
+    .filter-boats.active   { background: #1565C0; color: #fff; }
+    .filter-moorings { border-color: #c2185b; color: #c2185b; }
+    .filter-moorings.active { background: #c2185b; color: #fff; }
+    .bar-sep { color: #ccc; margin: 0 0.2rem; }
+    #searchBox {
+      padding: 0.3rem 0.65rem;
+      border: 1.5px solid #ccd6e0; border-radius: 6px;
+      font-size: 0.82rem; width: 175px; outline: none;
+    }
+    #searchBox:focus { border-color: #1a6fa8; }
+    .btn-bar {
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px; border: 1px solid #bbb;
+      background: #f0f4f8; cursor: pointer; font-size: 0.78rem;
+      white-space: nowrap;
+    }
+    .btn-bar:hover { background: #e0e8f0; }  </style>
 </head>
 <body>
 
@@ -88,7 +122,15 @@
 
   <!-- ── Map container ──────────────────────────────────────────────────── -->
   <div id="map"></div>
-
+  <!-- Admin filter/search bar (visible only for Admin role) ──────────────── -->
+  <div id="adminBar">
+    <button class="filter-toggle filter-boats active" id="toggleBoats">&#9975; Boats</button>
+    <button class="filter-toggle filter-moorings active" id="toggleMoorings">&#9875; Moorings</button>
+    <span class="bar-sep">|</span>
+    <input type="text" id="searchBox" placeholder="Search Reg# or Mooring#…" autocomplete="off" />
+    <button class="btn-bar" id="searchBtn">&#128269; Search</button>
+    <button class="btn-bar" id="clearSearchBtn" style="display:none;">&#10005; Clear</button>
+  </div>
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="config.js"></script>
@@ -169,18 +211,29 @@
     };
     legend.addTo(map);
 
-    const LABEL_ZOOM   = 18; // labels appear only at this zoom or closer
+    const LABEL_ZOOM   = 18;
     const labelMarkers = [];
+
+    // Two layer groups for instant show/hide without re-rendering
+    const boatLayer    = L.layerGroup().addTo(map);
+    const mooringLayer = L.layerGroup().addTo(map);
+
+    // All raw pin data kept for search
+    let allPins = [];
+
+    // Filter state (Admin only)
+    let showBoats    = true;
+    let showMoorings = true;
+    let searchActive = false;
 
     // ── Fetch and render pins ─────────────────────────────────────────────────
     async function loadPins() {
       try {
         const res  = await fetch(`${API_BASE}/api/map/pins`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const pins = await res.json();
+        allPins = await res.json();
 
-        pins.forEach(pin => {
-          // L.circleMarker is canvas-rendered – far faster than base64 SVG icon markers
+        allPins.forEach(pin => {
           const marker = L.circleMarker([pin.latitude, pin.longitude], {
             radius:      8,
             fillColor:   pin.colorCode,
@@ -190,7 +243,8 @@
             fillOpacity: 0.92
           });
 
-          // Label tooltip – only opened at LABEL_ZOOM via updateLabels()
+          pin._marker = marker;
+
           if (pin.shortLabel) {
             marker.bindTooltip(escapeHtml(pin.shortLabel), {
               permanent:   false,
@@ -201,7 +255,6 @@
             labelMarkers.push(marker);
           }
 
-          // Build popup content
           const photoHtml = pin.photoUrl
             ? `<img src="${API_BASE}${pin.photoUrl}" alt="Photo" />`
             : `<div class="no-photo">📷 No photo available</div>`;
@@ -214,15 +267,108 @@
             </div>
           `);
 
-          marker.addTo(map);
+          (pin.type === 'Boat' ? boatLayer : mooringLayer).addLayer(marker);
         });
 
-        console.info(`Loaded ${pins.length} pin(s) onto the map.`);
+        // Show admin toolbar only for Admins
+        if (role === 'Admin') {
+          document.getElementById('adminBar').style.display = 'flex';
+        }
+
+        console.info(`Loaded ${allPins.length} pin(s).`);
       } catch (err) {
         console.error('Failed to load map pins:', err);
-        // Non-blocking – user still sees the base map
       }
     }
+
+    // ── Filter toggles (Admin) ────────────────────────────────────────────────
+    document.getElementById('toggleBoats').addEventListener('click', () => {
+      if (searchActive) return;
+      showBoats = !showBoats;
+      document.getElementById('toggleBoats').classList.toggle('active', showBoats);
+      showBoats ? map.addLayer(boatLayer) : map.removeLayer(boatLayer);
+    });
+
+    document.getElementById('toggleMoorings').addEventListener('click', () => {
+      if (searchActive) return;
+      showMoorings = !showMoorings;
+      document.getElementById('toggleMoorings').classList.toggle('active', showMoorings);
+      showMoorings ? map.addLayer(mooringLayer) : map.removeLayer(mooringLayer);
+    });
+
+    // ── Search (Admin) ────────────────────────────────────────────────────────
+    function doSearch() {
+      const q = document.getElementById('searchBox').value.trim().toLowerCase();
+      if (!q) return;
+
+      const matches = allPins.filter(p =>
+        (p.shortLabel && p.shortLabel.toLowerCase().includes(q)) ||
+        p.label.toLowerCase().includes(q)
+      );
+
+      // Hide main layers while showing results
+      map.removeLayer(boatLayer);
+      map.removeLayer(mooringLayer);
+
+      if (window._searchLayer) { map.removeLayer(window._searchLayer); }
+      window._searchLayer = L.layerGroup().addTo(map);
+
+      if (matches.length === 0) {
+        alert('No matches found for "' + q + '".');
+        clearSearch();
+        return;
+      }
+
+      matches.forEach(p => {
+        const m = L.circleMarker([p.latitude, p.longitude], {
+          radius:      10,
+          fillColor:   p.colorCode,
+          color:       '#FFD700',   // gold ring highlights search result
+          weight:      3,
+          opacity:     1,
+          fillOpacity: 0.95
+        });
+        const photoHtml = p.photoUrl
+          ? `<img src="${API_BASE}${p.photoUrl}" alt="Photo" />`
+          : `<div class="no-photo">📷 No photo available</div>`;
+        m.bindPopup(`
+          <div class="pin-popup">
+            ${photoHtml}
+            <div class="pin-label">${escapeHtml(p.label)}</div>
+            <div class="pin-type">${escapeHtml(p.type)}</div>
+          </div>`);
+        if (p.shortLabel) {
+          m.bindTooltip(escapeHtml(p.shortLabel), {
+            permanent: true, direction: 'top', offset: [0, -10], className: 'marker-label'
+          });
+        }
+        window._searchLayer.addLayer(m);
+      });
+
+      const bounds = L.latLngBounds(matches.map(p => [p.latitude, p.longitude]));
+      map.fitBounds(bounds.pad(0.4), { maxZoom: 17 });
+
+      searchActive = true;
+      document.getElementById('clearSearchBtn').style.display = 'inline-block';
+      document.getElementById('searchBtn').style.display     = 'none';
+    }
+
+    function clearSearch() {
+      if (window._searchLayer) { map.removeLayer(window._searchLayer); window._searchLayer = null; }
+      if (showBoats)    map.addLayer(boatLayer);
+      if (showMoorings) map.addLayer(mooringLayer);
+      searchActive = false;
+      document.getElementById('searchBox').value             = '';
+      document.getElementById('clearSearchBtn').style.display = 'none';
+      document.getElementById('searchBtn').style.display     = 'inline-block';
+    }
+
+    document.getElementById('searchBtn').addEventListener('click', doSearch);
+    document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
+    document.getElementById('searchBox').addEventListener('keydown', e => {
+      if (e.key === 'Enter')  doSearch();
+      if (e.key === 'Escape') clearSearch();
+    });
 
     // Sanitise strings inserted into innerHTML to prevent XSS
     function escapeHtml(str) {
@@ -233,19 +379,14 @@
         .replace(/"/g, '&quot;');
     }
 
-    // ── Zoom-sensitive labels ──────────────────────────────────────────────────
+    // ── Zoom-sensitive labels ─────────────────────────────────────────────────
     function updateLabels() {
       const show = map.getZoom() >= LABEL_ZOOM;
       labelMarkers.forEach(m => {
         const tt = m.getTooltip();
         if (!tt) return;
-        if (show) {
-          tt.options.permanent = true;
-          m.openTooltip();
-        } else {
-          m.closeTooltip();
-          tt.options.permanent = false;
-        }
+        if (show) { tt.options.permanent = true;  m.openTooltip(); }
+        else      { m.closeTooltip(); tt.options.permanent = false; }
       });
     }
     map.on('zoomend', updateLabels);
