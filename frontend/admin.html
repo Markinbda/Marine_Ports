@@ -1037,7 +1037,10 @@
       } catch { toast('err', 'Server unreachable.'); }
     }
     // ── User detail drawer ────────────────────────────────────────────────────
+    let drawerUser = null; // holds the currently displayed user object
+
     async function openUserDetail(id) {
+      drawerUser = null;
       document.getElementById('drawerName').textContent = 'Loading…';
       document.getElementById('drawerBody').innerHTML   = '<div class="loading">Loading…</div>';
       document.getElementById('drawerFoot').innerHTML   = '';
@@ -1047,118 +1050,284 @@
       try {
         const res  = await fetch(`${API_BASE}/api/admin/users/${id}`, { headers: authHeaders() });
         if (!res.ok) throw new Error(res.status);
-        const u = await res.json();
-
-        document.getElementById('drawerName').textContent = u.fullName;
-
-        // ── Profile grid ──────────────────────────────────────────────────────
-        const statusBadge = u.isApproved
-          ? '<span class="badge approved">Approved</span>'
-          : '<span class="badge pending">Pending</span>';
-
-        document.getElementById('drawerBody').innerHTML = `
-          <div class="detail-grid">
-            <div class="detail-cell">
-              <div class="lbl">First Name</div>
-              <div class="val">${esc(u.firstName)}</div>
-            </div>
-            <div class="detail-cell">
-              <div class="lbl">Last Name</div>
-              <div class="val">${esc(u.lastName)}</div>
-            </div>
-            <div class="detail-cell full">
-              <div class="lbl">Email</div>
-              <div class="val">${esc(u.email)}</div>
-            </div>
-            <div class="detail-cell">
-              <div class="lbl">Phone</div>
-              <div class="val">${esc(u.phoneNumber || '–')}</div>
-            </div>
-            <div class="detail-cell">
-              <div class="lbl">Parish</div>
-              <div class="val">${esc(u.parish || '–')}</div>
-            </div>
-            <div class="detail-cell">
-              <div class="lbl">Role</div>
-              <div class="val">${roleBadge(u.role)}</div>
-            </div>
-            <div class="detail-cell">
-              <div class="lbl">Status</div>
-              <div class="val">${statusBadge}</div>
-            </div>
-            <div class="detail-cell full">
-              <div class="lbl">Organisation</div>
-              <div class="val">${esc(u.organisationName || '–')}</div>
-            </div>
-            <div class="detail-cell full">
-              <div class="lbl">Govt ID / Licence #</div>
-              <div class="val">${esc(u.governmentIdOrLicenceNumber || '–')}</div>
-            </div>
-            <div class="detail-cell">
-              <div class="lbl">Registered</div>
-              <div class="val">${fmtDate(u.registeredAt)}</div>
-            </div>
-            <div class="detail-cell">
-              <div class="lbl">System ID</div>
-              <div class="val">#${u.id}</div>
-            </div>
-          </div>
-
-          <!-- ── Boats ──────────────────────────────────────────────────────── -->
-          <div class="drawer-section-title">⛵ Boats (${u.boats.length})</div>
-          ${u.boats.length === 0
-            ? '<div class="drawer-empty">No boats registered.</div>'
-            : `<table class="drawer-mini-table">
-                <thead><tr>
-                  <th>Reg #</th><th>Name</th><th>Type</th><th>Length</th>
-                </tr></thead>
-                <tbody>
-                  ${u.boats.map(b => `
-                    <tr>
-                      <td><strong>${esc(b.registrationNumber)}</strong></td>
-                      <td>${esc(b.boatName)}</td>
-                      <td>${esc(b.boatType)}</td>
-                      <td style="text-align:right">${b.lengthFeet} ft</td>
-                    </tr>`).join('')}
-                </tbody>
-              </table>`}
-
-          <!-- ── Moorings ───────────────────────────────────────────────────── -->
-          <div class="drawer-section-title">⚓ Moorings (${u.moorings.length})</div>
-          ${u.moorings.length === 0
-            ? '<div class="drawer-empty">No moorings registered.</div>'
-            : `<table class="drawer-mini-table">
-                <thead><tr>
-                  <th>Mooring #</th><th>Size</th><th>Lat</th><th>Lon</th>
-                </tr></thead>
-                <tbody>
-                  ${u.moorings.map(m => `
-                    <tr>
-                      <td><strong>${esc(m.mooringNumber)}</strong></td>
-                      <td>${esc(m.boatSize || '–')}</td>
-                      <td>${m.latitude.toFixed(5)}</td>
-                      <td>${m.longitude.toFixed(5)}</td>
-                    </tr>`).join('')}
-                </tbody>
-              </table>`}
-        `;
-
-        // ── Footer action buttons ─────────────────────────────────────────────
-        const approveBtn = !u.isApproved
-          ? `<button class="btn-action btn-approve" onclick="approveUser(${u.id});closeDrawer();">Approve</button>`
-          : `<button class="btn-action btn-revoke"  onclick="revokeUser(${u.id});closeDrawer();">Revoke</button>`;
-        const adminBtn = u.role !== 'Admin'
-          ? `<button class="btn-action btn-admin" onclick="makeAdmin(${u.id});closeDrawer();">Make Admin</button>`
-          : '';
-        document.getElementById('drawerFoot').innerHTML = `
-          <button class="btn-action btn-edit" onclick="closeDrawer();openEdit('user',${u.id})">Edit</button>
-          ${approveBtn}
-          ${adminBtn}
-          <button class="btn-action btn-delete" style="margin-left:auto;"
-            onclick="closeDrawer();deleteUser(${u.id},'${esc(u.fullName)}')">Delete</button>
-        `;
+        drawerUser = await res.json();
+        renderDrawer(drawerUser);
       } catch {
         document.getElementById('drawerBody').innerHTML = '<div class="empty">Could not load user details.</div>';
+      }
+    }
+
+    function renderDrawer(u) {
+      document.getElementById('drawerName').textContent = u.fullName;
+
+      const statusBadge = u.isApproved
+        ? '<span class="badge approved">Approved</span>'
+        : '<span class="badge pending">Pending</span>';
+
+      // Build boat-option selects for the link form
+      const boatOptions = u.boats.length === 0
+        ? '<option value="">— no boats —</option>'
+        : u.boats.map(b => `<option value="${b.id}">${esc(b.registrationNumber)} – ${esc(b.boatName)}</option>`).join('');
+
+      const mooringOptions = u.moorings.length === 0
+        ? '<option value="">— no moorings —</option>'
+        : u.moorings.map(m => `<option value="${m.id}">${esc(m.mooringNumber)}</option>`).join('');
+
+      document.getElementById('drawerBody').innerHTML = `
+        <div class="detail-grid">
+          <div class="detail-cell">
+            <div class="lbl">First Name</div>
+            <div class="val">${esc(u.firstName)}</div>
+          </div>
+          <div class="detail-cell">
+            <div class="lbl">Last Name</div>
+            <div class="val">${esc(u.lastName)}</div>
+          </div>
+          <div class="detail-cell full">
+            <div class="lbl">Email</div>
+            <div class="val">${esc(u.email)}</div>
+          </div>
+          <div class="detail-cell">
+            <div class="lbl">Phone</div>
+            <div class="val">${esc(u.phoneNumber || '–')}</div>
+          </div>
+          <div class="detail-cell">
+            <div class="lbl">Parish</div>
+            <div class="val">${esc(u.parish || '–')}</div>
+          </div>
+          <div class="detail-cell">
+            <div class="lbl">Role</div>
+            <div class="val">${roleBadge(u.role)}</div>
+          </div>
+          <div class="detail-cell">
+            <div class="lbl">Status</div>
+            <div class="val">${statusBadge}</div>
+          </div>
+          <div class="detail-cell full">
+            <div class="lbl">Organisation</div>
+            <div class="val">${esc(u.organisationName || '–')}</div>
+          </div>
+          <div class="detail-cell full">
+            <div class="lbl">Govt ID / Licence #</div>
+            <div class="val">${esc(u.governmentIdOrLicenceNumber || '–')}</div>
+          </div>
+          <div class="detail-cell">
+            <div class="lbl">Registered</div>
+            <div class="val">${fmtDate(u.registeredAt)}</div>
+          </div>
+          <div class="detail-cell">
+            <div class="lbl">System ID</div>
+            <div class="val">#${u.id}</div>
+          </div>
+        </div>
+
+        <!-- ── Boats ──────────────────────────────────────────────────────── -->
+        <div class="drawer-section-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>⛵ Boats (${u.boats.length})</span>
+          <button class="btn-action btn-approve" style="font-size:0.72rem;padding:0.2rem 0.55rem;"
+            onclick="showDrawerInlineForm('addBoatForm')">+ Add Boat</button>
+        </div>
+
+        <!-- Add Boat inline form -->
+        <div id="addBoatForm" style="display:none;background:#f0f8ff;border-radius:8px;padding:0.85rem;margin-bottom:0.75rem;font-size:0.82rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 0.75rem;">
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Reg #*</label>
+              <input id="abRegNum" placeholder="e.g. BR-0042" style="${drawerInputStyle}" /></div>
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Boat Name*</label>
+              <input id="abBoatName" placeholder="My Boat" style="${drawerInputStyle}" /></div>
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Type</label>
+              <input id="abBoatType" placeholder="Sailboat / Motorboat…" style="${drawerInputStyle}" /></div>
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Length (ft)</label>
+              <input id="abLength" type="number" step="0.1" placeholder="20" style="${drawerInputStyle}" /></div>
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Latitude*</label>
+              <input id="abLat" type="number" step="any" placeholder="32.3xxx" style="${drawerInputStyle}" /></div>
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Longitude*</label>
+              <input id="abLon" type="number" step="any" placeholder="-64.7xxx" style="${drawerInputStyle}" /></div>
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
+            <button class="btn-action btn-approve" onclick="drawerAddBoat(${u.id})">Save Boat</button>
+            <button class="btn-action" style="background:#aaa;color:#fff;" onclick="hideDrawerInlineForm('addBoatForm')">Cancel</button>
+          </div>
+        </div>
+
+        ${u.boats.length === 0
+          ? '<div class="drawer-empty">No boats registered.</div>'
+          : `<table class="drawer-mini-table">
+              <thead><tr>
+                <th>Reg #</th><th>Name</th><th>Type</th><th>Length</th><th>Moored At</th>
+              </tr></thead>
+              <tbody>
+                ${u.boats.map(b => `
+                  <tr>
+                    <td><strong>${esc(b.registrationNumber)}</strong></td>
+                    <td>${esc(b.boatName)}</td>
+                    <td>${esc(b.boatType)}</td>
+                    <td style="text-align:right">${b.lengthFeet} ft</td>
+                    <td>${b.mooringNumber ? '<span style="color:#c2185b;font-weight:600;">⚓ ' + esc(b.mooringNumber) + '</span>' : '<span style="color:#bbb;">–</span>'}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>`}
+
+        <!-- ── Moorings ───────────────────────────────────────────────────── -->
+        <div class="drawer-section-title" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.2rem;">
+          <span>⚓ Moorings (${u.moorings.length})</span>
+          <button class="btn-action btn-approve" style="font-size:0.72rem;padding:0.2rem 0.55rem;"
+            onclick="showDrawerInlineForm('addMooringForm')">+ Add Mooring</button>
+        </div>
+
+        <!-- Add Mooring inline form -->
+        <div id="addMooringForm" style="display:none;background:#fff5f8;border-radius:8px;padding:0.85rem;margin-bottom:0.75rem;font-size:0.82rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 0.75rem;">
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Mooring #*</label>
+              <input id="amMooringNum" placeholder="e.g. BDA-001" style="${drawerInputStyle}" /></div>
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Boat Size</label>
+              <select id="amBoatSize" style="${drawerInputStyle}">
+                <option value="">Unknown</option>
+                <option value="Small">Small</option>
+                <option value="Medium">Medium</option>
+                <option value="Large">Large</option>
+              </select></div>
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Latitude*</label>
+              <input id="amLat" type="number" step="any" placeholder="32.3xxx" style="${drawerInputStyle}" /></div>
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Longitude*</label>
+              <input id="amLon" type="number" step="any" placeholder="-64.7xxx" style="${drawerInputStyle}" /></div>
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
+            <button class="btn-action btn-approve" onclick="drawerAddMooring(${u.id})">Save Mooring</button>
+            <button class="btn-action" style="background:#aaa;color:#fff;" onclick="hideDrawerInlineForm('addMooringForm')">Cancel</button>
+          </div>
+        </div>
+
+        ${u.moorings.length === 0
+          ? '<div class="drawer-empty">No moorings registered.</div>'
+          : `<table class="drawer-mini-table">
+              <thead><tr>
+                <th>Mooring #</th><th>Size</th><th>Lat</th><th>Lon</th>
+              </tr></thead>
+              <tbody>
+                ${u.moorings.map(m => `
+                  <tr>
+                    <td><strong>${esc(m.mooringNumber)}</strong></td>
+                    <td>${esc(m.boatSize || '–')}</td>
+                    <td>${m.latitude.toFixed(5)}</td>
+                    <td>${m.longitude.toFixed(5)}</td>
+                  </tr>`).join('')}
+              </tbody>
+            </table>`}
+
+        <!-- ── Link Boat → Mooring ─────────────────────────────────────────── -->
+        ${(u.boats.length > 0 && u.moorings.length > 0) ? `
+        <div class="drawer-section-title" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.2rem;">
+          <span>🔗 Assign Boat to Mooring</span>
+          <button class="btn-action" style="background:#546e7a;color:#fff;font-size:0.72rem;padding:0.2rem 0.55rem;"
+            onclick="showDrawerInlineForm('linkForm')">Assign</button>
+        </div>
+        <div id="linkForm" style="display:none;background:#f3f7fa;border-radius:8px;padding:0.85rem;font-size:0.82rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 0.75rem;">
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Boat</label>
+              <select id="linkBoat" style="${drawerInputStyle}">${boatOptions}</select></div>
+            <div><label style="display:block;font-size:0.72rem;color:#555;margin-bottom:0.15rem;">Mooring (blank = unassign)</label>
+              <select id="linkMooring" style="${drawerInputStyle}">
+                <option value="">— unassign —</option>
+                ${mooringOptions}
+              </select></div>
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.6rem;">
+            <button class="btn-action" style="background:#546e7a;color:#fff;" onclick="drawerLinkBoat(${u.id})">Save Link</button>
+            <button class="btn-action" style="background:#aaa;color:#fff;" onclick="hideDrawerInlineForm('linkForm')">Cancel</button>
+          </div>
+        </div>` : ''}
+      `;
+
+      // ── Footer action buttons ─────────────────────────────────────────────
+      const approveBtn = !u.isApproved
+        ? `<button class="btn-action btn-approve" onclick="approveUser(${u.id});closeDrawer();">Approve</button>`
+        : `<button class="btn-action btn-revoke"  onclick="revokeUser(${u.id});closeDrawer();">Revoke</button>`;
+      const adminBtn = u.role !== 'Admin'
+        ? `<button class="btn-action btn-admin" onclick="makeAdmin(${u.id});closeDrawer();">Make Admin</button>`
+        : '';
+      document.getElementById('drawerFoot').innerHTML = `
+        <button class="btn-action btn-edit" onclick="closeDrawer();openEdit('user',${u.id})">Edit</button>
+        ${approveBtn}
+        ${adminBtn}
+        <button class="btn-action btn-delete" style="margin-left:auto;"
+          onclick="closeDrawer();deleteUser(${u.id},'${esc(u.fullName)}')">Delete</button>
+      `;
+    }
+
+    // Shared style string for drawer inline form inputs
+    const drawerInputStyle = 'width:100%;padding:0.35rem 0.55rem;border:1.5px solid #ccd6e0;border-radius:6px;font-size:0.82rem;background:#fff;';
+
+    function showDrawerInlineForm(id) {
+      ['addBoatForm','addMooringForm','linkForm'].forEach(f => {
+        const el = document.getElementById(f);
+        if (el) el.style.display = f === id ? 'block' : 'none';
+      });
+    }
+    function hideDrawerInlineForm(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    }
+
+    async function drawerAddBoat(userId) {
+      const regNum   = document.getElementById('abRegNum').value.trim();
+      const boatName = document.getElementById('abBoatName').value.trim();
+      const boatType = document.getElementById('abBoatType').value.trim();
+      const length   = parseFloat(document.getElementById('abLength').value) || 0;
+      const lat      = parseFloat(document.getElementById('abLat').value);
+      const lon      = parseFloat(document.getElementById('abLon').value);
+      if (!regNum || !boatName || isNaN(lat) || isNaN(lon)) {
+        toast('err', 'Reg #, Boat Name, Latitude and Longitude are required.'); return;
+      }
+      const body = { registrationNumber: regNum, boatName, boatType, ownerName: '', lengthFeet: length, latitude: lat, longitude: lon };
+      const res  = await fetch(`${API_BASE}/api/admin/users/${userId}/boats`, {
+        method: 'POST', headers: authHeaders(), body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast('ok', data.message);
+        // Reload drawer
+        openUserDetail(userId);
+      } else {
+        toast('err', data.message || 'Failed to add boat.');
+      }
+    }
+
+    async function drawerAddMooring(userId) {
+      const mooringNum = document.getElementById('amMooringNum').value.trim();
+      const boatSize   = document.getElementById('amBoatSize').value;
+      const lat        = parseFloat(document.getElementById('amLat').value);
+      const lon        = parseFloat(document.getElementById('amLon').value);
+      if (!mooringNum || isNaN(lat) || isNaN(lon)) {
+        toast('err', 'Mooring #, Latitude and Longitude are required.'); return;
+      }
+      const body = { mooringNumber: mooringNum, ownerName: '', boatSize: boatSize || null, latitude: lat, longitude: lon };
+      const res  = await fetch(`${API_BASE}/api/admin/users/${userId}/moorings`, {
+        method: 'POST', headers: authHeaders(), body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast('ok', data.message);
+        openUserDetail(userId);
+      } else {
+        toast('err', data.message || 'Failed to add mooring.');
+      }
+    }
+
+    async function drawerLinkBoat(userId) {
+      const boatId    = parseInt(document.getElementById('linkBoat').value);
+      const mooringId = document.getElementById('linkMooring').value;
+      if (!boatId) { toast('err', 'Select a boat.'); return; }
+      const body = { mooringId: mooringId ? parseInt(mooringId) : null };
+      const res  = await fetch(`${API_BASE}/api/admin/boats/${boatId}/assign-mooring`, {
+        method: 'PUT', headers: authHeaders(), body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast('ok', data.message);
+        openUserDetail(userId);
+      } else {
+        toast('err', data.message || 'Failed to assign mooring.');
       }
     }
 

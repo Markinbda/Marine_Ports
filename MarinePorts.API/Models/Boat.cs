@@ -36,6 +36,11 @@ public class Boat
     public int AppUserId { get; set; }
     public AppUser? AppUser { get; set; }
 
+    // ── Mooring assignment (optional) ─────────────────────────────────────────
+    /// <summary>The mooring this boat is assigned to (null = unmoored / at anchor).</summary>
+    public int? MooringId { get; set; }
+    public Mooring? Mooring { get; set; }
+
     // ── Computed colour ───────────────────────────────────────────────────────
     /// <summary>Returns the hex color code based on boat length.</summary>
     public string ColorCode => LengthFeet <= 10  ? "#2196F3"   // Color A – Blue

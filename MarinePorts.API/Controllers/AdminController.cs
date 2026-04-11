@@ -395,7 +395,9 @@ public class AdminController : ControllerBase
                     b.LengthFeet,
                     b.Latitude,
                     b.Longitude,
-                    b.RegisteredAt
+                    b.RegisteredAt,
+                    b.MooringId,
+                    MooringNumber = b.Mooring != null ? b.Mooring.MooringNumber : null
                 }).ToList(),
                 Moorings = u.Moorings.Select(m => new
                 {
@@ -482,6 +484,95 @@ public class AdminController : ControllerBase
         byte[] hash = pbkdf2.GetBytes(32);
         return $"100000:{Convert.ToBase64String(salt)}:{Convert.ToBase64String(hash)}";
     }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // USER ACCOUNT – attach / add boat or mooring
+    // ══════════════════════════════════════════════════════════════════════════
+
+    // ── PUT /api/admin/boats/{boatId}/assign-mooring ──────────────────────────
+    /// <summary>Assigns (or clears) the mooring a boat is attached to.</summary>
+    [HttpPut("boats/{boatId:int}/assign-mooring")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AssignBoatToMooring(int boatId, [FromBody] AssignMooringDto dto)
+    {
+        var boat = await _db.Boats.FindAsync(boatId);
+        if (boat is null) return NotFound(new { message = "Boat not found." });
+
+        if (dto.MooringId.HasValue)
+        {
+            var mooring = await _db.Moorings.FindAsync(dto.MooringId.Value);
+            if (mooring is null)
+                return NotFound(new { message = "Mooring not found." });
+
+            // Optionally enforce same-user ownership
+            if (dto.RequireSameOwner && mooring.AppUserId.HasValue && mooring.AppUserId != boat.AppUserId)
+                return BadRequest(new { message = "Boat and mooring belong to different users." });
+
+            boat.MooringId = dto.MooringId;
+            await _db.SaveChangesAsync();
+            return Ok(new { message = $"Boat {boat.RegistrationNumber} assigned to mooring {mooring.MooringNumber}." });
+        }
+        else
+        {
+            boat.MooringId = null;
+            await _db.SaveChangesAsync();
+            return Ok(new { message = $"Boat {boat.RegistrationNumber} unmoored." });
+        }
+    }
+
+    // ── POST /api/admin/users/{userId}/boats ──────────────────────────────────
+    /// <summary>Adds a new boat directly to a specific user's account.</summary>
+    [HttpPost("users/{userId:int}/boats")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AddBoatToUser(int userId, [FromBody] AdminBoatCreateDto dto)
+    {
+        var user = await _db.Users.FindAsync(userId);
+        if (user is null) return NotFound(new { message = "User not found." });
+
+        var boat = new Boat
+        {
+            RegistrationNumber = dto.RegistrationNumber.Trim(),
+            OwnerName          = string.IsNullOrWhiteSpace(dto.OwnerName) ? user.FullName : dto.OwnerName.Trim(),
+            BoatName           = dto.BoatName.Trim(),
+            BoatType           = dto.BoatType.Trim(),
+            LengthFeet         = dto.LengthFeet,
+            Latitude           = dto.Latitude,
+            Longitude          = dto.Longitude,
+            PhotoUrl           = dto.PhotoUrl,
+            AppUserId          = userId,
+            RegisteredAt       = DateTime.UtcNow
+        };
+
+        _db.Boats.Add(boat);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"Boat {boat.BoatName} added to {user.FullName}.", boatId = boat.Id });
+    }
+
+    // ── POST /api/admin/users/{userId}/moorings ───────────────────────────────
+    /// <summary>Adds a new mooring directly to a specific user's account.</summary>
+    [HttpPost("users/{userId:int}/moorings")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AddMooringToUser(int userId, [FromBody] AdminMooringCreateDto dto)
+    {
+        var user = await _db.Users.FindAsync(userId);
+        if (user is null) return NotFound(new { message = "User not found." });
+
+        var mooring = new Mooring
+        {
+            MooringNumber = dto.MooringNumber.Trim(),
+            OwnerName     = string.IsNullOrWhiteSpace(dto.OwnerName) ? user.FullName : dto.OwnerName.Trim(),
+            Latitude      = dto.Latitude,
+            Longitude     = dto.Longitude,
+            BoatSize      = dto.BoatSize?.Trim(),
+            PhotoUrl      = dto.PhotoUrl,
+            AppUserId     = userId,
+            RegisteredAt  = DateTime.UtcNow
+        };
+
+        _db.Moorings.Add(mooring);
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"Mooring {mooring.MooringNumber} added to {user.FullName}.", mooringId = mooring.Id });
+    }
 }
 
 // ── Request DTOs ──────────────────────────────────────────────────────────────
@@ -517,3 +608,5 @@ public class AdminMooringCreateDto : MooringCreateDto
 {
     public int? UserId { get; set; }
 }
+
+public record AssignMooringDto(int? MooringId, bool RequireSameOwner = false);
