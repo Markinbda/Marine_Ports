@@ -187,6 +187,53 @@
     @media (max-width: 600px) {
       .stats { grid-template-columns: 1fr 1fr; }
     }
+
+    /* ── Tab navigation ───────────────────────────────────────────────────────────── */
+    .tab-nav { display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .tab-btn {
+      padding:0.5rem 1.2rem; border-radius:8px; font-size:0.88rem; font-weight:600;
+      cursor:pointer; border:2px solid #d0d9e5; background:#fff; color:#555;
+      transition:all 0.2s;
+    }
+    .tab-btn:hover { border-color:#1a6fa8; color:#1a6fa8; }
+    .tab-btn.active { background:#1a6fa8; border-color:#1a6fa8; color:#fff; }
+
+    /* ── Edit button + modal ─────────────────────────────────────────────────── */
+    .btn-edit { background:#1565C0; color:#fff; }
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.45);
+      display:flex; align-items:center; justify-content:center; z-index:1000;
+    }
+    .modal-box {
+      background:#fff; border-radius:12px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.25);
+      width:100%; max-width:560px; max-height:90vh;
+      display:flex; flex-direction:column; overflow:hidden;
+    }
+    .modal-head {
+      padding:1rem 1.5rem; border-bottom:1px solid #e8edf2;
+      display:flex; align-items:center; justify-content:space-between;
+      background:#f0f4f8;
+    }
+    .modal-head h3 { font-size:1rem; color:#0d3b66; margin:0; }
+    .modal-close { background:none; border:none; font-size:1.2rem; cursor:pointer; color:#777; line-height:1; }
+    .modal-close:hover { color:#333; }
+    .modal-body {
+      padding:1.25rem 1.5rem; overflow-y:auto; flex:1;
+      display:grid; grid-template-columns:1fr 1fr; gap:0.85rem;
+    }
+    .modal-body .full { grid-column:1 / -1; }
+    .modal-body label { display:block; font-size:0.8rem; color:#555; margin-bottom:0.25rem; }
+    .modal-body input, .modal-body select {
+      width:100%; padding:0.5rem 0.7rem;
+      border:1.5px solid #ccd6e0; border-radius:6px;
+      font-size:0.88rem; outline:none; box-sizing:border-box;
+    }
+    .modal-body input:focus, .modal-body select:focus { border-color:#1a6fa8; }
+    .modal-foot {
+      padding:1rem 1.5rem; border-top:1px solid #e8edf2;
+      display:flex; justify-content:flex-end; gap:0.75rem; background:#f8fbff;
+    }
   </style>
 </head>
 <body>
@@ -215,7 +262,12 @@
         <button class="btn-bootstrap" id="bootstrapBtn">Make Admin</button>
       </div>
     </div>
-
+    <!-- ── Tab navigation ────────────────────────────────────────────────────────── -->
+    <div class="tab-nav">
+      <button class="tab-btn active" id="tabUsers"    onclick="showTab('users')">&#128100; Users</button>
+      <button class="tab-btn"        id="tabBoats"    onclick="showTab('boats')">&#9981; Boats</button>
+      <button class="tab-btn"        id="tabMoorings" onclick="showTab('moorings')">&#9875; Moorings</button>
+    </div>
     <!-- ── Stats ──────────────────────────────────────────────────────────── -->
     <div class="stats">
       <div class="stat-card total">
@@ -244,10 +296,7 @@
     <div class="section" id="usersSection">
       <div class="section-head">
         <h2>Registered Users</h2>
-        <div style="display:flex;gap:0.5rem;align-items:center;">
-          <button class="btn-sm" id="showMooringsBtn" style="border-color:#388E3C;color:#388E3C;background:#e8f5e9;">⚓ View Moorings</button>
-          <button class="btn-sm" id="refreshBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">↻ Refresh</button>
-        </div>
+        <button class="btn-sm" id="refreshBtn" style="border-color:#1a6fa8;color:#1a6fa8;background:#e3f2fd;">&#8635; Refresh</button>
       </div>
 
       <div class="filter-bar">
@@ -351,7 +400,49 @@
       </div>
     </div>
 
+    <!-- ── Boats table ────────────────────────────────────────────────────── -->
+    <div class="section" id="boatsSection" style="display:none;">
+      <div class="section-head">
+        <h2>Boats</h2>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Reg #</th>
+              <th>Boat Name</th>
+              <th>Type</th>
+              <th>Owner</th>
+              <th>Length</th>
+              <th>Lat</th>
+              <th>Lon</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="boatsTbody">
+            <tr><td colspan="9" class="loading">Loading boats…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div><!-- /.page -->
+
+  <!-- ── Edit modal ───────────────────────────────────────────────────────────────── -->
+  <div id="editModal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="modalTitle">Edit</h3>
+        <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot">
+        <button class="btn-action" style="background:#aaa;color:#fff;padding:0.45rem 1.2rem;" onclick="closeModal()">Cancel</button>
+        <button class="btn-action btn-approve" style="padding:0.45rem 1.2rem;" onclick="saveEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
 
   <div id="toast"></div>
 
@@ -496,11 +587,12 @@
         return;
       }
 
+      filtered.forEach(u => { editCache['user_' + u.id] = u; });
       tbody.innerHTML = filtered.map(u => `
         <tr data-id="${u.id}">
           <td>${u.id}</td>
           <td><strong>${esc(u.fullName)}</strong><br><small style="color:#888">${esc(u.organisationName || '')}</small></td>
-          <td>${esc(u.email)}</td>
+          <td style="word-break:break-all;max-width:150px;">${esc(u.email)}</td>
           <td>${esc(u.phoneNumber)}</td>
           <td>${esc(u.parish)}</td>
           <td>${roleBadge(u.role)}</td>
@@ -512,6 +604,7 @@
           <td style="text-align:center">${u.mooringCount}</td>
           <td>
             <div class="actions">
+              <button class="btn-action btn-edit" onclick="openEdit('user',${u.id})">Edit</button>
               ${!u.isApproved
                 ? `<button class="btn-action btn-approve" onclick="approveUser(${u.id})">Approve</button>`
                 : `<button class="btn-action btn-revoke"  onclick="revokeUser(${u.id})">Revoke</button>`}
@@ -602,12 +695,19 @@
       toastTimer = setTimeout(() => { el.className = ''; }, 3500);
     }
 
-    // ── Toggle Users ↔ Moorings views ───────────────────────────────────────
-    document.getElementById('showMooringsBtn').addEventListener('click', () => {
-      document.getElementById('usersSection').style.display = 'none';
-      document.getElementById('mooringsSection').style.display = 'block';
-      loadMoorings();
-    });
+    // ── Edit data cache ─────────────────────────────────────────────────────────────────
+    const editCache = {};
+
+    // ── Tab navigation ─────────────────────────────────────────────────────────────────
+    function showTab(tab) {
+      ['users','boats','moorings'].forEach(t => {
+        document.getElementById(t + 'Section').style.display = t === tab ? 'block' : 'none';
+        document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1))
+          .classList.toggle('active', t === tab);
+      });
+      if (tab === 'boats')    loadBoats();
+      if (tab === 'moorings') loadMoorings();
+    }
 
     // ── Moorings ──────────────────────────────────────────────────────────────
     async function loadMoorings() {
@@ -622,6 +722,7 @@
           tbody.innerHTML = '<tr><td colspan="8" class="empty">No moorings found.</td></tr>';
           return;
         }
+        moorings.forEach(m => { editCache['mooring_' + m.id] = m; });
         tbody.innerHTML = moorings.map(m => `
           <tr>
             <td>${m.id}</td>
@@ -633,6 +734,7 @@
             <td style="white-space:nowrap">${fmtDate(m.registeredAt)}</td>
             <td>
               <div class="actions">
+                <button class="btn-action btn-edit" onclick="openEdit('mooring',${m.id})">Edit</button>
                 <button class="btn-action btn-delete" onclick="deleteMooring(${m.id}, '${esc(m.mooringNumber)}')">Delete</button>
               </div>
             </td>
@@ -689,7 +791,185 @@
         else toast('err', 'Delete failed.');
       } catch { toast('err', 'Server error.'); }
     }
+    // ── Boats ───────────────────────────────────────────────────────────────────────────
+    async function loadBoats() {
+      const tbody = document.getElementById('boatsTbody');
+      if (!token || role !== 'Admin') return;
+      tbody.innerHTML = '<tr><td colspan="9" class="loading">Loading…</td></tr>';
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/boats`, { headers: authHeaders() });
+        if (!res.ok) throw new Error();
+        const boats = await res.json();
+        if (!boats.length) {
+          tbody.innerHTML = '<tr><td colspan="9" class="empty">No boats found.</td></tr>';
+          return;
+        }
+        boats.forEach(b => { editCache['boat_' + b.id] = b; });
+        tbody.innerHTML = boats.map(b => `
+          <tr>
+            <td>${b.id}</td>
+            <td><strong>${esc(b.registrationNumber)}</strong></td>
+            <td>${esc(b.boatName)}</td>
+            <td>${esc(b.boatType)}</td>
+            <td>${esc(b.ownerName)}</td>
+            <td style="text-align:right">${b.lengthFeet} ft</td>
+            <td>${b.latitude.toFixed(5)}</td>
+            <td>${b.longitude.toFixed(5)}</td>
+            <td>
+              <div class="actions">
+                <button class="btn-action btn-edit" onclick="openEdit('boat',${b.id})">Edit</button>
+                <button class="btn-action btn-delete" onclick="deleteBoat(${b.id},'${esc(b.boatName)}')">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty">Could not load boats.</td></tr>';
+      }
+    }
 
+    async function deleteBoat(id, name) {
+      if (!confirm(`Delete boat "${name}"? This cannot be undone.`)) return;
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/boats/${id}`, {
+          method: 'DELETE', headers: authHeaders()
+        });
+        if (res.status === 204) { toast('ok', 'Boat deleted.'); loadBoats(); }
+        else toast('err', 'Delete failed.');
+      } catch { toast('err', 'Server error.'); }
+    }
+
+    // ── Edit modal ───────────────────────────────────────────────────────────────────
+    let currentEdit = { type: null, id: null };
+
+    function openEdit(type, id) {
+      const data = editCache[type + '_' + id];
+      if (!data) { toast('err', 'Record not found – please refresh.'); return; }
+      currentEdit = { type, id };
+
+      if (type === 'user') {
+        const parts     = (data.fullName || '').trim().split(' ');
+        const firstName = parts[0] || '';
+        const lastName  = parts.slice(1).join(' ') || '';
+        document.getElementById('modalTitle').textContent = `Edit User – ${data.fullName}`;
+        document.getElementById('modalBody').innerHTML = `
+          <div><label>First Name</label><input id="eFirstName" value="${esc(firstName)}" /></div>
+          <div><label>Last Name</label><input id="eLastName" value="${esc(lastName)}" /></div>
+          <div class="full"><label>Email</label><input id="eEmail" type="email" value="${esc(data.email)}" /></div>
+          <div><label>Phone</label><input id="ePhone" value="${esc(data.phoneNumber || '')}" /></div>
+          <div><label>Parish</label><input id="eParish" value="${esc(data.parish || '')}" /></div>
+          <div><label>Organisation</label><input id="eOrg" value="${esc(data.organisationName || '')}" /></div>
+          <div>
+            <label>Role</label>
+            <select id="eRole">
+              <option value="BoatOwner"     ${data.role==='BoatOwner'?'selected':''}>Boat Owner</option>
+              <option value="MooringOwner"  ${data.role==='MooringOwner'?'selected':''}>Mooring Owner</option>
+              <option value="PortAuthority" ${data.role==='PortAuthority'?'selected':''}>Port Authority</option>
+              <option value="Admin"         ${data.role==='Admin'?'selected':''}>Admin</option>
+            </select>
+          </div>
+          <div>
+            <label>Status</label>
+            <select id="eApproved">
+              <option value="true"  ${data.isApproved?'selected':''}>Approved</option>
+              <option value="false" ${!data.isApproved?'selected':''}>Pending</option>
+            </select>
+          </div>`;
+      } else if (type === 'boat') {
+        document.getElementById('modalTitle').textContent = `Edit Boat – ${data.boatName}`;
+        document.getElementById('modalBody').innerHTML = `
+          <div><label>Reg #</label><input id="eRegNum" value="${esc(data.registrationNumber)}" /></div>
+          <div><label>Boat Name</label><input id="eBoatName" value="${esc(data.boatName)}" /></div>
+          <div><label>Boat Type</label><input id="eBoatType" value="${esc(data.boatType)}" /></div>
+          <div><label>Owner Name</label><input id="eOwnerName" value="${esc(data.ownerName)}" /></div>
+          <div><label>Length (ft)</label><input id="eLength" type="number" step="0.1" value="${data.lengthFeet}" /></div>
+          <div></div>
+          <div><label>Latitude</label><input id="eLat" type="number" step="any" value="${data.latitude}" /></div>
+          <div><label>Longitude</label><input id="eLon" type="number" step="any" value="${data.longitude}" /></div>`;
+      } else {
+        document.getElementById('modalTitle').textContent = `Edit Mooring – ${data.mooringNumber}`;
+        document.getElementById('modalBody').innerHTML = `
+          <div><label>Mooring #</label><input id="eMooringNum" value="${esc(data.mooringNumber)}" /></div>
+          <div><label>Owner Name</label><input id="eMOwnerName" value="${esc(data.ownerName)}" /></div>
+          <div><label>Latitude</label><input id="eMLat" type="number" step="any" value="${data.latitude}" /></div>
+          <div><label>Longitude</label><input id="eMLon" type="number" step="any" value="${data.longitude}" /></div>
+          <div class="full">
+            <label>Boat Size</label>
+            <select id="eMBoatSize">
+              <option value=""       ${!data.boatSize?'selected':''}>Unknown</option>
+              <option value="Small"  ${data.boatSize==='Small'?'selected':''}>Small</option>
+              <option value="Medium" ${data.boatSize==='Medium'?'selected':''}>Medium</option>
+              <option value="Large"  ${data.boatSize==='Large'?'selected':''}>Large</option>
+            </select>
+          </div>`;
+      }
+      document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+
+    document.getElementById('editModal').addEventListener('click', e => {
+      if (e.target === document.getElementById('editModal')) closeModal();
+    });
+
+    async function saveEdit() {
+      const { type, id } = currentEdit;
+      let body, path;
+
+      if (type === 'user') {
+        const firstName = document.getElementById('eFirstName').value.trim();
+        const lastName  = document.getElementById('eLastName').value.trim();
+        const email     = document.getElementById('eEmail').value.trim();
+        const phone     = document.getElementById('ePhone').value.trim();
+        const parish    = document.getElementById('eParish').value.trim();
+        const org       = document.getElementById('eOrg').value.trim();
+        const role      = document.getElementById('eRole').value;
+        const approved  = document.getElementById('eApproved').value === 'true';
+        if (!firstName || !email) { toast('err', 'First Name and Email are required.'); return; }
+        body = { firstName, lastName, email, phoneNumber: phone, parish, organisationName: org, role, isApproved: approved };
+        path = `/api/admin/users/${id}`;
+      } else if (type === 'boat') {
+        const regNum    = document.getElementById('eRegNum').value.trim();
+        const boatName  = document.getElementById('eBoatName').value.trim();
+        const boatType  = document.getElementById('eBoatType').value.trim();
+        const ownerName = document.getElementById('eOwnerName').value.trim();
+        const length    = parseFloat(document.getElementById('eLength').value);
+        const lat       = parseFloat(document.getElementById('eLat').value);
+        const lon       = parseFloat(document.getElementById('eLon').value);
+        if (!regNum || !boatName || isNaN(lat) || isNaN(lon)) {
+          toast('err', 'Reg #, Boat Name, Latitude and Longitude are required.'); return;
+        }
+        body = { registrationNumber: regNum, boatName, boatType, ownerName, lengthFeet: length || 0, latitude: lat, longitude: lon };
+        path = `/api/admin/boats/${id}`;
+      } else {
+        const mooringNum = document.getElementById('eMooringNum').value.trim();
+        const ownerName  = document.getElementById('eMOwnerName').value.trim();
+        const lat        = parseFloat(document.getElementById('eMLat').value);
+        const lon        = parseFloat(document.getElementById('eMLon').value);
+        const boatSize   = document.getElementById('eMBoatSize').value;
+        if (!mooringNum || isNaN(lat) || isNaN(lon)) {
+          toast('err', 'Mooring #, Latitude and Longitude are required.'); return;
+        }
+        body = { mooringNumber: mooringNum, ownerName, latitude: lat, longitude: lon, boatSize: boatSize || null };
+        path = `/api/admin/moorings/${id}`;
+      }
+
+      try {
+        const res  = await fetch(API_BASE + path, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
+        const data = await res.json();
+        if (res.ok) {
+          toast('ok', data.message);
+          closeModal();
+          if (type === 'user')    loadUsers();
+          if (type === 'boat')    loadBoats();
+          if (type === 'mooring') loadMoorings();
+        } else {
+          toast('err', data.message || 'Update failed.');
+        }
+      } catch { toast('err', 'Server unreachable.'); }
+    }
     // ── Init ──────────────────────────────────────────────────────────────────
     loadUsers();
   </script>

@@ -155,6 +155,31 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
+    // ── PUT /api/admin/users/{id} ─────────────────────────────────────────────
+    [HttpPut("users/{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] AdminUpdateUserDto dto)
+    {
+        var user = await _db.Users.FindAsync(id);
+        if (user is null) return NotFound();
+
+        var allowed = new[] { "BoatOwner", "MooringOwner", "PortAuthority", "Admin" };
+        if (!allowed.Contains(dto.Role))
+            return BadRequest(new { message = "Invalid role." });
+
+        user.FirstName        = dto.FirstName.Trim();
+        user.LastName         = dto.LastName.Trim();
+        user.Email            = dto.Email.Trim().ToLower();
+        user.PhoneNumber      = dto.PhoneNumber?.Trim() ?? string.Empty;
+        user.Parish           = dto.Parish?.Trim() ?? string.Empty;
+        user.OrganisationName = dto.OrganisationName?.Trim();
+        user.Role             = dto.Role;
+        user.IsApproved       = dto.IsApproved;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"{user.FullName} updated." });
+    }
+
     // ══════════════════════════════════════════════════════════════════════════
     // BOATS – admin management
     // ══════════════════════════════════════════════════════════════════════════
@@ -230,6 +255,26 @@ public class AdminController : ControllerBase
         return NoContent();
     }
 
+    // ── PUT /api/admin/boats/{id} ─────────────────────────────────────────────
+    [HttpPut("boats/{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateBoat(int id, [FromBody] AdminUpdateBoatDto dto)
+    {
+        var boat = await _db.Boats.FindAsync(id);
+        if (boat is null) return NotFound();
+
+        boat.RegistrationNumber = dto.RegistrationNumber.Trim();
+        boat.BoatName           = dto.BoatName.Trim();
+        boat.BoatType           = dto.BoatType.Trim();
+        boat.OwnerName          = dto.OwnerName.Trim();
+        boat.LengthFeet         = dto.LengthFeet;
+        boat.Latitude           = dto.Latitude;
+        boat.Longitude          = dto.Longitude;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"Boat {boat.RegistrationNumber} updated." });
+    }
+
     // ══════════════════════════════════════════════════════════════════════════
     // MOORINGS – admin management
     // ══════════════════════════════════════════════════════════════════════════
@@ -299,6 +344,24 @@ public class AdminController : ControllerBase
         _db.Moorings.Remove(mooring);
         await _db.SaveChangesAsync();
         return NoContent();
+    }
+
+    // ── PUT /api/admin/moorings/{id} ──────────────────────────────────────────
+    [HttpPut("moorings/{id:int}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateMooring(int id, [FromBody] AdminUpdateMooringDto dto)
+    {
+        var mooring = await _db.Moorings.FindAsync(id);
+        if (mooring is null) return NotFound();
+
+        mooring.MooringNumber = dto.MooringNumber.Trim();
+        mooring.OwnerName     = dto.OwnerName.Trim();
+        mooring.Latitude      = dto.Latitude;
+        mooring.Longitude     = dto.Longitude;
+        mooring.BoatSize      = dto.BoatSize?.Trim();
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"Mooring {mooring.MooringNumber} updated." });
     }
 
     // GET /api/admin/users/list  – simple id+name list for dropdowns
@@ -377,6 +440,19 @@ public record BootstrapDto(string Email);
 public record SetRoleDto(string Role);
 public record ResetPasswordDto(string NewPassword);
 public record BootstrapResetDto(string Email, string NewPassword);
+public record AdminUpdateUserDto(
+    string FirstName, string LastName, string Email,
+    string? PhoneNumber, string? Parish, string? OrganisationName,
+    string Role, bool IsApproved
+);
+public record AdminUpdateBoatDto(
+    string RegistrationNumber, string BoatName, string BoatType,
+    string OwnerName, double LengthFeet, double Latitude, double Longitude
+);
+public record AdminUpdateMooringDto(
+    string MooringNumber, string OwnerName,
+    double Latitude, double Longitude, string? BoatSize
+);
 
 /// <summary>Admin version of BoatCreateDto – includes optional UserId to assign ownership.</summary>
 public class AdminBoatCreateDto : BoatCreateDto
