@@ -61,7 +61,7 @@ public class AdminController : ControllerBase
             .Select(u => new
             {
                 u.Id,
-                u.FullName,
+                FullName = u.FirstName + " " + u.LastName,
                 u.Email,
                 u.PhoneNumber,
                 u.Parish,
@@ -338,8 +338,8 @@ public class AdminController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetUserList() =>
         Ok(await _db.Users
-            .OrderBy(u => u.FullName)
-            .Select(u => new { u.Id, u.FullName, u.Email })
+            .OrderBy(u => u.FirstName)
+            .Select(u => new { u.Id, FullName = u.FirstName + " " + u.LastName, u.Email })
             .ToListAsync());
 
     // ── POST /api/admin/users/{id}/reset-password ─────────────────────────────

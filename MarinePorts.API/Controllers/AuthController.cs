@@ -56,9 +56,11 @@ public class AuthController : ControllerBase
         // Never store plain-text passwords.
         string passwordHash = HashPassword(dto.Password);
 
+        var nameParts = dto.FullName.Trim().Split(' ', 2);
         var user = new AppUser
         {
-            FullName                     = dto.FullName.Trim(),
+            FirstName                    = nameParts[0],
+            LastName                     = nameParts.Length > 1 ? nameParts[1] : "",
             Email                        = dto.Email.Trim().ToLower(),
             PasswordHash                 = passwordHash,
             PhoneNumber                  = dto.PhoneNumber.Trim(),

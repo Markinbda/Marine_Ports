@@ -9,8 +9,12 @@ public class AppUser
     public int Id { get; set; }
 
     // ── Personal details ──────────────────────────────────────────────────────
-    /// <summary>Full legal name as per government ID.</summary>
-    public string FullName { get; set; } = string.Empty;
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+
+    /// <summary>Computed full name for convenience.</summary>
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public string FullName => $"{FirstName} {LastName}".Trim();
 
     /// <summary>Email used for login and correspondence.</summary>
     public string Email { get; set; } = string.Empty;
