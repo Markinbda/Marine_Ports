@@ -22,5 +22,8 @@ public class MapPinDto
     /// Boats:    "{OwnerName} – {LengthFeet} ft"
     /// Moorings: "{OwnerName} – Mooring {MooringNumber}"
     /// </summary>
-    public string Label     { get; set; } = string.Empty;
+    public string Label      { get; set; } = string.Empty;
+
+    /// <summary>Short identifier shown directly on the map marker at close zoom (Reg# or Mooring#).</summary>
+    public string ShortLabel { get; set; } = string.Empty;
 }

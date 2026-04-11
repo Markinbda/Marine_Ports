@@ -58,6 +58,23 @@
     }
     .pin-popup .pin-label { font-weight: 600; font-size: 0.88rem; color: #1a1a2e; }
     .pin-popup .pin-type  { font-size: 0.75rem; color: #777; margin-top: 0.15rem; }
+
+    /* ── Zoom-sensitive marker labels ───────────────────────────────────────── */
+    .marker-label {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      white-space: nowrap;
+      padding: 0 !important;
+      text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
+      pointer-events: none;
+    }
+    /* Hidden by default; shown when map container has class .show-labels */
+    .marker-label { opacity: 0; transition: opacity 0.2s; }
+    .show-labels .marker-label { opacity: 1; }
   </style>
 </head>
 <body>
@@ -155,6 +172,8 @@
     };
     legend.addTo(map);
 
+    const LABEL_ZOOM = 16; // zoom level at which Reg# / Mooring# labels appear
+
     // ── Helper: create a coloured SVG circle icon ─────────────────────────────
     function circleIcon(color) {
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22">
@@ -178,6 +197,16 @@
         pins.forEach(pin => {
           const icon   = circleIcon(pin.colorCode);
           const marker = L.marker([pin.latitude, pin.longitude], { icon });
+
+          // Permanent tooltip showing short label (hidden until zoom >= LABEL_ZOOM via CSS)
+          if (pin.shortLabel) {
+            marker.bindTooltip(escapeHtml(pin.shortLabel), {
+              permanent:   true,
+              direction:   'top',
+              offset:      [0, -13],
+              className:   'marker-label'
+            });
+          }
 
           // Build popup content
           const photoHtml = pin.photoUrl
@@ -210,6 +239,17 @@
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
     }
+
+    // ── Zoom-sensitive labels ──────────────────────────────────────────────────
+    function updateLabelVisibility() {
+      const container = document.getElementById('map');
+      if (map.getZoom() >= LABEL_ZOOM) {
+        container.classList.add('show-labels');
+      } else {
+        container.classList.remove('show-labels');
+      }
+    }
+    map.on('zoomend', updateLabelVisibility);
 
     loadPins();
   </script>

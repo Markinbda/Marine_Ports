@@ -30,8 +30,9 @@ public class MapController : ControllerBase
                 ColorCode = b.LengthFeet <= 10 ? "#2196F3"   // Color A – Blue
                           : b.LengthFeet <= 20 ? "#4CAF50"   // Color B – Green
                                                : "#FF9800",  // Color C – Orange
-                PhotoUrl  = b.PhotoUrl,
-                Label     = $"{b.OwnerName} – {b.LengthFeet} ft ({b.BoatName})"
+                PhotoUrl   = b.PhotoUrl,
+                Label      = $"{b.OwnerName} – {b.LengthFeet} ft ({b.BoatName})",
+                ShortLabel = b.RegistrationNumber
             })
             .ToListAsync();
 
@@ -46,8 +47,9 @@ public class MapController : ControllerBase
             Latitude  = m.Latitude,
             Longitude = m.Longitude,
             ColorCode = MooringColor(m.BoatSize),
-            PhotoUrl  = m.PhotoUrl,
-            Label     = $"{m.OwnerName} \u2013 Mooring {m.MooringNumber}"
+            PhotoUrl   = m.PhotoUrl,
+            Label      = $"{m.OwnerName} \u2013 Mooring {m.MooringNumber}",
+            ShortLabel = m.MooringNumber
         }).ToList();
 
         return Ok(boatPins.Concat(mooringPins));
