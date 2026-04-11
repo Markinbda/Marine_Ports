@@ -384,6 +384,16 @@
         updateStats(allUsers);
         renderTable(allUsers);
 
+        // Fetch total mooring/boat counts (includes ArcGIS-imported records with no user)
+        try {
+          const statsRes = await fetch(`${API_BASE}/api/admin/stats`, { headers: authHeaders() });
+          if (statsRes.ok) {
+            const stats = await statsRes.json();
+            document.getElementById('statMoorings').textContent = stats.totalMoorings;
+            document.getElementById('statBoats').textContent    = stats.totalBoats;
+          }
+        } catch (_) {}
+
       } catch (e) {
         tbody.innerHTML = '<tr><td colspan="11" class="empty">Could not reach the API. Is the server running?</td></tr>';
         document.getElementById('bootstrapBox').style.display = 'block';

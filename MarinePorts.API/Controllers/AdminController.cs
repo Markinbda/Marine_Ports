@@ -79,6 +79,18 @@ public class AdminController : ControllerBase
         return Ok(users);
     }
 
+    // ── GET /api/admin/stats ──────────────────────────────────────────────────
+    [HttpGet("stats")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetStats()
+    {
+        var totalMoorings = await _db.Moorings.CountAsync();
+        var totalBoats    = await _db.Boats.CountAsync();
+        var totalUsers    = await _db.Users.CountAsync();
+        var pendingUsers  = await _db.Users.CountAsync(u => !u.IsApproved);
+        return Ok(new { totalMoorings, totalBoats, totalUsers, pendingUsers });
+    }
+
     // ── PUT /api/admin/users/{id}/approve ─────────────────────────────────────
     /// <summary>Approves a pending user account.</summary>
     [HttpPut("users/{id:int}/approve")]
