@@ -196,7 +196,12 @@ public class AdminController : ControllerBase
             {
                 b.Id, b.RegistrationNumber, b.BoatName, b.BoatType,
                 b.OwnerName, b.LengthFeet, b.Latitude, b.Longitude,
-                b.PhotoUrl, b.RegisteredAt, b.ColorCode,
+                b.PhotoUrl, b.RegisteredAt,
+                // ColorCode is a C# computed property – derive it in the projection
+                // so EF Core doesn't try (and fail) to translate it to SQL.
+                ColorCode = b.LengthFeet <= 10 ? "#2196F3"
+                          : b.LengthFeet <= 20 ? "#4CAF50"
+                                               : "#FF9800",
                 b.AppUserId,
                 UserEmail = b.AppUser != null ? b.AppUser.Email : null
             })

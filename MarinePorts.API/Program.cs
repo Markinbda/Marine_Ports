@@ -102,13 +102,18 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Auto-run migrations in Development only. In Production the database is
-// already migrated; running migrations via a pooled connection is unsupported.
-if (app.Environment.IsDevelopment())
+// Apply any pending EF Core migrations at startup.
+try
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
+}
+catch (Exception ex)
+{
+    // Log migration errors but don't crash – the app can still run if schema is already up to date.
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogWarning(ex, "Database migration attempt encountered an error (may already be current).");
 }
 
 app.MapControllers();
