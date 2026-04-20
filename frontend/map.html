@@ -7,6 +7,8 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -58,6 +60,21 @@
     }
     .pin-popup .pin-label { font-weight: 600; font-size: 0.88rem; color: #1a1a2e; }
     .pin-popup .pin-type  { font-size: 0.75rem; color: #777; margin-top: 0.15rem; }
+
+    /* ── Pin marker icon ─────────────────────────────────────────────────── */
+    .pin-marker-wrap {
+      background: transparent;
+      border: none;
+    }
+    .pin-marker-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: block;
+      background: var(--pin, #2196F3);
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.32);
+    }
 
     /* ── Zoom-sensitive marker labels ─────────────────────────────────────── */
     .marker-label {
@@ -187,6 +204,7 @@
   </div>
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="config.js"></script>
 
   <script>
@@ -282,9 +300,18 @@
     const LABEL_ZOOM   = 18;
     const labelMarkers = [];
 
-    // Two layer groups for instant show/hide without re-rendering
-    const boatLayer    = L.layerGroup().addTo(map);
-    const mooringLayer = L.layerGroup().addTo(map);
+    // Two marker clusters for instant show/hide without re-rendering.
+    const boatLayer = L.markerClusterGroup({
+      disableClusteringAtZoom: 17,
+      showCoverageOnHover: false,
+      maxClusterRadius: 42
+    }).addTo(map);
+
+    const mooringLayer = L.markerClusterGroup({
+      disableClusteringAtZoom: 17,
+      showCoverageOnHover: false,
+      maxClusterRadius: 42
+    }).addTo(map);
 
     // All raw pin data kept for search
     let allPins = [];
@@ -302,13 +329,8 @@
         allPins = await res.json();
 
         allPins.forEach(pin => {
-          const marker = L.circleMarker([pin.latitude, pin.longitude], {
-            radius:      8,
-            fillColor:   pin.colorCode,
-            color:       '#fff',
-            weight:      2,
-            opacity:     1,
-            fillOpacity: 0.92
+          const marker = L.marker([pin.latitude, pin.longitude], {
+            icon: createPinIcon(pin.colorCode)
           });
 
           pin._marker = marker;
@@ -324,7 +346,7 @@
           }
 
           const photoHtml = pin.photoUrl
-            ? `<img src="${API_BASE}${pin.photoUrl}" alt="Photo" />`
+            ? `<img data-src="${API_BASE}${pin.photoUrl}" alt="Photo" loading="lazy" decoding="async" />`
             : `<div class="no-photo">📷 No photo available</div>`;
 
           marker.bindPopup(`
@@ -397,7 +419,7 @@
           fillOpacity: 0.95
         });
         const photoHtml = p.photoUrl
-          ? `<img src="${API_BASE}${p.photoUrl}" alt="Photo" />`
+          ? `<img data-src="${API_BASE}${p.photoUrl}" alt="Photo" loading="lazy" decoding="async" />`
           : `<div class="no-photo">📷 No photo available</div>`;
         m.bindPopup(`
           <div class="pin-popup">
@@ -458,6 +480,30 @@
       });
     }
     map.on('zoomend', updateLabels);
+
+    map.on('popupopen', (e) => {
+      hydratePopupImages(e.popup.getElement());
+    });
+
+    function createPinIcon(color) {
+      const safeColor = /^#[0-9a-fA-F]{6}$/.test(color || '') ? color : '#FF9800';
+      return L.divIcon({
+        className: 'pin-marker-wrap',
+        html: `<span class="pin-marker-dot" style="--pin:${safeColor}"></span>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+        popupAnchor: [0, -10]
+      });
+    }
+
+    function hydratePopupImages(root) {
+      if (!root) return;
+      root.querySelectorAll('img[data-src]').forEach(img => {
+        if (!img.getAttribute('src')) {
+          img.setAttribute('src', img.getAttribute('data-src'));
+        }
+      });
+    }
 
     loadPins();
   </script>
