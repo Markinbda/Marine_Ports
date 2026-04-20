@@ -1,8 +1,11 @@
 using MarinePorts.API.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
+using System.IO.Compression;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,8 +17,22 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // ─── Database ────────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        npgsql => npgsql.MaxBatchSize(1)));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ─── Performance ─────────────────────────────────────────────────────────────
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+    options.Level = CompressionLevel.Fastest);
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+    options.Level = CompressionLevel.Fastest);
+
+builder.Services.AddResponseCaching();
+builder.Services.AddMemoryCache();
 
 // ─── JWT Authentication ───────────────────────────────────────────────────────
 // Tokens are signed with the secret key defined in appsettings.json.
@@ -96,7 +113,16 @@ if (app.Environment.IsDevelopment())
 }
 
 // Serve uploaded images and the frontend files from wwwroot.
-app.UseStaticFiles();
+app.UseResponseCompression();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = context =>
+    {
+        // Keep static assets cacheable for repeat visits while allowing fast content refreshes.
+        context.Context.Response.Headers[HeaderNames.CacheControl] = "public,max-age=3600";
+    }
+});
+app.UseResponseCaching();
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();

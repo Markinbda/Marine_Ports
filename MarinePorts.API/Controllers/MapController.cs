@@ -1,6 +1,7 @@
 using MarinePorts.API.Data;
 using MarinePorts.API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.EntityFrameworkCore;
 
 namespace MarinePorts.API.Controllers;
@@ -14,14 +15,28 @@ namespace MarinePorts.API.Controllers;
 public class MapController : ControllerBase
 {
     private readonly AppDbContext _db;
-    public MapController(AppDbContext db) => _db = db;
+    private readonly IMemoryCache _cache;
+    private const string PinsCacheKey = "map-pins-v1";
+
+    public MapController(AppDbContext db, IMemoryCache cache)
+    {
+        _db = db;
+        _cache = cache;
+    }
 
     // GET /api/map/pins
     [HttpGet("pins")]
     public async Task<IActionResult> GetPins()
     {
-        // Fetch boats and project to MapPinDto
-        var boatPins = await _db.Boats
+        if (_cache.TryGetValue(PinsCacheKey, out List<MapPinDto>? cachedPins) && cachedPins is not null)
+        {
+            Response.Headers.CacheControl = "public,max-age=30";
+            return Ok(cachedPins);
+        }
+
+        // Fetch both datasets concurrently and skip EF change tracking for read-only map queries.
+        var boatsTask = _db.Boats
+            .AsNoTracking()
             .Select(b => new MapPinDto
             {
                 Type      = "Boat",
@@ -36,23 +51,33 @@ public class MapController : ControllerBase
             })
             .ToListAsync();
 
-        // Fetch moorings – color after DB fetch so we can use C# string logic
-        var mooringData = await _db.Moorings
+        var mooringsTask = _db.Moorings
+            .AsNoTracking()
             .Select(m => new { m.Latitude, m.Longitude, m.PhotoUrl, m.OwnerName, m.MooringNumber, m.BoatSize })
             .ToListAsync();
 
-        var mooringPins = mooringData.Select(m => new MapPinDto
+        await Task.WhenAll(boatsTask, mooringsTask);
+
+        var boatPins = boatsTask.Result;
+        var mooringPins = mooringsTask.Result.Select(m => new MapPinDto
         {
             Type      = "Mooring",
             Latitude  = m.Latitude,
             Longitude = m.Longitude,
             ColorCode = MooringColor(m.BoatSize),
             PhotoUrl   = m.PhotoUrl,
-            Label      = $"{m.OwnerName} \u2013 Mooring {m.MooringNumber}",
+            Label      = $"{m.OwnerName} – Mooring {m.MooringNumber}",
             ShortLabel = m.MooringNumber
-        }).ToList();
+        });
 
-        return Ok(boatPins.Concat(mooringPins));
+        var pins = boatPins.Concat(mooringPins).ToList();
+        _cache.Set(PinsCacheKey, pins, new MemoryCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)
+        });
+
+        Response.Headers.CacheControl = "public,max-age=30";
+        return Ok(pins);
     }
 
     private static string MooringColor(string? boatSize)

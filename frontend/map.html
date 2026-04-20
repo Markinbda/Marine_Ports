@@ -106,7 +106,55 @@
       background: #f0f4f8; cursor: pointer; font-size: 0.78rem;
       white-space: nowrap;
     }
-    .btn-bar:hover { background: #e0e8f0; }  </style>
+    .btn-bar:hover { background: #e0e8f0; }
+
+    /* ── Coach quick side menu ─────────────────────────────────────────────── */
+    #coachSideMenu {
+      position: fixed;
+      top: 110px;
+      left: 14px;
+      z-index: 1000;
+      display: none;
+      width: 220px;
+      background: rgba(255,255,255,0.98);
+      border: 1px solid #d8e2ec;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      overflow: hidden;
+    }
+    .coach-side-title {
+      background: #0d3b66;
+      color: #fff;
+      font-size: 0.76rem;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 0.55rem 0.8rem;
+    }
+    .coach-side-link {
+      width: 100%;
+      border: none;
+      background: #fff;
+      color: #153a59;
+      text-align: left;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 0.75rem 0.85rem;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .coach-side-link:hover { background: #eef5fb; }
+
+    @media (max-width: 740px) {
+      #coachSideMenu {
+        top: auto;
+        left: 10px;
+        right: 10px;
+        bottom: 12px;
+        width: auto;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -122,6 +170,12 @@
 
   <!-- ── Map container ──────────────────────────────────────────────────── -->
   <div id="map"></div>
+
+  <aside id="coachSideMenu" aria-label="Coach quick actions">
+    <div class="coach-side-title">Coach Menu</div>
+    <button id="returnToSiteBtn" class="coach-side-link">Return to Website</button>
+  </aside>
+
   <!-- Admin filter/search bar (visible only for Admin role) ──────────────── -->
   <div id="adminBar">
     <button class="filter-toggle filter-boats active" id="toggleBoats">&#9975; Boats</button>
@@ -152,6 +206,8 @@
     const token    = sessionStorage.getItem('mp_token');
     const fullName = sessionStorage.getItem('mp_fullName') || 'Guest';
     const role     = sessionStorage.getItem('mp_role')     || '';
+    const roleNorm = role.trim().toLowerCase();
+    const isCoach  = roleNorm.includes('coach');
 
     // Show user info in header
     document.getElementById('userInfo').textContent =
@@ -163,8 +219,20 @@
     });
 
     document.getElementById('backBtn').addEventListener('click', () => {
-      window.location.href = role === 'Admin' ? 'admin.html' : 'login.html';
+      if (role === 'Admin') {
+        window.location.href = 'admin.html';
+        return;
+      }
+
+      window.location.href = isCoach ? 'index.html' : 'login.html';
     });
+
+    if (isCoach) {
+      document.getElementById('coachSideMenu').style.display = 'block';
+      document.getElementById('returnToSiteBtn').addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+    }
 
     // ── Initialise Leaflet map centred on Bermuda ─────────────────────────────
     // Bermuda tight bounding box: SW 32.23, -64.90  →  NE 32.39, -64.60

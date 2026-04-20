@@ -14,6 +14,27 @@
   const PROD = 'https://marine-ports.onrender.com'; // Render API
   const DEV  = 'http://localhost:5000';
 
-  const isLocal = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
-  window.API_BASE = isLocal ? DEV : PROD;
+  // Highest-priority override for deployments/custom hosting.
+  if (typeof window.__API_BASE === 'string' && window.__API_BASE.trim()) {
+    window.API_BASE = window.__API_BASE.trim();
+    return;
+  }
+
+  const host = window.location.hostname;
+  const protocol = window.location.protocol;
+  const params = new URLSearchParams(window.location.search);
+  const forceLocal = params.get('api') === 'local';
+
+  if (forceLocal || host === 'localhost' || host === '127.0.0.1') {
+    window.API_BASE = DEV;
+    return;
+  }
+
+  // Opening pages directly from file:// should use the deployed API by default.
+  if (protocol === 'file:') {
+    window.API_BASE = PROD;
+    return;
+  }
+
+  window.API_BASE = PROD;
 })();
