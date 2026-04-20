@@ -34,8 +34,8 @@ public class MapController : ControllerBase
             return Ok(cachedPins);
         }
 
-        // Fetch both datasets concurrently and skip EF change tracking for read-only map queries.
-        var boatsTask = _db.Boats
+        // Skip EF change tracking for read-only map queries.
+        var boatPins = await _db.Boats
             .AsNoTracking()
             .Select(b => new MapPinDto
             {
@@ -51,15 +51,12 @@ public class MapController : ControllerBase
             })
             .ToListAsync();
 
-        var mooringsTask = _db.Moorings
+        var mooringData = await _db.Moorings
             .AsNoTracking()
             .Select(m => new { m.Latitude, m.Longitude, m.PhotoUrl, m.OwnerName, m.MooringNumber, m.BoatSize })
             .ToListAsync();
 
-        await Task.WhenAll(boatsTask, mooringsTask);
-
-        var boatPins = boatsTask.Result;
-        var mooringPins = mooringsTask.Result.Select(m => new MapPinDto
+        var mooringPins = mooringData.Select(m => new MapPinDto
         {
             Type      = "Mooring",
             Latitude  = m.Latitude,
