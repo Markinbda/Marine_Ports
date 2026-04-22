@@ -342,6 +342,26 @@
         const mooringsData = await readApiBody(mooringsRes);
 
         if (!boatsRes.ok || !mooringsRes.ok) {
+          const [allBoatsRes, allMooringsRes] = await Promise.all([
+            fetch(`${API_BASE}/api/boats`),
+            fetch(`${API_BASE}/api/moorings`)
+          ]);
+          const allBoats = await readApiBody(allBoatsRes);
+          const allMoorings = await readApiBody(allMooringsRes);
+
+          if (allBoatsRes.ok && allMooringsRes.ok) {
+            const ownedBoats = Array.isArray(allBoats)
+              ? allBoats.filter(b => Number(b.appUserId) === userId)
+              : [];
+            const ownedMoorings = Array.isArray(allMoorings)
+              ? allMoorings.filter(m => Number(m.appUserId) === userId)
+              : [];
+            renderBoats(ownedBoats);
+            renderMoorings(ownedMoorings);
+            showMsg('ok', 'Profile loaded from fallback data.');
+            return;
+          }
+
           const msg = boatsData.message || mooringsData.message || 'Could not load your profile data.';
           showMsg('err', msg);
           renderBoats([]);
