@@ -1002,8 +1002,9 @@
         } else {
           toast('err', data.message || 'Failed to add mooring.');
         }
-      } catch {
-        toast('err', 'Server unreachable.');
+      } catch (e) {
+        const msg = e && e.message ? e.message : 'Server unreachable.';
+        toast('err', `Request error: ${msg}`);
       }
     }
 
@@ -1213,8 +1214,9 @@
         document.getElementById(kind === 'boat' ? 'assignedBoatChips' : 'assignedMooringChips').innerHTML = renderAssignedChips(kind, editingUserId);
         document.getElementById(kind === 'boat' ? 'boatAssignSearch' : 'mooringAssignSearch').value = '';
         filterAssignResults(kind);
-      } catch {
-        toast('err', 'Server unreachable.');
+      } catch (e) {
+        const msg = e && e.message ? e.message : 'Server unreachable.';
+        toast('err', `Request error: ${msg}`);
       }
     }
 
