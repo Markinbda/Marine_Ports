@@ -1434,30 +1434,43 @@
       document.getElementById('drawerOverlay').classList.add('show');
 
       try {
-        const res  = await fetch(`${API_BASE}/api/admin/users/${id}`, { headers: authHeaders() });
-        if (!res.ok) throw new Error(res.status);
-        drawerUser = await res.json();
+        const res = await fetch(`${API_BASE}/api/admin/users/${id}`, { headers: authHeaders() });
+        const data = await readApiBody(res);
+        if (!res.ok) {
+          const reason = data.message || `HTTP ${res.status}`;
+          throw new Error(reason);
+        }
+        drawerUser = data;
         renderDrawer(drawerUser);
-      } catch {
-        document.getElementById('drawerBody').innerHTML = '<div class="empty">Could not load user details.</div>';
+      } catch (e) {
+        console.error('openUserDetail failed', e);
+        document.getElementById('drawerBody').innerHTML = `<div class="empty">Could not load user details. ${esc(e.message || '')}</div>`;
       }
     }
 
     function renderDrawer(u) {
-      document.getElementById('drawerName').textContent = u.fullName;
+      const boats = Array.isArray(u?.boats) ? u.boats : [];
+      const moorings = Array.isArray(u?.moorings) ? u.moorings : [];
+      const fullName = u?.fullName || `${u?.firstName || ''} ${u?.lastName || ''}`.trim() || `User #${u?.id ?? ''}`;
+      const fmtCoord = (value) => {
+        const n = Number(value);
+        return Number.isFinite(n) ? n.toFixed(5) : '';
+      };
+
+      document.getElementById('drawerName').textContent = fullName;
 
       const statusBadge = u.isApproved
         ? '<span class="badge approved">Approved</span>'
         : '<span class="badge pending">Pending</span>';
 
       // Build boat-option selects for the link form
-      const boatOptions = u.boats.length === 0
+      const boatOptions = boats.length === 0
         ? '<option value=""> no boats </option>'
-        : u.boats.map(b => `<option value="${b.id}">${esc(b.registrationNumber)}  ${esc(b.boatName)}</option>`).join('');
+        : boats.map(b => `<option value="${b.id}">${esc(b.registrationNumber)}  ${esc(b.boatName)}</option>`).join('');
 
-      const mooringOptions = u.moorings.length === 0
+      const mooringOptions = moorings.length === 0
         ? '<option value=""> no moorings </option>'
-        : u.moorings.map(m => `<option value="${m.id}">${esc(m.mooringNumber)}</option>`).join('');
+        : moorings.map(m => `<option value="${m.id}">${esc(m.mooringNumber)}</option>`).join('');
 
       document.getElementById('drawerBody').innerHTML = `
         <div class="detail-grid">
@@ -1509,7 +1522,7 @@
 
         <!--  Boats  -->
         <div class="drawer-section-title" style="display:flex;justify-content:space-between;align-items:center;">
-          <span> Boats (${u.boats.length})</span>
+          <span> Boats (${boats.length})</span>
           <button class="btn-action btn-approve" style="font-size:0.72rem;padding:0.2rem 0.55rem;"
             onclick="showDrawerInlineForm('addBoatForm')">+ Add Boat</button>
         </div>
@@ -1536,14 +1549,14 @@
           </div>
         </div>
 
-        ${u.boats.length === 0
+        ${boats.length === 0
           ? '<div class="drawer-empty">No boats registered.</div>'
           : `<table class="drawer-mini-table">
               <thead><tr>
                 <th>Reg #</th><th>Name</th><th>Type</th><th>Length</th><th>Moored At</th>
               </tr></thead>
               <tbody>
-                ${u.boats.map(b => `
+                ${boats.map(b => `
                   <tr>
                     <td><strong>${esc(b.registrationNumber)}</strong></td>
                     <td>${esc(b.boatName)}</td>
@@ -1556,7 +1569,7 @@
 
         <!--  Moorings  -->
         <div class="drawer-section-title" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.2rem;">
-          <span> Moorings (${u.moorings.length})</span>
+          <span> Moorings (${moorings.length})</span>
           <button class="btn-action btn-approve" style="font-size:0.72rem;padding:0.2rem 0.55rem;"
             onclick="showDrawerInlineForm('addMooringForm')">+ Add Mooring</button>
         </div>
@@ -1584,25 +1597,25 @@
           </div>
         </div>
 
-        ${u.moorings.length === 0
+        ${moorings.length === 0
           ? '<div class="drawer-empty">No moorings registered.</div>'
           : `<table class="drawer-mini-table">
               <thead><tr>
                 <th>Mooring #</th><th>Size</th><th>Lat</th><th>Lon</th>
               </tr></thead>
               <tbody>
-                ${u.moorings.map(m => `
+                ${moorings.map(m => `
                   <tr>
                     <td><strong>${esc(m.mooringNumber)}</strong></td>
                     <td>${esc(m.boatSize || '')}</td>
-                    <td>${m.latitude.toFixed(5)}</td>
-                    <td>${m.longitude.toFixed(5)}</td>
+                    <td>${fmtCoord(m.latitude)}</td>
+                    <td>${fmtCoord(m.longitude)}</td>
                   </tr>`).join('')}
               </tbody>
             </table>`}
 
         <!--  Link Boat  Mooring  -->
-        ${(u.boats.length > 0 && u.moorings.length > 0) ? `
+        ${(boats.length > 0 && moorings.length > 0) ? `
         <div class="drawer-section-title" style="display:flex;justify-content:space-between;align-items:center;margin-top:1.2rem;">
           <span> Assign Boat to Mooring</span>
           <button class="btn-action" style="background:#546e7a;color:#fff;font-size:0.72rem;padding:0.2rem 0.55rem;"
