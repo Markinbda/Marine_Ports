@@ -2,6 +2,18 @@
   publish = "frontend"
 
 [[redirects]]
+  from = "/api/*"
+  to = "https://marine-ports.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/images/*"
+  to = "https://marine-ports.onrender.com/images/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

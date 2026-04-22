@@ -25,6 +25,13 @@
   const params = new URLSearchParams(window.location.search);
   const forceLocal = params.get('api') === 'local';
 
+  // On Netlify deployments, route requests through same-origin proxy rules
+  // declared in netlify.toml to avoid cross-origin browser/network issues.
+  if (host.endsWith('netlify.app')) {
+    window.API_BASE = '.';
+    return;
+  }
+
   if (forceLocal || host === 'localhost' || host === '127.0.0.1') {
     window.API_BASE = DEV;
     return;
