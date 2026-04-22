@@ -9,6 +9,9 @@ public class MapPinDto
     /// <summary>Unique identifier (Boat or Mooring ID)</summary>
     public int Id           { get; set; }
 
+    /// <summary>Owning user ID for filtering "My Boats/Moorings" on the map.</summary>
+    public int? AppUserId   { get; set; }
+
     /// <summary>"Boat" or "Mooring"</summary>
     public string Type      { get; set; } = string.Empty;
     public double Latitude  { get; set; }

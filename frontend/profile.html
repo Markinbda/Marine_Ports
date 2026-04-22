@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile - Marine &amp; Ports</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(180deg, #f2f7fb 0%, #ffffff 45%);
+      color: #17324d;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #0d3b66;
+      color: #fff;
+      padding: 0.9rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand { font-size: 1.08rem; font-weight: 700; }
+    .user { font-size: 0.85rem; opacity: 0.9; }
+    .actions { display: flex; gap: 0.5rem; }
+    .btn {
+      border: 1px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      border-radius: 7px;
+      padding: 0.45rem 0.8rem;
+      font-size: 0.83rem;
+      cursor: pointer;
+    }
+    .btn:hover { background: rgba(255,255,255,0.24); }
+
+    .page {
+      max-width: 1080px;
+      margin: 1.2rem auto 2rem;
+      padding: 0 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #d8e5f0;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 6px 18px rgba(13, 59, 102, 0.08);
+    }
+    .card h3 {
+      font-size: 0.92rem;
+      color: #5a6f83;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      margin-bottom: 0.45rem;
+    }
+    .value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #0d3b66;
+      line-height: 1;
+    }
+
+    .panel {
+      background: #fff;
+      border: 1px solid #d8e5f0;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(13, 59, 102, 0.08);
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+    .panel-head {
+      background: #f3f8fd;
+      border-bottom: 1px solid #e1ecf6;
+      padding: 0.8rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .panel-head h2 { font-size: 1rem; color: #0d3b66; }
+    .chip {
+      background: #d9ecfb;
+      color: #0d3b66;
+      border: 1px solid #b8daf6;
+      border-radius: 999px;
+      padding: 0.2rem 0.65rem;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      text-align: left;
+      font-size: 0.78rem;
+      color: #5a6f83;
+      letter-spacing: 0.4px;
+      padding: 0.65rem 0.9rem;
+      border-bottom: 1px solid #e8eff5;
+      background: #fff;
+    }
+    tbody td {
+      padding: 0.65rem 0.9rem;
+      border-bottom: 1px solid #eef3f8;
+      font-size: 0.9rem;
+      color: #243f5a;
+      vertical-align: top;
+    }
+    tbody tr:hover { background: #f8fbff; }
+    .empty {
+      padding: 1rem;
+      color: #6e8193;
+      font-style: italic;
+    }
+
+    .msg {
+      margin-bottom: 0.9rem;
+      border-radius: 8px;
+      border: 1px solid;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.86rem;
+      display: none;
+    }
+    .msg.err { border-color: #f1b0b7; color: #a4252f; background: #fff0f2; }
+    .msg.ok { border-color: #a9d7b0; color: #1f6b2b; background: #ebf8ee; }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">Marine &amp; Ports - My Profile</div>
+    <div class="user" id="userInfo"></div>
+    <div class="actions">
+      <button class="btn" id="backBtn">Back To Map</button>
+      <button class="btn" id="logoutBtn">Sign Out</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="msg err" id="errorMsg"></div>
+    <div class="msg ok" id="okMsg"></div>
+
+    <section class="grid">
+      <div class="card">
+        <h3>Total Boats</h3>
+        <div class="value" id="boatCount">0</div>
+      </div>
+      <div class="card">
+        <h3>Total Moorings</h3>
+        <div class="value" id="mooringCount">0</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>My Boats</h2>
+        <span class="chip" id="boatChip">0 records</span>
+      </div>
+      <div id="boatsWrap"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>My Moorings</h2>
+        <span class="chip" id="mooringChip">0 records</span>
+      </div>
+      <div id="mooringsWrap"></div>
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script>
+    const API_BASE = window.API_BASE || 'http://localhost:5000';
+    const token = sessionStorage.getItem('mp_token');
+    const role = sessionStorage.getItem('mp_role') || '';
+    const fullName = sessionStorage.getItem('mp_fullName') || 'User';
+
+    document.getElementById('userInfo').textContent = `${fullName}${role ? ' (' + role + ')' : ''}`;
+
+    document.getElementById('backBtn').addEventListener('click', () => {
+      window.location.href = 'map.html';
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      sessionStorage.clear();
+      window.location.href = 'login.html';
+    });
+
+    function showMsg(kind, text) {
+      const err = document.getElementById('errorMsg');
+      const ok = document.getElementById('okMsg');
+      err.style.display = 'none';
+      ok.style.display = 'none';
+      if (!text) return;
+      const el = kind === 'err' ? err : ok;
+      el.textContent = text;
+      el.style.display = 'block';
+    }
+
+    function authHeaders() {
+      return token ? { 'Authorization': `Bearer ${token}` } : {};
+    }
+
+    function fmtDate(v) {
+      if (!v) return '';
+      const d = new Date(v);
+      if (Number.isNaN(d.getTime())) return '';
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function esc(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderBoats(boats) {
+      const wrap = document.getElementById('boatsWrap');
+      document.getElementById('boatCount').textContent = boats.length;
+      document.getElementById('boatChip').textContent = `${boats.length} record${boats.length === 1 ? '' : 's'}`;
+
+      if (!boats.length) {
+        wrap.innerHTML = '<div class="empty">No boats registered on your account yet.</div>';
+        return;
+      }
+
+      wrap.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Reg #</th>
+              <th>Name</th>
+              <th>Type</th>
+              <th>Length (ft)</th>
+              <th>Owner</th>
+              <th>Registered</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${boats.map(b => `
+              <tr>
+                <td><strong>${esc(b.registrationNumber)}</strong></td>
+                <td>${esc(b.boatName)}</td>
+                <td>${esc(b.boatType)}</td>
+                <td>${Number(b.lengthFeet || 0).toFixed(1)}</td>
+                <td>${esc(b.ownerName)}</td>
+                <td>${fmtDate(b.registeredAt)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    function renderMoorings(moorings) {
+      const wrap = document.getElementById('mooringsWrap');
+      document.getElementById('mooringCount').textContent = moorings.length;
+      document.getElementById('mooringChip').textContent = `${moorings.length} record${moorings.length === 1 ? '' : 's'}`;
+
+      if (!moorings.length) {
+        wrap.innerHTML = '<div class="empty">No moorings registered on your account yet.</div>';
+        return;
+      }
+
+      wrap.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Mooring #</th>
+              <th>Boat Size</th>
+              <th>Owner</th>
+              <th>Latitude</th>
+              <th>Longitude</th>
+              <th>Registered</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${moorings.map(m => `
+              <tr>
+                <td><strong>${esc(m.mooringNumber)}</strong></td>
+                <td>${esc(m.boatSize || '')}</td>
+                <td>${esc(m.ownerName)}</td>
+                <td>${Number(m.latitude).toFixed(5)}</td>
+                <td>${Number(m.longitude).toFixed(5)}</td>
+                <td>${fmtDate(m.registeredAt)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    async function readApiBody(res) {
+      const contentType = (res.headers.get('content-type') || '').toLowerCase();
+      if (contentType.includes('application/json')) {
+        try { return await res.json(); } catch { return {}; }
+      }
+      try {
+        const txt = await res.text();
+        return { message: txt || '' };
+      } catch {
+        return {};
+      }
+    }
+
+    async function loadProfileData() {
+      if (!token) {
+        showMsg('err', 'You are not signed in.');
+        setTimeout(() => { window.location.href = 'login.html'; }, 900);
+        return;
+      }
+
+      try {
+        const [boatsRes, mooringsRes] = await Promise.all([
+          fetch(`${API_BASE}/api/boats/mine`, { headers: authHeaders() }),
+          fetch(`${API_BASE}/api/moorings/mine`, { headers: authHeaders() })
+        ]);
+
+        const boatsData = await readApiBody(boatsRes);
+        const mooringsData = await readApiBody(mooringsRes);
+
+        if (!boatsRes.ok || !mooringsRes.ok) {
+          const msg = boatsData.message || mooringsData.message || 'Could not load your profile data.';
+          showMsg('err', msg);
+          renderBoats([]);
+          renderMoorings([]);
+          return;
+        }
+
+        renderBoats(Array.isArray(boatsData) ? boatsData : []);
+        renderMoorings(Array.isArray(mooringsData) ? mooringsData : []);
+        showMsg('ok', 'Profile loaded.');
+      } catch (e) {
+        showMsg('err', `Network error: ${e.message || e}`);
+        renderBoats([]);
+        renderMoorings([]);
+      }
+    }
+
+    loadProfileData();
+  </script>
+</body>
+</html>
