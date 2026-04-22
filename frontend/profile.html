@@ -318,6 +318,61 @@
       }
     }
 
+    function deriveBoatsFromPins(pins) {
+      const parseOwner = (label) => String(label || '').split(/\s+[\u2013-]\s+/)[0] || '';
+      return pins
+        .filter(p => p.type === 'Boat' && Number(p.appUserId) === userId)
+        .map(p => {
+          const label = String(p.label || '');
+          const ownerName = parseOwner(label);
+          const lenMatch = label.match(/-\s*([0-9.]+)\s*ft/i);
+          const nameMatch = label.match(/\(([^)]+)\)\s*$/);
+          return {
+            registrationNumber: p.shortLabel || '',
+            boatName: nameMatch ? nameMatch[1] : '',
+            boatType: '',
+            lengthFeet: lenMatch ? Number(lenMatch[1]) : 0,
+            ownerName,
+            registeredAt: null
+          };
+        });
+    }
+
+    function deriveMooringsFromPins(pins) {
+      const parseOwner = (label) => String(label || '').split(/\s+[\u2013-]\s+/)[0] || '';
+      const sizeFromColor = (color) => {
+        const c = String(color || '').toLowerCase();
+        if (c === '#9c27b0') return 'Small';
+        if (c === '#e91e63') return 'Medium';
+        if (c === '#f44336') return 'Large';
+        return '';
+      };
+
+      return pins
+        .filter(p => p.type === 'Mooring' && Number(p.appUserId) === userId)
+        .map(p => ({
+          mooringNumber: p.shortLabel || '',
+          boatSize: sizeFromColor(p.colorCode),
+          ownerName: parseOwner(p.label),
+          latitude: p.latitude,
+          longitude: p.longitude,
+          registeredAt: null
+        }));
+    }
+
+    async function fallbackFromMapPins() {
+      const pinsRes = await fetch(`${API_BASE}/api/map/pins`);
+      const pinsData = await readApiBody(pinsRes);
+      if (!pinsRes.ok || !Array.isArray(pinsData)) {
+        return false;
+      }
+
+      renderBoats(deriveBoatsFromPins(pinsData));
+      renderMoorings(deriveMooringsFromPins(pinsData));
+      showMsg('ok', 'Profile loaded from map data fallback.');
+      return true;
+    }
+
     async function loadProfileData() {
       if (!token) {
         showMsg('err', 'You are not signed in.');
@@ -362,6 +417,8 @@
             return;
           }
 
+          if (await fallbackFromMapPins()) return;
+
           const msg = boatsData.message || mooringsData.message || 'Could not load your profile data.';
           showMsg('err', msg);
           renderBoats([]);
@@ -396,6 +453,7 @@
           renderMoorings(ownedMoorings);
           showMsg('ok', 'Profile loaded from fallback data.');
         } catch (fallbackError) {
+          if (await fallbackFromMapPins()) return;
           const detail = fallbackError && fallbackError.message ? ` (${fallbackError.message})` : '';
           showMsg('err', `Network error: ${e.message || e}${detail}`);
           console.error('Profile fallback failed', fallbackError);
