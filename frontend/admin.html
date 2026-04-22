@@ -1127,12 +1127,30 @@
       if (!owned.length) {
         return '<span style="color:#bbb;font-size:0.78rem;">None assigned yet.</span>';
       }
+      const icon = kind === 'boat' ? '&#x1F6A4;' : '&#x2693;';
       return owned.map(r => {
         const label = kind === 'boat'
           ? `${esc(r.registrationNumber)} - ${esc(r.boatName)}`
           : `${esc(r.mooringNumber)}`;
-        return `<span class="assigned-chip ${kind === 'mooring' ? 'mooring' : ''}">${label}</span>`;
+        return `<span class="assigned-chip ${kind === 'mooring' ? 'mooring' : ''}" title="${label}">${icon} ${label}</span>`;
       }).join('');
+    }
+
+    function onRoleChange() {
+      const role = document.getElementById('eRole')?.value;
+      const boatSec = document.getElementById('boatAssignSection');
+      const mooringSec = document.getElementById('mooringAssignSection');
+      if (!boatSec || !mooringSec) return;
+      if (role === 'BoatOwner') {
+        boatSec.style.display = '';
+        mooringSec.style.display = 'none';
+      } else if (role === 'MooringOwner') {
+        boatSec.style.display = 'none';
+        mooringSec.style.display = '';
+      } else {
+        boatSec.style.display = '';
+        mooringSec.style.display = '';
+      }
     }
 
     function filterMooringEditSearch() {
@@ -1286,7 +1304,7 @@
           <div><label>Organisation</label><input id="eOrg" value="${esc(data.organisationName || '')}" /></div>
           <div>
             <label>Role</label>
-            <select id="eRole">
+            <select id="eRole" onchange="onRoleChange()">
               <option value="BoatOwner" ${data.role==='BoatOwner'?'selected':''}>Boat Owner</option>
               <option value="MooringOwner" ${data.role==='MooringOwner'?'selected':''}>Mooring Owner</option>
               <option value="PortAuthority" ${data.role==='PortAuthority'?'selected':''}>Port Authority</option>
@@ -1300,8 +1318,8 @@
               <option value="false" ${!data.isApproved?'selected':''}>Pending</option>
             </select>
           </div>
-          <div class="assign-section full">
-            <h4>Registered Boats</h4>
+          <div class="assign-section full" id="boatAssignSection" style="${data.role==='MooringOwner' ? 'display:none' : ''}">
+            <h4>&#x1F6A4; Registered Boats</h4>
             <div class="assigned-chips" id="assignedBoatChips">${renderAssignedChips('boat', data.id)}</div>
             <div class="assign-conflict-banner" id="boatConflictBanner"></div>
             <div class="assign-search-row">
@@ -1309,8 +1327,8 @@
             </div>
             <div class="assign-results" id="boatAssignResults"></div>
           </div>
-          <div class="assign-section full">
-            <h4>Registered Moorings</h4>
+          <div class="assign-section full" id="mooringAssignSection" style="${data.role==='BoatOwner' ? 'display:none' : ''}">
+            <h4>&#x2693; Registered Moorings</h4>
             <div class="assigned-chips" id="assignedMooringChips">${renderAssignedChips('mooring', data.id)}</div>
             <div class="assign-conflict-banner" id="mooringConflictBanner"></div>
             <div class="assign-search-row">
