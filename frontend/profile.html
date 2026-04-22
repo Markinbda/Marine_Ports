@@ -184,7 +184,7 @@
 
   <script src="config.js"></script>
   <script>
-    const API_BASE = window.API_BASE || 'http://localhost:5000';
+    const API_BASE = window.API_BASE || 'https://marine-ports.onrender.com';
     const token = sessionStorage.getItem('mp_token');
     const role = sessionStorage.getItem('mp_role') || '';
     const userId = Number(sessionStorage.getItem('mp_userId') || 0);
@@ -376,7 +376,8 @@
           renderMoorings(ownedMoorings);
           showMsg('ok', 'Profile loaded from fallback data.');
         } catch (fallbackError) {
-          showMsg('err', `Network error: ${e.message || e}`);
+          const detail = fallbackError && fallbackError.message ? ` (${fallbackError.message})` : '';
+          showMsg('err', `Network error: ${e.message || e}${detail}`);
           console.error('Profile fallback failed', fallbackError);
           renderBoats([]);
           renderMoorings([]);
