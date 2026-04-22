@@ -39,6 +39,7 @@ public class MapController : ControllerBase
             .AsNoTracking()
             .Select(b => new MapPinDto
             {
+                Id        = b.Id,
                 Type      = "Boat",
                 Latitude  = b.Latitude,
                 Longitude = b.Longitude,
@@ -53,11 +54,12 @@ public class MapController : ControllerBase
 
         var mooringData = await _db.Moorings
             .AsNoTracking()
-            .Select(m => new { m.Latitude, m.Longitude, m.PhotoUrl, m.OwnerName, m.MooringNumber, m.BoatSize })
+            .Select(m => new { m.Id, m.Latitude, m.Longitude, m.PhotoUrl, m.OwnerName, m.MooringNumber, m.BoatSize })
             .ToListAsync();
 
         var mooringPins = mooringData.Select(m => new MapPinDto
         {
+            Id        = m.Id,
             Type      = "Mooring",
             Latitude  = m.Latitude,
             Longitude = m.Longitude,

@@ -162,8 +162,70 @@
     }
     .coach-side-link:hover { background: #eef5fb; }
 
+    /* ── Boat Owner quick side menu ─────────────────────────────────────────── */
+    #ownerSideMenu {
+      position: fixed;
+      top: 110px;
+      left: 14px;
+      z-index: 1000;
+      display: none;
+      width: 220px;
+      background: rgba(255,255,255,0.98);
+      border: 1px solid #d8e2ec;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+      overflow: hidden;
+    }
+    .owner-side-title {
+      background: #0d3b66;
+      color: #fff;
+      font-size: 0.76rem;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 0.55rem 0.8rem;
+    }
+    .owner-filter-btn {
+      width: 100%;
+      border: none;
+      background: #fff;
+      color: #153a59;
+      text-align: left;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 0.75rem 0.85rem;
+      cursor: pointer;
+      transition: background 0.18s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .owner-filter-btn:hover { background: #eef5fb; }
+    .owner-filter-btn.active { background: #d4e6f5; font-weight: 700; }
+    .filter-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ccc;
+    }
+    .owner-filter-btn.active .filter-indicator { background: #0d3b66; }
+    .owner-side-link {
+      width: 100%;
+      border: none;
+      background: #fff;
+      color: #153a59;
+      text-align: left;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 0.75rem 0.85rem;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .owner-side-link:hover { background: #eef5fb; }
+
     @media (max-width: 740px) {
-      #coachSideMenu {
+      #coachSideMenu, #ownerSideMenu {
         top: auto;
         left: 10px;
         right: 10px;
@@ -191,6 +253,17 @@
   <aside id="coachSideMenu" aria-label="Coach quick actions">
     <div class="coach-side-title">Coach Menu</div>
     <button id="returnToSiteBtn" class="coach-side-link">Return to Website</button>
+  </aside>
+
+  <aside id="ownerSideMenu" aria-label="Boat owner filters">
+    <div class="owner-side-title">My Registrations</div>
+    <button id="toggleMyBoats" class="owner-filter-btn active">
+      <span class="filter-indicator"></span>My Boats
+    </button>
+    <button id="toggleMyMoorings" class="owner-filter-btn active">
+      <span class="filter-indicator"></span>My Moorings
+    </button>
+    <button id="viewAllBtn" class="owner-side-link">View All Moorings/Boats</button>
   </aside>
 
   <!-- Admin filter/search bar (visible only for Admin role) ──────────────── -->
@@ -226,6 +299,7 @@
     const role     = sessionStorage.getItem('mp_role')     || '';
     const roleNorm = role.trim().toLowerCase();
     const isCoach  = roleNorm.includes('coach');
+    const isBoatOwner = roleNorm.includes('boatowner') || roleNorm.includes('boat owner');
 
     // Show user info in header
     document.getElementById('userInfo').textContent =
@@ -242,13 +316,31 @@
         return;
       }
 
-      window.location.href = isCoach ? 'index.html' : 'login.html';
+      if (isCoach) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      if (isBoatOwner) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      window.location.href = 'login.html';
     });
 
     if (isCoach) {
       document.getElementById('coachSideMenu').style.display = 'block';
       document.getElementById('returnToSiteBtn').addEventListener('click', () => {
         window.location.href = 'index.html';
+      });
+    }
+
+    // Boat owner menu setup
+    if (isBoatOwner) {
+      document.getElementById('ownerSideMenu').style.display = 'block';
+      document.getElementById('viewAllBtn').addEventListener('click', () => {
+        clearOwnerFilter();
       });
     }
 
@@ -316,10 +408,82 @@
     // All raw pin data kept for search
     let allPins = [];
 
+    // Boat owner filtering
+    let myBoatIds = new Set();
+    let myMooringIds = new Set();
+    let showMyBoats = true;
+    let showMyMoorings = true;
+    let ownerFilterActive = false;
+
     // Filter state (Admin only)
     let showBoats    = true;
     let showMoorings = true;
     let searchActive = false;
+
+    // ── Fetch and render pins ─────────────────────────────────────────────────
+    async function loadOwnerItems() {
+      if (!isBoatOwner || !token) return;
+
+      try {
+        // Fetch user's boats
+        const boatsRes = await fetch(`${API_BASE}/api/boats/mine`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (boatsRes.ok) {
+          const boats = await boatsRes.json();
+          boats.forEach(boat => myBoatIds.add(boat.id));
+        }
+
+        // Fetch user's moorings
+        const mooringsRes = await fetch(`${API_BASE}/api/moorings/mine`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (mooringsRes.ok) {
+          const moorings = await mooringsRes.json();
+          moorings.forEach(mooring => myMooringIds.add(mooring.id));
+        }
+      } catch (err) {
+        console.error('Failed to load owner items:', err);
+      }
+    }
+
+    function isOwnerItem(pin) {
+      if (pin.type === 'Boat') return myBoatIds.has(pin.id);
+      if (pin.type === 'Mooring') return myMooringIds.has(pin.id);
+      return false;
+    }
+
+    function applyOwnerFilter() {
+      boatLayer.clearLayers();
+      mooringLayer.clearLayers();
+
+      allPins.forEach(pin => {
+        const marker = pin._marker;
+        if (!marker) return;
+
+        const isOwner = isOwnerItem(pin);
+        const isBoat = pin.type === 'Boat';
+        const isBoatVisible = isBoat && showMyBoats && isOwner;
+        const isMooringVisible = !isBoat && showMyMoorings && isOwner;
+
+        // Add marker if it belongs to user and filter is active
+        if (ownerFilterActive && (isBoatVisible || isMooringVisible)) {
+          (isBoat ? boatLayer : mooringLayer).addLayer(marker);
+        } else if (!ownerFilterActive) {
+          // Add all markers when filter is not active
+          (isBoat ? boatLayer : mooringLayer).addLayer(marker);
+        }
+      });
+    }
+
+    function clearOwnerFilter() {
+      ownerFilterActive = false;
+      showMyBoats = true;
+      showMyMoorings = true;
+      document.getElementById('toggleMyBoats').classList.add('active');
+      document.getElementById('toggleMyMoorings').classList.add('active');
+      applyOwnerFilter();
+    }
 
     // ── Fetch and render pins ─────────────────────────────────────────────────
     async function loadPins() {
@@ -385,6 +549,33 @@
       document.getElementById('toggleMoorings').classList.toggle('active', showMoorings);
       showMoorings ? map.addLayer(mooringLayer) : map.removeLayer(mooringLayer);
     });
+
+    // ── Filter toggles (Boat Owner) ────────────────────────────────────────────
+    if (isBoatOwner) {
+      document.getElementById('toggleMyBoats').addEventListener('click', () => {
+        showMyBoats = !showMyBoats;
+        const btn = document.getElementById('toggleMyBoats');
+        btn.classList.toggle('active', showMyBoats);
+        if (showMyBoats || showMyMoorings) {
+          ownerFilterActive = true;
+          applyOwnerFilter();
+        } else {
+          clearOwnerFilter();
+        }
+      });
+
+      document.getElementById('toggleMyMoorings').addEventListener('click', () => {
+        showMyMoorings = !showMyMoorings;
+        const btn = document.getElementById('toggleMyMoorings');
+        btn.classList.toggle('active', showMyMoorings);
+        if (showMyBoats || showMyMoorings) {
+          ownerFilterActive = true;
+          applyOwnerFilter();
+        } else {
+          clearOwnerFilter();
+        }
+      });
+    }
 
     // ── Search (Admin) ────────────────────────────────────────────────────────
     function doSearch() {
@@ -505,7 +696,13 @@
       });
     }
 
-    loadPins();
+    // Load owner items first, then load all pins
+    (async () => {
+      if (isBoatOwner) {
+        await loadOwnerItems();
+      }
+      loadPins();
+    })();
   </script>
 </body>
 </html>

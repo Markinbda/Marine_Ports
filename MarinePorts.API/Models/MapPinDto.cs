@@ -6,6 +6,9 @@ namespace MarinePorts.API.Models;
 /// </summary>
 public class MapPinDto
 {
+    /// <summary>Unique identifier (Boat or Mooring ID)</summary>
+    public int Id           { get; set; }
+
     /// <summary>"Boat" or "Mooring"</summary>
     public string Type      { get; set; } = string.Empty;
     public double Latitude  { get; set; }
