@@ -578,6 +578,77 @@ public class AdminController : ControllerBase
         await _db.SaveChangesAsync();
         return Ok(new { message = $"Mooring {mooring.MooringNumber} added to {user.FullName}.", mooringId = mooring.Id });
     }
+
+    // ── PUT /api/admin/boats/{id}/assign-user ─────────────────────────────────
+    /// <summary>
+    /// Reassigns an existing boat to a user.
+    /// Returns 409 Conflict if already owned by a different user, unless Force=true.
+    /// </summary>
+    [HttpPut("boats/{id:int}/assign-user")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AssignBoatToUser(int id, [FromBody] AssignUserDto dto)
+    {
+        var boat = await _db.Boats
+            .Include(b => b.AppUser)
+            .FirstOrDefaultAsync(b => b.Id == id);
+        if (boat is null) return NotFound(new { message = "Boat not found." });
+
+        // Boat.AppUserId is non-nullable; treat 0 as "unassigned"
+        bool alreadyOwned = boat.AppUserId > 0 && boat.AppUserId != dto.UserId;
+        if (alreadyOwned && !dto.Force)
+        {
+            return Conflict(new
+            {
+                message          = $"This boat is already registered to {boat.AppUser!.FullName} (ID #{boat.AppUserId}).",
+                currentOwnerId   = boat.AppUserId,
+                currentOwnerName = boat.AppUser!.FullName
+            });
+        }
+
+        var targetUser = await _db.Users.FindAsync(dto.UserId);
+        if (targetUser is null) return NotFound(new { message = "Target user not found." });
+
+        boat.AppUserId = dto.UserId;
+        boat.OwnerName = targetUser.FullName;
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"Boat {boat.RegistrationNumber} assigned to {targetUser.FullName}.", boatId = id });
+    }
+
+    // ── PUT /api/admin/moorings/{id}/assign-user ──────────────────────────────
+    /// <summary>
+    /// Reassigns an existing mooring to a user.
+    /// Returns 409 Conflict if already owned by a different user, unless Force=true.
+    /// </summary>
+    [HttpPut("moorings/{id:int}/assign-user")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AssignMooringToUser(int id, [FromBody] AssignUserDto dto)
+    {
+        var mooring = await _db.Moorings
+            .Include(m => m.AppUser)
+            .FirstOrDefaultAsync(m => m.Id == id);
+        if (mooring is null) return NotFound(new { message = "Mooring not found." });
+
+        bool alreadyOwned = mooring.AppUserId.HasValue
+                         && mooring.AppUserId.Value > 0
+                         && mooring.AppUserId != dto.UserId;
+        if (alreadyOwned && !dto.Force)
+        {
+            return Conflict(new
+            {
+                message          = $"This mooring is already registered to {mooring.AppUser!.FullName} (ID #{mooring.AppUserId}).",
+                currentOwnerId   = mooring.AppUserId,
+                currentOwnerName = mooring.AppUser!.FullName
+            });
+        }
+
+        var targetUser = await _db.Users.FindAsync(dto.UserId);
+        if (targetUser is null) return NotFound(new { message = "Target user not found." });
+
+        mooring.AppUserId = dto.UserId;
+        mooring.OwnerName = targetUser.FullName;
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"Mooring {mooring.MooringNumber} assigned to {targetUser.FullName}.", mooringId = id });
+    }
 }
 
 // ── Request DTOs ──────────────────────────────────────────────────────────────
@@ -598,6 +669,7 @@ public record AdminUpdateMooringDto(
     string MooringNumber, string OwnerName,
     double Latitude, double Longitude, string? BoatSize
 );
+public record AssignUserDto(int UserId, bool Force = false);
 
 /// <summary>Admin version of BoatCreateDto – includes optional UserId to assign ownership.</summary>
 public class AdminBoatCreateDto : BoatCreateDto
