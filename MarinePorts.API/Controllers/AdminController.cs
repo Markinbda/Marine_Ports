@@ -191,6 +191,7 @@ public class AdminController : ControllerBase
     {
         var boats = await _db.Boats
             .Include(b => b.AppUser)
+            .Include(b => b.Mooring)
             .OrderByDescending(b => b.RegisteredAt)
             .Select(b => new
             {
@@ -203,7 +204,9 @@ public class AdminController : ControllerBase
                           : b.LengthFeet <= 20 ? "#4CAF50"
                                                : "#FF9800",
                 b.AppUserId,
-                UserEmail = b.AppUser != null ? b.AppUser.Email : null
+                UserEmail = b.AppUser != null ? b.AppUser.Email : null,
+                b.MooringId,
+                MooringNumber = b.Mooring != null ? b.Mooring.MooringNumber : null
             })
             .ToListAsync();
         return Ok(boats);
@@ -268,15 +271,22 @@ public class AdminController : ControllerBase
         var boat = await _db.Boats.FindAsync(id);
         if (boat is null) return NotFound();
 
-        boat.RegistrationNumber = dto.RegistrationNumber.Trim();
-        boat.BoatName           = dto.BoatName.Trim();
-        boat.BoatType           = dto.BoatType.Trim();
-        boat.OwnerName          = dto.OwnerName.Trim();
+        boat.RegistrationNumber = (dto.RegistrationNumber ?? string.Empty).Trim();
+        boat.BoatName           = (dto.BoatName ?? string.Empty).Trim();
+        boat.BoatType           = (dto.BoatType ?? string.Empty).Trim();
+        boat.OwnerName          = (dto.OwnerName ?? string.Empty).Trim();
         boat.LengthFeet         = dto.LengthFeet;
         boat.Latitude           = dto.Latitude;
         boat.Longitude          = dto.Longitude;
 
-        await _db.SaveChangesAsync();
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.InnerException?.Message ?? ex.Message });
+        }
         return Ok(new { message = $"Boat {boat.RegistrationNumber} updated." });
     }
 

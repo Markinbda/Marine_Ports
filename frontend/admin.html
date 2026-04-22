@@ -1341,7 +1341,7 @@
             <div class="mooring-typeahead">
               <input type="text" id="eBoatMooringSearch" placeholder="Search mooring #..." autocomplete="off"
                 oninput="filterMooringEditSearch()"
-                value="${selectedMooringId ? (allMoorings.find(m=>Number(m.id)===selectedMooringId)?.mooringNumber||'') : ''}" />
+                value="${selectedMooringId ? (data.mooringNumber || allMoorings.find(m=>Number(m.id)===selectedMooringId)?.mooringNumber||'') : ''}" />
               <input type="hidden" id="eBoatMooringId" value="${selectedMooringId || ''}" />
               <div class="mooring-typeahead-results" id="eMooringResults" style="display:none"></div>
             </div>
