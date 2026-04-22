@@ -187,6 +187,7 @@
     const API_BASE = window.API_BASE || 'http://localhost:5000';
     const token = sessionStorage.getItem('mp_token');
     const role = sessionStorage.getItem('mp_role') || '';
+    const userId = Number(sessionStorage.getItem('mp_userId') || 0);
     const fullName = sessionStorage.getItem('mp_fullName') || 'User';
 
     document.getElementById('userInfo').textContent = `${fullName}${role ? ' (' + role + ')' : ''}`;
@@ -324,6 +325,13 @@
         return;
       }
 
+      if (!Number.isFinite(userId) || userId <= 0) {
+        showMsg('err', 'Missing user ID in session. Please sign out and sign in again.');
+        renderBoats([]);
+        renderMoorings([]);
+        return;
+      }
+
       try {
         const [boatsRes, mooringsRes] = await Promise.all([
           fetch(`${API_BASE}/api/boats/mine`, { headers: authHeaders() }),
@@ -345,9 +353,34 @@
         renderMoorings(Array.isArray(mooringsData) ? mooringsData : []);
         showMsg('ok', 'Profile loaded.');
       } catch (e) {
-        showMsg('err', `Network error: ${e.message || e}`);
-        renderBoats([]);
-        renderMoorings([]);
+        try {
+          const [allBoatsRes, allMooringsRes] = await Promise.all([
+            fetch(`${API_BASE}/api/boats`),
+            fetch(`${API_BASE}/api/moorings`)
+          ]);
+          const allBoats = await readApiBody(allBoatsRes);
+          const allMoorings = await readApiBody(allMooringsRes);
+
+          if (!allBoatsRes.ok || !allMooringsRes.ok) {
+            throw new Error('Fallback list endpoints failed.');
+          }
+
+          const ownedBoats = Array.isArray(allBoats)
+            ? allBoats.filter(b => Number(b.appUserId) === userId)
+            : [];
+          const ownedMoorings = Array.isArray(allMoorings)
+            ? allMoorings.filter(m => Number(m.appUserId) === userId)
+            : [];
+
+          renderBoats(ownedBoats);
+          renderMoorings(ownedMoorings);
+          showMsg('ok', 'Profile loaded from fallback data.');
+        } catch (fallbackError) {
+          showMsg('err', `Network error: ${e.message || e}`);
+          console.error('Profile fallback failed', fallbackError);
+          renderBoats([]);
+          renderMoorings([]);
+        }
       }
     }
 

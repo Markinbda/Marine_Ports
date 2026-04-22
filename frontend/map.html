@@ -472,7 +472,32 @@
           moorings.forEach(mooring => myMooringIds.add(mooring.id));
         }
       } catch (err) {
-        console.error('Failed to load owner items:', err);
+        console.error('Failed to load owner items via /mine:', err);
+      }
+
+      if ((myBoatIds.size === 0 && myMooringIds.size === 0) && userId > 0) {
+        try {
+          const [allBoatsRes, allMooringsRes] = await Promise.all([
+            fetch(`${API_BASE}/api/boats`),
+            fetch(`${API_BASE}/api/moorings`)
+          ]);
+
+          if (allBoatsRes.ok) {
+            const boats = await allBoatsRes.json();
+            boats
+              .filter(b => Number(b.appUserId) === userId)
+              .forEach(b => myBoatIds.add(b.id));
+          }
+
+          if (allMooringsRes.ok) {
+            const moorings = await allMooringsRes.json();
+            moorings
+              .filter(m => Number(m.appUserId) === userId)
+              .forEach(m => myMooringIds.add(m.id));
+          }
+        } catch (fallbackErr) {
+          console.error('Fallback owner loading failed:', fallbackErr);
+        }
       }
     }
 
