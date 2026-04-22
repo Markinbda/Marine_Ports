@@ -189,27 +189,42 @@
       width: 100%;
       border: none;
       background: #fff;
-      color: #153a59;
+      color: #888;
       text-align: left;
       font-size: 0.88rem;
       font-weight: 600;
       padding: 0.75rem 0.85rem;
       cursor: pointer;
-      transition: background 0.18s;
+      transition: all 0.18s;
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      border-left: 3px solid transparent;
     }
-    .owner-filter-btn:hover { background: #eef5fb; }
-    .owner-filter-btn.active { background: #d4e6f5; font-weight: 700; }
+    .owner-filter-btn:hover { background: #f5f5f5; }
+    .owner-filter-btn.active {
+      background: #cfe9f5;
+      color: #0d3b66;
+      font-weight: 700;
+      border-left-color: #1565C0;
+    }
+    .owner-filter-btn.active:hover {
+      background: #b5d9ec;
+    }
     .filter-indicator {
       display: inline-block;
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
-      background: #ccc;
+      background: #ddd;
+      border: 2px solid #999;
+      box-sizing: border-box;
+      transition: all 0.18s;
     }
-    .owner-filter-btn.active .filter-indicator { background: #0d3b66; }
+    .owner-filter-btn.active .filter-indicator {
+      background: #1565C0;
+      border-color: #0d3b66;
+    }
     .owner-side-link {
       width: 100%;
       border: none;
@@ -257,10 +272,10 @@
 
   <aside id="ownerSideMenu" aria-label="Boat owner filters">
     <div class="owner-side-title">My Registrations</div>
-    <button id="toggleMyBoats" class="owner-filter-btn active">
+    <button id="toggleMyBoats" class="owner-filter-btn">
       <span class="filter-indicator"></span>My Boats
     </button>
-    <button id="toggleMyMoorings" class="owner-filter-btn active">
+    <button id="toggleMyMoorings" class="owner-filter-btn">
       <span class="filter-indicator"></span>My Moorings
     </button>
     <button id="viewAllBtn" class="owner-side-link">View All Moorings/Boats</button>
@@ -342,6 +357,10 @@
       document.getElementById('viewAllBtn').addEventListener('click', () => {
         clearOwnerFilter();
       });
+      
+      // Initialize toggle buttons as inactive
+      document.getElementById('toggleMyBoats').classList.remove('active');
+      document.getElementById('toggleMyMoorings').classList.remove('active');
     }
 
     // ── Initialise Leaflet map centred on Bermuda ─────────────────────────────
@@ -553,27 +572,35 @@
     // ── Filter toggles (Boat Owner) ────────────────────────────────────────────
     if (isBoatOwner) {
       document.getElementById('toggleMyBoats').addEventListener('click', () => {
-        showMyBoats = !showMyBoats;
+        // Activate filter on first click if not already active
+        if (!ownerFilterActive) {
+          ownerFilterActive = true;
+          // On first click, show that category (set to true if false, keep true if true)
+          showMyBoats = true;
+          showMyMoorings = false;
+        } else {
+          // Toggle the state if filter is already active
+          showMyBoats = !showMyBoats;
+        }
         const btn = document.getElementById('toggleMyBoats');
         btn.classList.toggle('active', showMyBoats);
-        if (showMyBoats || showMyMoorings) {
-          ownerFilterActive = true;
-          applyOwnerFilter();
-        } else {
-          clearOwnerFilter();
-        }
+        applyOwnerFilter();
       });
 
       document.getElementById('toggleMyMoorings').addEventListener('click', () => {
-        showMyMoorings = !showMyMoorings;
+        // Activate filter on first click if not already active
+        if (!ownerFilterActive) {
+          ownerFilterActive = true;
+          // On first click, show that category
+          showMyBoats = false;
+          showMyMoorings = true;
+        } else {
+          // Toggle the state if filter is already active
+          showMyMoorings = !showMyMoorings;
+        }
         const btn = document.getElementById('toggleMyMoorings');
         btn.classList.toggle('active', showMyMoorings);
-        if (showMyBoats || showMyMoorings) {
-          ownerFilterActive = true;
-          applyOwnerFilter();
-        } else {
-          clearOwnerFilter();
-        }
+        applyOwnerFilter();
       });
     }
 
