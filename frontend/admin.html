@@ -1425,6 +1425,61 @@
     //  User detail drawer 
     let drawerUser = null; // holds the currently displayed user object
 
+    async function buildUserDetailFallback(id) {
+      const uid = Number(id);
+      const user = allUsers.find(u => Number(u.id) === uid) || editCache['user_' + uid];
+      if (!user) return null;
+
+      await ensureAssignDataLoaded();
+
+      const mooringById = new Map(
+        allMoorings.map(m => [Number(m.id), m])
+      );
+
+      const boats = allBoats
+        .filter(b => Number(b.appUserId) === uid)
+        .map(b => ({
+          id: b.id,
+          registrationNumber: b.registrationNumber,
+          boatName: b.boatName,
+          boatType: b.boatType,
+          lengthFeet: b.lengthFeet,
+          latitude: b.latitude,
+          longitude: b.longitude,
+          registeredAt: b.registeredAt,
+          mooringId: b.mooringId,
+          mooringNumber: b.mooringId ? (mooringById.get(Number(b.mooringId))?.mooringNumber || null) : null
+        }));
+
+      const moorings = allMoorings
+        .filter(m => Number(m.appUserId) === uid)
+        .map(m => ({
+          id: m.id,
+          mooringNumber: m.mooringNumber,
+          boatSize: m.boatSize,
+          latitude: m.latitude,
+          longitude: m.longitude,
+          registeredAt: m.registeredAt
+        }));
+
+      return {
+        id: user.id,
+        firstName: user.firstName || (user.fullName || '').split(' ')[0] || '',
+        lastName: user.lastName || (user.fullName || '').split(' ').slice(1).join(' ') || '',
+        fullName: user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        parish: user.parish,
+        organisationName: user.organisationName,
+        governmentIdOrLicenceNumber: user.governmentIdOrLicenceNumber || '',
+        role: user.role,
+        isApproved: !!user.isApproved,
+        registeredAt: user.registeredAt,
+        boats,
+        moorings
+      };
+    }
+
     async function openUserDetail(id) {
       drawerUser = null;
       document.getElementById('drawerName').textContent = 'Loading';
@@ -1444,7 +1499,14 @@
         renderDrawer(drawerUser);
       } catch (e) {
         console.error('openUserDetail failed', e);
-        document.getElementById('drawerBody').innerHTML = `<div class="empty">Could not load user details. ${esc(e.message || '')}</div>`;
+        const fallback = await buildUserDetailFallback(id);
+        if (fallback) {
+          drawerUser = fallback;
+          renderDrawer(drawerUser);
+          toast('err', 'Live detail fetch failed; showing cached details.');
+        } else {
+          document.getElementById('drawerBody').innerHTML = `<div class="empty">Could not load user details. ${esc(e.message || '')}</div>`;
+        }
       }
     }
 
