@@ -1507,8 +1507,8 @@
             ? data.message
             : (res.status === 401 || res.status === 403
                 ? 'Session expired — please sign out and back in.'
-                : `Update failed (${res.status}): ${raw.substring(0,200)}`);
-          console.error('saveEdit error', res.status, data, raw);
+                : `Update failed (${res.status}): ${raw.substring(0,300)}`);
+          console.error('saveEdit error', res.status, data, data.detail || raw);
           toast('err', msg);
         }
       } catch (e) {
