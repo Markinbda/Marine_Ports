@@ -178,6 +178,13 @@
     }
     .btn-bootstrap:hover { background: #bf360c; }
 
+    /* ── Sortable column headers ──────────────────────────────────────────── */
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { color: #1a6fa8; }
+    th.sortable::after { content: ' \2195'; color: #ccc; font-size: 0.65rem; }
+    th.sortable.asc::after  { content: ' \25B2'; color: #1a6fa8; font-size: 0.65rem; }
+    th.sortable.desc::after { content: ' \25BC'; color: #1a6fa8; font-size: 0.65rem; }
+
     /* ── Empty state ──────────────────────────────────────────────────────── */
     .empty { padding: 2.5rem; text-align: center; color: #aaa; font-size: 0.9rem; }
 
@@ -369,16 +376,16 @@
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Full Name</th>
-              <th>Email</th>
-              <th>Phone</th>
-              <th>Parish</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Registered</th>
-              <th>Boats</th>
-              <th>Moorings</th>
+              <th class="sortable" data-col="id" onclick="sortTable('users','id')">ID</th>
+              <th class="sortable" data-col="fullName" onclick="sortTable('users','fullName')">Full Name</th>
+              <th class="sortable" data-col="email" onclick="sortTable('users','email')">Email</th>
+              <th class="sortable" data-col="phoneNumber" onclick="sortTable('users','phoneNumber')">Phone</th>
+              <th class="sortable" data-col="parish" onclick="sortTable('users','parish')">Parish</th>
+              <th class="sortable" data-col="role" onclick="sortTable('users','role')">Role</th>
+              <th class="sortable" data-col="isApproved" onclick="sortTable('users','isApproved')">Status</th>
+              <th class="sortable" data-col="registeredAt" onclick="sortTable('users','registeredAt')">Registered</th>
+              <th class="sortable" data-col="boatCount" onclick="sortTable('users','boatCount')">Boats</th>
+              <th class="sortable" data-col="mooringCount" onclick="sortTable('users','mooringCount')">Moorings</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -394,6 +401,16 @@
       <div class="section-head">
         <h2>Moorings</h2>
         <button class="btn-sm" id="addMooringBtn" style="background:#4CAF50;border-color:#388E3C;">+ Add Mooring</button>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="mooringSearch" placeholder="Search mooring # or owner…" style="width:240px;" />
+        <select id="mooringBoatSizeFilter">
+          <option value="">All sizes</option>
+          <option value="Small">Small</option>
+          <option value="Medium">Medium</option>
+          <option value="Large">Large</option>
+          <option value="ArcGIS">ArcGIS</option>
+        </select>
       </div>
 
       <!-- Add mooring form (hidden by default) -->
@@ -433,13 +450,13 @@
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Mooring #</th>
-              <th>Owner</th>
-              <th>Latitude</th>
-              <th>Longitude</th>
-              <th>Boat Size</th>
-              <th>Registered</th>
+              <th class="sortable" data-col="id" onclick="sortTable('moorings','id')">ID</th>
+              <th class="sortable" data-col="mooringNumber" onclick="sortTable('moorings','mooringNumber')">Mooring #</th>
+              <th class="sortable" data-col="ownerName" onclick="sortTable('moorings','ownerName')">Owner</th>
+              <th class="sortable" data-col="latitude" onclick="sortTable('moorings','latitude')">Latitude</th>
+              <th class="sortable" data-col="longitude" onclick="sortTable('moorings','longitude')">Longitude</th>
+              <th class="sortable" data-col="boatSize" onclick="sortTable('moorings','boatSize')">Boat Size</th>
+              <th class="sortable" data-col="registeredAt" onclick="sortTable('moorings','registeredAt')">Registered</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -455,18 +472,21 @@
       <div class="section-head">
         <h2>Boats</h2>
       </div>
+      <div class="filter-bar">
+        <input type="text" id="boatSearch" placeholder="Search reg #, name or owner…" style="width:260px;" />
+      </div>
       <div class="tbl-wrap">
         <table>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Reg #</th>
-              <th>Boat Name</th>
-              <th>Type</th>
-              <th>Owner</th>
-              <th>Length</th>
-              <th>Lat</th>
-              <th>Lon</th>
+              <th class="sortable" data-col="id" onclick="sortTable('boats','id')">ID</th>
+              <th class="sortable" data-col="registrationNumber" onclick="sortTable('boats','registrationNumber')">Reg #</th>
+              <th class="sortable" data-col="boatName" onclick="sortTable('boats','boatName')">Boat Name</th>
+              <th class="sortable" data-col="boatType" onclick="sortTable('boats','boatType')">Type</th>
+              <th class="sortable" data-col="ownerName" onclick="sortTable('boats','ownerName')">Owner</th>
+              <th class="sortable" data-col="lengthFeet" onclick="sortTable('boats','lengthFeet')">Length</th>
+              <th class="sortable" data-col="latitude" onclick="sortTable('boats','latitude')">Lat</th>
+              <th class="sortable" data-col="longitude" onclick="sortTable('boats','longitude')">Lon</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -574,8 +594,57 @@
       }
     });
 
-    // ── User data store ───────────────────────────────────────────────────────
-    let allUsers = [];
+    // ── Data stores ───────────────────────────────────────────────────────────
+    let allUsers    = [];
+    let allMoorings = [];
+    let allBoats    = [];
+
+    // ── Sort state & helpers ──────────────────────────────────────────────────
+    const sortState = {
+      users:    { col: null, dir: 'asc' },
+      moorings: { col: null, dir: 'asc' },
+      boats:    { col: null, dir: 'asc' }
+    };
+
+    function sortTable(table, col) {
+      const st = sortState[table];
+      if (st.col === col) {
+        st.dir = st.dir === 'asc' ? 'desc' : 'asc';
+      } else {
+        st.col = col;
+        st.dir = 'asc';
+      }
+      updateSortHeaders(table);
+      if (table === 'users')    renderTable(allUsers);
+      if (table === 'moorings') renderMoorings();
+      if (table === 'boats')    renderBoats();
+    }
+
+    function updateSortHeaders(table) {
+      const tbodyId = { users: 'usersTbody', moorings: 'mooringsTbody', boats: 'boatsTbody' }[table];
+      const thead = document.getElementById(tbodyId).closest('table').querySelector('thead');
+      thead.querySelectorAll('th.sortable').forEach(th => {
+        th.classList.remove('asc', 'desc');
+        if (th.dataset.col === sortState[table].col) {
+          th.classList.add(sortState[table].dir);
+        }
+      });
+    }
+
+    function applySort(arr, table) {
+      const { col, dir } = sortState[table];
+      if (!col) return arr;
+      return [...arr].sort((a, b) => {
+        let av = a[col], bv = b[col];
+        if (av == null) av = '';
+        if (bv == null) bv = '';
+        if (typeof av === 'string') av = av.toLowerCase();
+        if (typeof bv === 'string') bv = bv.toLowerCase();
+        if (av < bv) return dir === 'asc' ? -1 : 1;
+        if (av > bv) return dir === 'asc' ?  1 : -1;
+        return 0;
+      });
+    }
 
     // ── Load users ────────────────────────────────────────────────────────────
     async function loadUsers() {
@@ -647,6 +716,8 @@
         return matchSearch && matchStatus && matchRole;
       });
 
+      filtered = applySort(filtered, 'users');
+
       if (!filtered.length) {
         tbody.innerHTML = '<tr><td colspan="11" class="empty">No users match the current filter.</td></tr>';
         return;
@@ -688,6 +759,10 @@
     ['searchInput', 'filterStatus', 'filterRole'].forEach(id =>
       document.getElementById(id).addEventListener('input', () => renderTable(allUsers))
     );
+    ['mooringSearch', 'mooringBoatSizeFilter'].forEach(id =>
+      document.getElementById(id).addEventListener('input', () => renderMoorings())
+    );
+    document.getElementById('boatSearch').addEventListener('input', () => renderBoats());
 
     // ── Actions ───────────────────────────────────────────────────────────────
     async function approveUser(id) {
@@ -783,13 +858,34 @@
       try {
         const res = await fetch(`${API_BASE}/api/admin/moorings`, { headers: authHeaders() });
         if (!res.ok) throw new Error();
-        const moorings = await res.json();
-        if (!moorings.length) {
-          tbody.innerHTML = '<tr><td colspan="8" class="empty">No moorings found.</td></tr>';
-          return;
-        }
-        moorings.forEach(m => { editCache['mooring_' + m.id] = m; });
-        tbody.innerHTML = moorings.map(m => `
+        allMoorings = await res.json();
+        renderMoorings();
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">Could not load moorings.</td></tr>';
+      }
+    }
+
+    function renderMoorings() {
+      const tbody  = document.getElementById('mooringsTbody');
+      const search = document.getElementById('mooringSearch').value.toLowerCase();
+      const fSize  = document.getElementById('mooringBoatSizeFilter').value;
+
+      let filtered = allMoorings.filter(m => {
+        const matchSearch = !search ||
+          m.mooringNumber.toLowerCase().includes(search) ||
+          (m.ownerName || '').toLowerCase().includes(search);
+        const matchSize = !fSize || (m.boatSize || '') === fSize;
+        return matchSearch && matchSize;
+      });
+
+      filtered = applySort(filtered, 'moorings');
+
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty">No moorings match the filter.</td></tr>';
+        return;
+      }
+      filtered.forEach(m => { editCache['mooring_' + m.id] = m; });
+      tbody.innerHTML = filtered.map(m => `
           <tr>
             <td>${m.id}</td>
             <td><strong>${esc(m.mooringNumber)}</strong></td>
@@ -806,9 +902,6 @@
             </td>
           </tr>
         `).join('');
-      } catch {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty">Could not load moorings.</td></tr>';
-      }
     }
 
     document.getElementById('addMooringBtn').addEventListener('click', () => {
@@ -865,13 +958,32 @@
       try {
         const res = await fetch(`${API_BASE}/api/admin/boats`, { headers: authHeaders() });
         if (!res.ok) throw new Error();
-        const boats = await res.json();
-        if (!boats.length) {
-          tbody.innerHTML = '<tr><td colspan="9" class="empty">No boats found.</td></tr>';
-          return;
-        }
-        boats.forEach(b => { editCache['boat_' + b.id] = b; });
-        tbody.innerHTML = boats.map(b => `
+        allBoats = await res.json();
+        renderBoats();
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty">Could not load boats.</td></tr>';
+      }
+    }
+
+    function renderBoats() {
+      const tbody  = document.getElementById('boatsTbody');
+      const search = document.getElementById('boatSearch').value.toLowerCase();
+
+      let filtered = allBoats.filter(b => {
+        return !search ||
+          (b.registrationNumber || '').toLowerCase().includes(search) ||
+          (b.boatName || '').toLowerCase().includes(search) ||
+          (b.ownerName || '').toLowerCase().includes(search);
+      });
+
+      filtered = applySort(filtered, 'boats');
+
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty">No boats match the filter.</td></tr>';
+        return;
+      }
+      filtered.forEach(b => { editCache['boat_' + b.id] = b; });
+      tbody.innerHTML = filtered.map(b => `
           <tr>
             <td>${b.id}</td>
             <td><strong>${esc(b.registrationNumber)}</strong></td>
@@ -889,9 +1001,6 @@
             </td>
           </tr>
         `).join('');
-      } catch {
-        tbody.innerHTML = '<tr><td colspan="9" class="empty">Could not load boats.</td></tr>';
-      }
     }
 
     async function deleteBoat(id, name) {
