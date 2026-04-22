@@ -613,6 +613,23 @@
       };
     }
 
+    async function readApiBody(res) {
+      const contentType = (res.headers.get('content-type') || '').toLowerCase();
+      if (contentType.includes('application/json')) {
+        try {
+          return await res.json();
+        } catch {
+          return {};
+        }
+      }
+      try {
+        const text = await res.text();
+        return { message: text?.trim() || '' };
+      } catch {
+        return {};
+      }
+    }
+
     //  Bootstrap (first-run no-admin setup) 
     document.getElementById('bootstrapBtn').addEventListener('click', async () => {
       const email = document.getElementById('bootstrapEmail').value.trim();
@@ -1177,9 +1194,12 @@
           headers: authHeaders(),
           body: JSON.stringify({ userId: editingUserId, force })
         });
-        const data = await res.json();
+        const data = await readApiBody(res);
         if (!res.ok) {
-          toast('err', data.message || 'Assignment failed.');
+          const msg = data.message || (res.status === 401 || res.status === 403
+            ? 'Session expired or access denied. Please log in again.'
+            : `Assignment failed (${res.status}).`);
+          toast('err', msg);
           return;
         }
 
@@ -1378,7 +1398,7 @@
           headers: authHeaders(),
           body: JSON.stringify(body)
         });
-        const data = await res.json();
+        const data = await readApiBody(res);
         if (res.ok) {
           toast('ok', data.message);
           closeModal();
@@ -1386,7 +1406,10 @@
           if (type === 'boat') loadBoats();
           if (type === 'mooring') loadMoorings();
         } else {
-          toast('err', data.message || 'Update failed.');
+          const msg = data.message || (res.status === 401 || res.status === 403
+            ? 'Session expired or access denied. Please log in again.'
+            : `Update failed (${res.status}).`);
+          toast('err', msg);
         }
       } catch {
         toast('err', 'Server unreachable.');
