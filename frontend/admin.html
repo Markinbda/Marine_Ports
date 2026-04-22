@@ -1394,6 +1394,10 @@
         path = `/api/admin/moorings/${id}`;
       }
 
+      if (!token) {
+        toast('err', 'Not logged in. Please sign in again.');
+        return;
+      }
       try {
         const res = await fetch(API_BASE + path, {
           method: 'PUT',
@@ -1402,19 +1406,20 @@
         });
         const data = await readApiBody(res);
         if (res.ok) {
-          toast('ok', data.message);
+          toast('ok', data.message || 'Saved.');
           closeModal();
           if (type === 'user') loadUsers();
           if (type === 'boat') loadBoats();
           if (type === 'mooring') loadMoorings();
         } else {
           const msg = data.message || (res.status === 401 || res.status === 403
-            ? 'Session expired or access denied. Please log in again.'
+            ? 'Session expired — please sign out and back in.'
             : `Update failed (${res.status}).`);
           toast('err', msg);
         }
-      } catch {
-        toast('err', 'Server unreachable.');
+      } catch (e) {
+        console.error('saveEdit fetch error', e);
+        toast('err', `Request failed: ${e.message || e}`);
       }
     }
     //  User detail drawer 
