@@ -1069,88 +1069,224 @@
     //  Edit modal 
     let currentEdit = { type: null, id: null };
 
+    async function ensureAssignDataLoaded() {
+      const tasks = [];
+      if (!allBoats.length) {
+        tasks.push(
+          fetch(`${API_BASE}/api/admin/boats`, { headers: authHeaders() })
+            .then(r => r.json())
+            .then(d => {
+              allBoats = d;
+              d.forEach(b => { editCache['boat_' + b.id] = b; });
+            })
+            .catch(() => {})
+        );
+      }
+      if (!allMoorings.length) {
+        tasks.push(
+          fetch(`${API_BASE}/api/admin/moorings`, { headers: authHeaders() })
+            .then(r => r.json())
+            .then(d => {
+              allMoorings = d;
+              d.forEach(m => { editCache['mooring_' + m.id] = m; });
+            })
+            .catch(() => {})
+        );
+      }
+      await Promise.all(tasks);
+    }
+
+    function renderAssignedChips(kind, userId) {
+      const source = kind === 'boat' ? allBoats : allMoorings;
+      const owned = source.filter(r => r.appUserId === userId);
+      if (!owned.length) {
+        return '<span style="color:#bbb;font-size:0.78rem;">None assigned yet.</span>';
+      }
+      return owned.map(r => {
+        const label = kind === 'boat'
+          ? `${esc(r.registrationNumber)} - ${esc(r.boatName)}`
+          : `${esc(r.mooringNumber)}`;
+        return `<span class="assigned-chip ${kind === 'mooring' ? 'mooring' : ''}">${label}</span>`;
+      }).join('');
+    }
+
+    function filterAssignResults(kind) {
+      const editingUserId = currentEdit.id;
+      const query = (document.getElementById(kind === 'boat' ? 'boatAssignSearch' : 'mooringAssignSearch')?.value || '').toLowerCase();
+      const source = kind === 'boat' ? allBoats : allMoorings;
+      const resultsEl = document.getElementById(kind === 'boat' ? 'boatAssignResults' : 'mooringAssignResults');
+      if (!resultsEl) return;
+
+      const candidates = source.filter(r => {
+        if (r.appUserId === editingUserId) return false;
+        if (!query) return true;
+        if (kind === 'boat') {
+          return (r.registrationNumber || '').toLowerCase().includes(query) ||
+                 (r.boatName || '').toLowerCase().includes(query);
+        }
+        return (r.mooringNumber || '').toLowerCase().includes(query);
+      }).slice(0, 30);
+
+      if (!candidates.length) {
+        resultsEl.innerHTML = `<div style="padding:0.5rem 0.65rem;color:#aaa;font-size:0.8rem;">${query ? 'No matches found.' : 'Type to search...'}</div>`;
+        return;
+      }
+
+      resultsEl.innerHTML = candidates.map(r => {
+        const label = kind === 'boat'
+          ? `<strong>${esc(r.registrationNumber)}</strong> - ${esc(r.boatName)}`
+          : `<strong>${esc(r.mooringNumber)}</strong>`;
+        const hasConflict = !!r.appUserId && r.appUserId !== editingUserId;
+        const ownerInfo = hasConflict
+          ? `<span class="assign-conflict">Already owned by <a onclick="openUserDetail(${r.appUserId});closeModal();">${esc(r.ownerName || 'User #' + r.appUserId)}</a> (ID #${r.appUserId})</span>`
+          : '<small style="color:#888;">Unassigned</small>';
+        return `<div class="assign-result-item">
+          <div class="assign-result-info">${label}<br>${ownerInfo}</div>
+          <button class="btn-action ${hasConflict ? 'btn-revoke' : 'btn-approve'}" style="white-space:nowrap;font-size:0.72rem;padding:0.2rem 0.55rem;"
+            onclick="assignRecord('${kind}',${r.id},${hasConflict})">${hasConflict ? 'Reassign' : 'Assign'}</button>
+        </div>`;
+      }).join('');
+    }
+
+    async function assignRecord(kind, recordId, hasConflict) {
+      const bannerId = kind === 'boat' ? 'boatConflictBanner' : 'mooringConflictBanner';
+      const banner = document.getElementById(bannerId);
+      if (hasConflict && banner) {
+        const record = (kind === 'boat' ? allBoats : allMoorings).find(r => r.id === recordId);
+        banner.style.display = 'block';
+        banner.innerHTML = `This ${kind} is currently registered to
+          <a onclick="openUserDetail(${record.appUserId});closeModal();">${esc(record.ownerName || 'User #' + record.appUserId)}</a> (ID #${record.appUserId}).
+          <button class="btn-action btn-revoke" style="font-size:0.72rem;padding:0.15rem 0.5rem;margin-left:0.5rem;"
+            onclick="doAssignRecord('${kind}',${recordId},true)">Confirm Reassign</button>
+          <button class="btn-action" style="background:#aaa;color:#fff;font-size:0.72rem;padding:0.15rem 0.5rem;margin-left:0.4rem;"
+            onclick="this.closest('.assign-conflict-banner').style.display='none'">Cancel</button>`;
+        return;
+      }
+      await doAssignRecord(kind, recordId, false);
+    }
+
+    async function doAssignRecord(kind, recordId, force) {
+      const editingUserId = currentEdit.id;
+      const bannerId = kind === 'boat' ? 'boatConflictBanner' : 'mooringConflictBanner';
+      const banner = document.getElementById(bannerId);
+      if (banner) banner.style.display = 'none';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/${kind}s/${recordId}/assign-user`, {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify({ userId: editingUserId, force })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          toast('err', data.message || 'Assignment failed.');
+          return;
+        }
+
+        toast('ok', data.message);
+        const arr = kind === 'boat' ? allBoats : allMoorings;
+        const rec = arr.find(r => r.id === recordId);
+        if (rec) {
+          rec.appUserId = editingUserId;
+          rec.ownerName = editCache['user_' + editingUserId]?.fullName || rec.ownerName;
+        }
+        document.getElementById(kind === 'boat' ? 'assignedBoatChips' : 'assignedMooringChips').innerHTML = renderAssignedChips(kind, editingUserId);
+        document.getElementById(kind === 'boat' ? 'boatAssignSearch' : 'mooringAssignSearch').value = '';
+        filterAssignResults(kind);
+      } catch {
+        toast('err', 'Server unreachable.');
+      }
+    }
+
     function openEdit(type, id) {
       const data = editCache[type + '_' + id];
-      if (!data) { toast('err', 'Record not found  please refresh.'); return; }
+      if (!data) {
+        toast('err', 'Record not found - please refresh.');
+        return;
+      }
       currentEdit = { type, id };
 
-      if (type === 'user') {
-        const parts     = (data.fullName || '').trim().split(' ');
-        const firstName = parts[0] || '';
-        const lastName  = parts.slice(1).join(' ') || '';
-        document.getElementById('modalTitle').textContent = `Edit User  ${data.fullName}`;
-        document.getElementById('modalBody').innerHTML = `
-          <div><label>First Name</label><input id="eFirstName" value="${esc(firstName)}" /></div>
-          <div><label>Last Name</label><input id="eLastName" value="${esc(lastName)}" /></div>
-          <div class="full"><label>Email</label><input id="eEmail" type="email" value="${esc(data.email)}" /></div>
-          <div><label>Phone</label><input id="ePhone" value="${esc(data.phoneNumber || '')}" /></div>
-          <div><label>Parish</label><input id="eParish" value="${esc(data.parish || '')}" /></div>
-          <div><label>Organisation</label><input id="eOrg" value="${esc(data.organisationName || '')}" /></div>
-          <div>
-            <label>Role</label>
-            <select id="eRole">
-              <option value="BoatOwner"     ${data.role==='BoatOwner'?'selected':''}>Boat Owner</option>
-              <option value="MooringOwner"  ${data.role==='MooringOwner'?'selected':''}>Mooring Owner</option>
-              <option value="PortAuthority" ${data.role==='PortAuthority'?'selected':''}>Port Authority</option>
-              <option value="Admin"         ${data.role==='Admin'?'selected':''}>Admin</option>
-            </select>
-          </div>
-          <div>
-            <label>Status</label>
-            <select id="eApproved">
-              <option value="true"  ${data.isApproved?'selected':''}>Approved</option>
-              <option value="false" ${!data.isApproved?'selected':''}>Pending</option>
-            </select>
-          </div>`;
-      } else if (type === 'boat') {
-        document.getElementById('modalTitle').textContent = `Edit User  ${data.fullName}`;
-        document.getElementById('modalBody').innerHTML = `
-          <div><label>First Name</label><input id="eFirstName" value="${esc(firstName)}" /></div>
-          <div><label>Last Name</label><input id="eLastName" value="${esc(lastName)}" /></div>
-          <div class="full"><label>Email</label><input id="eEmail" type="email" value="${esc(data.email)}" /></div>
-          <div><label>Phone</label><input id="ePhone" value="${esc(data.phoneNumber || '')}" /></div>
-          <div><label>Parish</label><input id="eParish" value="${esc(data.parish || '')}" /></div>
-          <div><label>Organisation</label><input id="eOrg" value="${esc(data.organisationName || '')}" /></div>
-          <div>
-            <label>Role</label>
-            <select id="eRole">
-              <option value="BoatOwner"     ${data.role==='BoatOwner'?'selected':''}>Boat Owner</option>
-              <option value="MooringOwner"  ${data.role==='MooringOwner'?'selected':''}>Mooring Owner</option>
-              <option value="PortAuthority" ${data.role==='PortAuthority'?'selected':''}>Port Authority</option>
-              <option value="Admin"         ${data.role==='Admin'?'selected':''}>Admin</option>
-            </select>
-          </div>
-          <div>
-            <label>Status</label>
-            <select id="eApproved">
-              <option value="true"  ${data.isApproved?'selected':''}>Approved</option>
-              <option value="false" ${!data.isApproved?'selected':''}>Pending</option>
-            </select>
-          </div>
+      const modalBox = document.querySelector('#editModal .modal-box');
+      modalBox.style.maxWidth = type === 'user' ? '700px' : '560px';
 
-          <!--  Assign Boats  -->
-          <div class="assign-section" id="assignBoatSection">
-            <h4> Registered Boats</h4>
+      if (type === 'user') {
+        const parts = (data.fullName || '').trim().split(' ');
+        const firstName = parts[0] || '';
+        const lastName = parts.slice(1).join(' ') || '';
+        document.getElementById('modalTitle').textContent = `Edit User - ${data.fullName}`;
+        document.getElementById('modalBody').innerHTML = `
+          <div><label>First Name</label><input id="eFirstName" value="${esc(firstName)}" /></div>
+          <div><label>Last Name</label><input id="eLastName" value="${esc(lastName)}" /></div>
+          <div class="full"><label>Email</label><input id="eEmail" type="email" value="${esc(data.email)}" /></div>
+          <div><label>Phone</label><input id="ePhone" value="${esc(data.phoneNumber || '')}" /></div>
+          <div><label>Parish</label><input id="eParish" value="${esc(data.parish || '')}" /></div>
+          <div><label>Organisation</label><input id="eOrg" value="${esc(data.organisationName || '')}" /></div>
+          <div>
+            <label>Role</label>
+            <select id="eRole">
+              <option value="BoatOwner" ${data.role==='BoatOwner'?'selected':''}>Boat Owner</option>
+              <option value="MooringOwner" ${data.role==='MooringOwner'?'selected':''}>Mooring Owner</option>
+              <option value="PortAuthority" ${data.role==='PortAuthority'?'selected':''}>Port Authority</option>
+              <option value="Admin" ${data.role==='Admin'?'selected':''}>Admin</option>
+            </select>
+          </div>
+          <div>
+            <label>Status</label>
+            <select id="eApproved">
+              <option value="true" ${data.isApproved?'selected':''}>Approved</option>
+              <option value="false" ${!data.isApproved?'selected':''}>Pending</option>
+            </select>
+          </div>
+          <div class="assign-section full">
+            <h4>Registered Boats</h4>
             <div class="assigned-chips" id="assignedBoatChips">${renderAssignedChips('boat', data.id)}</div>
             <div class="assign-conflict-banner" id="boatConflictBanner"></div>
             <div class="assign-search-row">
-              <input type="text" id="boatAssignSearch" placeholder="Search by reg # or boat name" oninput="filterAssignResults('boat')" />
+              <input type="text" id="boatAssignSearch" placeholder="Search by reg # or boat name..." oninput="filterAssignResults('boat')" />
             </div>
             <div class="assign-results" id="boatAssignResults"></div>
           </div>
-
-          <!--  Assign Moorings  -->
-          <div class="assign-section" id="assignMooringSection">
-            <h4> Registered Moorings</h4>
+          <div class="assign-section full">
+            <h4>Registered Moorings</h4>
             <div class="assigned-chips" id="assignedMooringChips">${renderAssignedChips('mooring', data.id)}</div>
             <div class="assign-conflict-banner" id="mooringConflictBanner"></div>
             <div class="assign-search-row">
-              <input type="text" id="mooringAssignSearch" placeholder="Search by mooring #" oninput="filterAssignResults('mooring')" />
+              <input type="text" id="mooringAssignSearch" placeholder="Search by mooring #..." oninput="filterAssignResults('mooring')" />
             </div>
             <div class="assign-results" id="mooringAssignResults"></div>
           </div>`;
-        filterAssignResults('boat');
-        filterAssignResults('mooring');
+
+        ensureAssignDataLoaded().then(() => {
+          document.getElementById('assignedBoatChips').innerHTML = renderAssignedChips('boat', data.id);
+          document.getElementById('assignedMooringChips').innerHTML = renderAssignedChips('mooring', data.id);
+          filterAssignResults('boat');
+          filterAssignResults('mooring');
+        });
+      } else if (type === 'boat') {
+        document.getElementById('modalTitle').textContent = `Edit Boat - ${data.boatName}`;
+        document.getElementById('modalBody').innerHTML = `
+          <div><label>Reg #</label><input id="eRegNum" value="${esc(data.registrationNumber)}" /></div>
+          <div><label>Boat Name</label><input id="eBoatName" value="${esc(data.boatName)}" /></div>
+          <div><label>Boat Type</label><input id="eBoatType" value="${esc(data.boatType)}" /></div>
+          <div><label>Owner Name</label><input id="eOwnerName" value="${esc(data.ownerName)}" /></div>
+          <div><label>Length (ft)</label><input id="eLength" type="number" step="0.1" value="${data.lengthFeet}" /></div>
+          <div></div>
+          <div><label>Latitude</label><input id="eLat" type="number" step="any" value="${data.latitude}" /></div>
+          <div><label>Longitude</label><input id="eLon" type="number" step="any" value="${data.longitude}" /></div>`;
+      } else {
+        document.getElementById('modalTitle').textContent = `Edit Mooring - ${data.mooringNumber}`;
+        document.getElementById('modalBody').innerHTML = `
+          <div><label>Mooring #</label><input id="eMooringNum" value="${esc(data.mooringNumber)}" /></div>
+          <div><label>Owner Name</label><input id="eMOwnerName" value="${esc(data.ownerName)}" /></div>
+          <div><label>Latitude</label><input id="eMLat" type="number" step="any" value="${data.latitude}" /></div>
+          <div><label>Longitude</label><input id="eMLon" type="number" step="any" value="${data.longitude}" /></div>
+          <div class="full">
+            <label>Boat Size</label>
+            <select id="eMBoatSize">
+              <option value="" ${!data.boatSize?'selected':''}>Unknown</option>
+              <option value="Small" ${data.boatSize==='Small'?'selected':''}>Small</option>
+              <option value="Medium" ${data.boatSize==='Medium'?'selected':''}>Medium</option>
+              <option value="Large" ${data.boatSize==='Large'?'selected':''}>Large</option>
             </select>
           </div>`;
       }
@@ -1158,130 +1294,6 @@
     }
 
     function closeModal() {
-          //  Assignment helpers 
-
-          /**
-           * Build chips for already-assigned boats or moorings on the editing user.
-           * Uses allBoats / allMoorings (loaded when tabs are visited).
-           * Falls back gracefully if data isn't loaded yet.
-           */
-          function renderAssignedChips(kind, userId) {
-            const source = kind === 'boat' ? allBoats : allMoorings;
-            const owned  = source.filter(r => r.appUserId === userId);
-            if (!owned.length) return `<span style="color:#bbb;font-size:0.78rem;">None assigned yet.</span>`;
-            return owned.map(r => {
-              const label = kind === 'boat' ? esc(r.registrationNumber) + '  ' + esc(r.boatName) : esc(r.mooringNumber);
-              return `<span class="assigned-chip ${kind === 'mooring' ? 'mooring' : ''}">${label}
-                <button title="Unassign" onclick="unassignRecord('${kind}',${r.id})"></button>
-              </span>`;
-            }).join('');
-          }
-
-          /** Filter the searchable assignment results list */
-          function filterAssignResults(kind) {
-            const editingUserId = currentEdit.id;
-            const query = (document.getElementById(kind === 'boat' ? 'boatAssignSearch' : 'mooringAssignSearch')?.value || '').toLowerCase();
-            const source = kind === 'boat' ? allBoats : allMoorings;
-            const resultsEl = document.getElementById(kind === 'boat' ? 'boatAssignResults' : 'mooringAssignResults');
-            if (!resultsEl) return;
-
-            // Already assigned to THIS user  skip showing in search results
-            const candidates = source.filter(r => {
-              if (r.appUserId === editingUserId) return false; // already owned
-              if (!query) return true;
-              if (kind === 'boat') {
-                return (r.registrationNumber || '').toLowerCase().includes(query) ||
-                       (r.boatName || '').toLowerCase().includes(query);
-              }
-              return (r.mooringNumber || '').toLowerCase().includes(query);
-            }).slice(0, 30);
-
-            if (!candidates.length) {
-              resultsEl.innerHTML = `<div style="padding:0.5rem 0.65rem;color:#aaa;font-size:0.8rem;">${query ? 'No matches found.' : 'Type to search'}</div>`;
-              return;
-            }
-
-            resultsEl.innerHTML = candidates.map(r => {
-              const label = kind === 'boat'
-                ? `<strong>${esc(r.registrationNumber)}</strong>  ${esc(r.boatName)}`
-                : `<strong>${esc(r.mooringNumber)}</strong>`;
-              const owned = r.appUserId && r.appUserId !== editingUserId;
-              const ownerInfo = owned
-                ? `<span class="assign-conflict">Already owned by <a onclick="openUserDetail(${r.appUserId});closeModal();">${esc(r.ownerName || 'User #' + r.appUserId)}</a></span>`
-                : `<small style="color:#888">Unassigned</small>`;
-              return `<div class="assign-result-item">
-                <div class="assign-result-info">${label}<br>${ownerInfo}</div>
-                <button class="btn-action ${owned ? 'btn-revoke' : 'btn-approve'}" style="white-space:nowrap;font-size:0.72rem;padding:0.2rem 0.55rem;"
-                  onclick="assignRecord('${kind}',${r.id},${owned})">
-                  ${owned ? 'Reassign' : 'Assign'}
-                </button>
-              </div>`;
-            }).join('');
-          }
-
-          /** Assign a boat or mooring to the currently-editing user */
-          async function assignRecord(kind, recordId, hasConflict) {
-            const editingUserId = currentEdit.id;
-            const bannerId = kind === 'boat' ? 'boatConflictBanner' : 'mooringConflictBanner';
-            const banner   = document.getElementById(bannerId);
-
-            if (hasConflict && banner) {
-              // Show confirmation banner first
-              banner.style.display = 'block';
-              const record = (kind === 'boat' ? allBoats : allMoorings).find(r => r.id === recordId);
-              const ownerLink = `<a onclick="openUserDetail(${record.appUserId});closeModal();">${esc(record.ownerName || 'User #' + record.appUserId)}</a>`;
-              banner.innerHTML = ` This ${kind} is currently registered to ${ownerLink}. 
-                <button class="btn-action btn-revoke" style="font-size:0.72rem;padding:0.15rem 0.5rem;margin-left:0.5rem;"
-                  onclick="doAssignRecord('${kind}',${recordId},true)">Confirm Reassign</button>
-                <button class="btn-action" style="background:#aaa;color:#fff;font-size:0.72rem;padding:0.15rem 0.5rem;margin-left:0.4rem;"
-                  onclick="this.closest('.assign-conflict-banner').style.display='none'">Cancel</button>`;
-              return;
-            }
-            await doAssignRecord(kind, recordId, false);
-          }
-
-          async function doAssignRecord(kind, recordId, force) {
-            const editingUserId = currentEdit.id;
-            const bannerId = kind === 'boat' ? 'boatConflictBanner' : 'mooringConflictBanner';
-            const banner   = document.getElementById(bannerId);
-            if (banner) banner.style.display = 'none';
-
-            try {
-              const res  = await fetch(`${API_BASE}/api/admin/${kind}s/${recordId}/assign-user`, {
-                method: 'PUT', headers: authHeaders(),
-                body: JSON.stringify({ userId: editingUserId, force })
-              });
-              const data = await res.json();
-              if (res.ok) {
-                toast('ok', data.message);
-                // Update local cache so chips & search list refresh
-                const arr = kind === 'boat' ? allBoats : allMoorings;
-                const rec = arr.find(r => r.id === recordId);
-                if (rec) { rec.appUserId = editingUserId; rec.ownerName = editCache['user_' + editingUserId]?.fullName || rec.ownerName; }
-                // Re-render chips and clear search
-                document.getElementById(kind === 'boat' ? 'assignedBoatChips' : 'assignedMooringChips').innerHTML = renderAssignedChips(kind, editingUserId);
-                document.getElementById(kind === 'boat' ? 'boatAssignSearch' : 'mooringAssignSearch').value = '';
-                filterAssignResults(kind);
-              } else if (res.status === 409) {
-                // Shouldn't happen since we handle it above, but just in case
-                toast('err', data.message);
-              } else {
-                toast('err', data.message || 'Assignment failed.');
-              }
-            } catch { toast('err', 'Server unreachable.'); }
-          }
-
-          /** Remove a boat/mooring from the user (set ownerName back but keep record) */
-          async function unassignRecord(kind, recordId) {
-            if (!confirm(`Remove this ${kind} from this user? The record will remain in the system unassigned.`)) return;
-            // We'll PUT with a "null" userId  backend Boat.AppUserId is non-nullable so use 0 as admin fallback
-            // For moorings (nullable) we'd ideally send null  let's use a dedicated unassign or just skip for boats.
-            // Simplest: just reassign to admin (userId=0 means unassigned for moorings, but for boats we must keep a valid user)
-            // We'll not support full unassign for Boat (non-nullable FK)  just remove the chip visually and leave owner as-is.
-            toast('err', `Unassigning ${kind}s is not supported  edit the ${kind} directly to change its owner.`);
-          }
-
-          function closeModal() {
       document.getElementById('editModal').style.display = 'none';
     }
 
@@ -1291,62 +1303,94 @@
 
     async function saveEdit() {
       const { type, id } = currentEdit;
-      let body, path;
-
-      const modalBox = document.querySelector('#editModal .modal-box');
-      modalBox.style.maxWidth = type === 'user' ? '700px' : '560px';
+      let body;
+      let path;
 
       if (type === 'user') {
         const firstName = document.getElementById('eFirstName').value.trim();
-        const lastName  = document.getElementById('eLastName').value.trim();
-        const email     = document.getElementById('eEmail').value.trim();
-        const phone     = document.getElementById('ePhone').value.trim();
-        const parish    = document.getElementById('eParish').value.trim();
-        const org       = document.getElementById('eOrg').value.trim();
-        const role      = document.getElementById('eRole').value;
-        const approved  = document.getElementById('eApproved').value === 'true';
-        if (!firstName || !email) { toast('err', 'First Name and Email are required.'); return; }
-        body = { firstName, lastName, email, phoneNumber: phone, parish, organisationName: org, role, isApproved: approved };
+        const lastName = document.getElementById('eLastName').value.trim();
+        const email = document.getElementById('eEmail').value.trim();
+        const phone = document.getElementById('ePhone').value.trim();
+        const parish = document.getElementById('eParish').value.trim();
+        const org = document.getElementById('eOrg').value.trim();
+        const role = document.getElementById('eRole').value;
+        const approved = document.getElementById('eApproved').value === 'true';
+        if (!firstName || !email) {
+          toast('err', 'First Name and Email are required.');
+          return;
+        }
+        body = {
+          firstName,
+          lastName,
+          email,
+          phoneNumber: phone,
+          parish,
+          organisationName: org,
+          role,
+          isApproved: approved
+        };
         path = `/api/admin/users/${id}`;
       } else if (type === 'boat') {
-        const regNum    = document.getElementById('eRegNum').value.trim();
-        const boatName  = document.getElementById('eBoatName').value.trim();
-        const boatType  = document.getElementById('eBoatType').value.trim();
+        const regNum = document.getElementById('eRegNum').value.trim();
+        const boatName = document.getElementById('eBoatName').value.trim();
+        const boatType = document.getElementById('eBoatType').value.trim();
         const ownerName = document.getElementById('eOwnerName').value.trim();
-        const length    = parseFloat(document.getElementById('eLength').value);
-        const lat       = parseFloat(document.getElementById('eLat').value);
-        const lon       = parseFloat(document.getElementById('eLon').value);
+        const length = parseFloat(document.getElementById('eLength').value);
+        const lat = parseFloat(document.getElementById('eLat').value);
+        const lon = parseFloat(document.getElementById('eLon').value);
         if (!regNum || !boatName || isNaN(lat) || isNaN(lon)) {
-          toast('err', 'Reg #, Boat Name, Latitude and Longitude are required.'); return;
+          toast('err', 'Reg #, Boat Name, Latitude and Longitude are required.');
+          return;
         }
-        body = { registrationNumber: regNum, boatName, boatType, ownerName, lengthFeet: length || 0, latitude: lat, longitude: lon };
+        body = {
+          registrationNumber: regNum,
+          boatName,
+          boatType,
+          ownerName,
+          lengthFeet: length || 0,
+          latitude: lat,
+          longitude: lon
+        };
         path = `/api/admin/boats/${id}`;
       } else {
         const mooringNum = document.getElementById('eMooringNum').value.trim();
-        const ownerName  = document.getElementById('eMOwnerName').value.trim();
-        const lat        = parseFloat(document.getElementById('eMLat').value);
-        const lon        = parseFloat(document.getElementById('eMLon').value);
-        const boatSize   = document.getElementById('eMBoatSize').value;
+        const ownerName = document.getElementById('eMOwnerName').value.trim();
+        const lat = parseFloat(document.getElementById('eMLat').value);
+        const lon = parseFloat(document.getElementById('eMLon').value);
+        const boatSize = document.getElementById('eMBoatSize').value;
         if (!mooringNum || isNaN(lat) || isNaN(lon)) {
-          toast('err', 'Mooring #, Latitude and Longitude are required.'); return;
+          toast('err', 'Mooring #, Latitude and Longitude are required.');
+          return;
         }
-        body = { mooringNumber: mooringNum, ownerName, latitude: lat, longitude: lon, boatSize: boatSize || null };
+        body = {
+          mooringNumber: mooringNum,
+          ownerName,
+          latitude: lat,
+          longitude: lon,
+          boatSize: boatSize || null
+        };
         path = `/api/admin/moorings/${id}`;
       }
 
       try {
-        const res  = await fetch(API_BASE + path, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(body) });
+        const res = await fetch(API_BASE + path, {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify(body)
+        });
         const data = await res.json();
         if (res.ok) {
           toast('ok', data.message);
           closeModal();
-          if (type === 'user')    loadUsers();
-          if (type === 'boat')    loadBoats();
+          if (type === 'user') loadUsers();
+          if (type === 'boat') loadBoats();
           if (type === 'mooring') loadMoorings();
         } else {
           toast('err', data.message || 'Update failed.');
         }
-      } catch { toast('err', 'Server unreachable.'); }
+      } catch {
+        toast('err', 'Server unreachable.');
+      }
     }
     //  User detail drawer 
     let drawerUser = null; // holds the currently displayed user object
