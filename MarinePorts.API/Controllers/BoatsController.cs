@@ -31,7 +31,9 @@ public class BoatsController : ControllerBase
     [HttpGet("mine")]
     public async Task<IActionResult> GetMine()
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (!TryGetCurrentUserId(out int userId))
+            return Unauthorized(new { message = "Invalid token: missing user identifier claim." });
+
         return Ok(await _db.Boats.Where(b => b.AppUserId == userId)
             .OrderByDescending(b => b.RegisteredAt).ToListAsync());
     }
@@ -51,7 +53,9 @@ public class BoatsController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (!TryGetCurrentUserId(out int userId))
+            return Unauthorized(new { message = "Invalid token: missing user identifier claim." });
+
         var user   = await _db.Users.FindAsync(userId);
         if (user is null || !user.IsApproved)
             return StatusCode(403, new { message = "Your account must be approved before adding registrations." });
@@ -84,7 +88,9 @@ public class BoatsController : ControllerBase
         var boat = await _db.Boats.FindAsync(id);
         if (boat is null) return NotFound();
 
-        int callerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (!TryGetCurrentUserId(out int callerId))
+            return Unauthorized(new { message = "Invalid token: missing user identifier claim." });
+
         if (boat.AppUserId != callerId && !User.IsInRole("Admin"))
             return Forbid();
 
@@ -108,12 +114,33 @@ public class BoatsController : ControllerBase
         var boat = await _db.Boats.FindAsync(id);
         if (boat is null) return NotFound();
 
-        int callerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (!TryGetCurrentUserId(out int callerId))
+            return Unauthorized(new { message = "Invalid token: missing user identifier claim." });
+
         if (boat.AppUserId != callerId && !User.IsInRole("Admin"))
             return Forbid();
 
         _db.Boats.Remove(boat);
         await _db.SaveChangesAsync();
         return NoContent();
+    }
+
+    private bool TryGetCurrentUserId(out int userId)
+    {
+        userId = 0;
+        var candidates = new[]
+        {
+            User.FindFirstValue(ClaimTypes.NameIdentifier),
+            User.FindFirstValue("sub"),
+            User.FindFirstValue(ClaimTypes.Sid)
+        };
+
+        foreach (var candidate in candidates)
+        {
+            if (int.TryParse(candidate, out userId))
+                return true;
+        }
+
+        return false;
     }
 }

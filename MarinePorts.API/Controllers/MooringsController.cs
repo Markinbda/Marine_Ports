@@ -31,7 +31,9 @@ public class MooringsController : ControllerBase
     [HttpGet("mine")]
     public async Task<IActionResult> GetMine()
     {
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (!TryGetCurrentUserId(out int userId))
+            return Unauthorized(new { message = "Invalid token: missing user identifier claim." });
+
         return Ok(await _db.Moorings.Where(m => m.AppUserId == userId)
             .OrderByDescending(m => m.RegisteredAt).ToListAsync());
     }
@@ -51,7 +53,9 @@ public class MooringsController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (!TryGetCurrentUserId(out int userId))
+            return Unauthorized(new { message = "Invalid token: missing user identifier claim." });
+
         var user   = await _db.Users.FindAsync(userId);
         if (user is null || !user.IsApproved)
             return StatusCode(403, new { message = "Your account must be approved before adding registrations." });
@@ -82,7 +86,9 @@ public class MooringsController : ControllerBase
         var mooring = await _db.Moorings.FindAsync(id);
         if (mooring is null) return NotFound();
 
-        int callerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (!TryGetCurrentUserId(out int callerId))
+            return Unauthorized(new { message = "Invalid token: missing user identifier claim." });
+
         if (mooring.AppUserId != callerId && !User.IsInRole("Admin"))
             return Forbid();
 
@@ -104,12 +110,33 @@ public class MooringsController : ControllerBase
         var mooring = await _db.Moorings.FindAsync(id);
         if (mooring is null) return NotFound();
 
-        int callerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (!TryGetCurrentUserId(out int callerId))
+            return Unauthorized(new { message = "Invalid token: missing user identifier claim." });
+
         if (mooring.AppUserId != callerId && !User.IsInRole("Admin"))
             return Forbid();
 
         _db.Moorings.Remove(mooring);
         await _db.SaveChangesAsync();
         return NoContent();
+    }
+
+    private bool TryGetCurrentUserId(out int userId)
+    {
+        userId = 0;
+        var candidates = new[]
+        {
+            User.FindFirstValue(ClaimTypes.NameIdentifier),
+            User.FindFirstValue("sub"),
+            User.FindFirstValue(ClaimTypes.Sid)
+        };
+
+        foreach (var candidate in candidates)
+        {
+            if (int.TryParse(candidate, out userId))
+                return true;
+        }
+
+        return false;
     }
 }
