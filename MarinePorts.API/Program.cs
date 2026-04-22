@@ -105,7 +105,15 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// ─── Middleware pipeline ──────────────────────────────────────────────────────
+// ─── Global exception handler (always returns JSON) ──────────────────────────
+app.UseExceptionHandler(errApp => errApp.Run(async ctx =>
+{
+    ctx.Response.StatusCode  = 500;
+    ctx.Response.ContentType = "application/json";
+    var feature  = ctx.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+    var message  = feature?.Error?.InnerException?.Message ?? feature?.Error?.Message ?? "Internal server error.";
+    await ctx.Response.WriteAsJsonAsync(new { message });
+}));
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
