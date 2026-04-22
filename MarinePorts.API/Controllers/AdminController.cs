@@ -268,26 +268,26 @@ public class AdminController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateBoat(int id, [FromBody] AdminUpdateBoatDto dto)
     {
-        var boat = await _db.Boats.FindAsync(id);
-        if (boat is null) return NotFound();
-
-        boat.RegistrationNumber = (dto.RegistrationNumber ?? string.Empty).Trim();
-        boat.BoatName           = (dto.BoatName ?? string.Empty).Trim();
-        boat.BoatType           = (dto.BoatType ?? string.Empty).Trim();
-        boat.OwnerName          = (dto.OwnerName ?? string.Empty).Trim();
-        boat.LengthFeet         = dto.LengthFeet;
-        boat.Latitude           = dto.Latitude;
-        boat.Longitude          = dto.Longitude;
-
         try
         {
+            var boat = await _db.Boats.FindAsync(id);
+            if (boat is null) return NotFound();
+
+            boat.RegistrationNumber = (dto.RegistrationNumber ?? string.Empty).Trim();
+            boat.BoatName           = (dto.BoatName ?? string.Empty).Trim();
+            boat.BoatType           = (dto.BoatType ?? string.Empty).Trim();
+            boat.OwnerName          = (dto.OwnerName ?? string.Empty).Trim();
+            boat.LengthFeet         = dto.LengthFeet;
+            boat.Latitude           = dto.Latitude;
+            boat.Longitude          = dto.Longitude;
+
             await _db.SaveChangesAsync();
+            return Ok(new { message = $"Boat {boat.RegistrationNumber} updated." });
         }
         catch (Exception ex)
         {
             return StatusCode(500, new { message = ex.InnerException?.Message ?? ex.Message });
         }
-        return Ok(new { message = $"Boat {boat.RegistrationNumber} updated." });
     }
 
     // ══════════════════════════════════════════════════════════════════════════

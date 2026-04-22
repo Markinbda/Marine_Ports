@@ -1502,10 +1502,13 @@
           if (type === 'boat') loadMoorings();
           if (type === 'mooring') loadMoorings();
         } else {
-          const msg = data.message || (res.status === 401 || res.status === 403
-            ? 'Session expired — please sign out and back in.'
-            : `Update failed (${res.status}).`);
-          console.error('saveEdit error', res.status, data);
+          const raw = JSON.stringify(data);
+          const msg = data.message
+            ? data.message
+            : (res.status === 401 || res.status === 403
+                ? 'Session expired — please sign out and back in.'
+                : `Update failed (${res.status}): ${raw.substring(0,200)}`);
+          console.error('saveEdit error', res.status, data, raw);
           toast('err', msg);
         }
       } catch (e) {
