@@ -41,6 +41,7 @@ public class MapController : ControllerBase
             {
                 Id        = b.Id,
                 AppUserId = b.AppUserId,
+                MooringId = b.MooringId,
                 Type      = "Boat",
                 Latitude  = b.Latitude,
                 Longitude = b.Longitude,

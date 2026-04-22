@@ -508,10 +508,40 @@
       return false;
     }
 
+    function getLinkedOwnerSets() {
+      const ownedBoatIds = new Set();
+      const ownedMooringIds = new Set();
+      const extraBoatIds = new Set();
+      const extraMooringIds = new Set();
+
+      allPins.forEach(pin => {
+        if (!isOwnerItem(pin)) return;
+        if (pin.type === 'Boat') ownedBoatIds.add(Number(pin.id));
+        if (pin.type === 'Mooring') ownedMooringIds.add(Number(pin.id));
+      });
+
+      allPins.forEach(pin => {
+        if (pin.type !== 'Boat') return;
+        const boatId = Number(pin.id);
+        const mooringId = Number(pin.mooringId);
+        if (!Number.isFinite(mooringId) || mooringId <= 0) return;
+
+        if (ownedBoatIds.has(boatId)) {
+          extraMooringIds.add(mooringId);
+        }
+        if (ownedMooringIds.has(mooringId)) {
+          extraBoatIds.add(boatId);
+        }
+      });
+
+      return { extraBoatIds, extraMooringIds };
+    }
+
     function applyOwnerFilter() {
       boatLayer.clearLayers();
       mooringLayer.clearLayers();
       const visiblePoints = [];
+      const linked = ownerFilterActive ? getLinkedOwnerSets() : { extraBoatIds: new Set(), extraMooringIds: new Set() };
 
       allPins.forEach(pin => {
         const marker = pin._marker;
@@ -519,8 +549,13 @@
 
         const isOwner = isOwnerItem(pin);
         const isBoat = pin.type === 'Boat';
-        const isBoatVisible = isBoat && showMyBoats && isOwner;
-        const isMooringVisible = !isBoat && showMyMoorings && isOwner;
+        const pinId = Number(pin.id);
+
+        const showLinkedBoatFromMooringSelection = isBoat && showMyMoorings && linked.extraBoatIds.has(pinId);
+        const showLinkedMooringFromBoatSelection = !isBoat && showMyBoats && linked.extraMooringIds.has(pinId);
+
+        const isBoatVisible = isBoat && ((showMyBoats && isOwner) || showLinkedBoatFromMooringSelection);
+        const isMooringVisible = !isBoat && ((showMyMoorings && isOwner) || showLinkedMooringFromBoatSelection);
 
         // Add marker if it belongs to user and filter is active
         if (ownerFilterActive && (isBoatVisible || isMooringVisible)) {

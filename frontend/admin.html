@@ -1220,7 +1220,7 @@
       }
     }
 
-    function openEdit(type, id) {
+    async function openEdit(type, id) {
       const data = editCache[type + '_' + id];
       if (!data) {
         toast('err', 'Record not found - please refresh.');
@@ -1285,6 +1285,20 @@
           filterAssignResults('mooring');
         });
       } else if (type === 'boat') {
+        await ensureAssignDataLoaded();
+        const selectedMooringId = data.mooringId == null ? null : Number(data.mooringId);
+        const mooringOptions = [
+          '<option value="">No mooring</option>',
+          ...allMoorings
+            .slice()
+            .sort((a, b) => String(a.mooringNumber || '').localeCompare(String(b.mooringNumber || '')))
+            .map(m => {
+              const mid = Number(m.id);
+              const selected = selectedMooringId === mid ? 'selected' : '';
+              return `<option value="${mid}" ${selected}>${esc(m.mooringNumber)}${m.ownerName ? ' - ' + esc(m.ownerName) : ''}</option>`;
+            })
+        ].join('');
+
         document.getElementById('modalTitle').textContent = `Edit Boat - ${data.boatName}`;
         document.getElementById('modalBody').innerHTML = `
           <div><label>Reg #</label><input id="eRegNum" value="${esc(data.registrationNumber)}" /></div>
@@ -1292,9 +1306,10 @@
           <div><label>Boat Type</label><input id="eBoatType" value="${esc(data.boatType)}" /></div>
           <div><label>Owner Name</label><input id="eOwnerName" value="${esc(data.ownerName)}" /></div>
           <div><label>Length (ft)</label><input id="eLength" type="number" step="0.1" value="${data.lengthFeet}" /></div>
-          <div></div>
-          <div><label>Latitude</label><input id="eLat" type="number" step="any" value="${data.latitude}" /></div>
-          <div><label>Longitude</label><input id="eLon" type="number" step="any" value="${data.longitude}" /></div>`;
+          <div class="full">
+            <label>Mooring #</label>
+            <select id="eBoatMooringId">${mooringOptions}</select>
+          </div>`;
       } else {
         document.getElementById('modalTitle').textContent = `Edit Mooring - ${data.mooringNumber}`;
         document.getElementById('modalBody').innerHTML = `
@@ -1353,15 +1368,16 @@
         };
         path = `/api/admin/users/${id}`;
       } else if (type === 'boat') {
+        const existingBoat = editCache['boat_' + id] || {};
         const regNum = document.getElementById('eRegNum').value.trim();
         const boatName = document.getElementById('eBoatName').value.trim();
         const boatType = document.getElementById('eBoatType').value.trim();
         const ownerName = document.getElementById('eOwnerName').value.trim();
         const length = parseFloat(document.getElementById('eLength').value);
-        const lat = parseFloat(document.getElementById('eLat').value);
-        const lon = parseFloat(document.getElementById('eLon').value);
-        if (!regNum || !boatName || isNaN(lat) || isNaN(lon)) {
-          toast('err', 'Reg #, Boat Name, Latitude and Longitude are required.');
+        const lat = Number(existingBoat.latitude);
+        const lon = Number(existingBoat.longitude);
+        if (!regNum || !boatName || !Number.isFinite(lat) || !Number.isFinite(lon)) {
+          toast('err', 'Reg # and Boat Name are required, and existing coordinates must be valid.');
           return;
         }
         body = {
@@ -1406,10 +1422,30 @@
         });
         const data = await readApiBody(res);
         if (res.ok) {
+          if (type === 'boat') {
+            const existingBoat = editCache['boat_' + id] || {};
+            const prevMooringId = existingBoat.mooringId == null ? null : Number(existingBoat.mooringId);
+            const selectedMooringRaw = document.getElementById('eBoatMooringId')?.value ?? '';
+            const nextMooringId = selectedMooringRaw ? Number(selectedMooringRaw) : null;
+            if (prevMooringId !== nextMooringId) {
+              const assignRes = await fetch(`${API_BASE}/api/admin/boats/${id}/assign-mooring`, {
+                method: 'PUT',
+                headers: authHeaders(),
+                body: JSON.stringify({ mooringId: nextMooringId })
+              });
+              const assignData = await readApiBody(assignRes);
+              if (!assignRes.ok) {
+                toast('err', assignData.message || `Mooring update failed (${assignRes.status}).`);
+                return;
+              }
+            }
+          }
+
           toast('ok', data.message || 'Saved.');
           closeModal();
           if (type === 'user') loadUsers();
           if (type === 'boat') loadBoats();
+          if (type === 'boat') loadMoorings();
           if (type === 'mooring') loadMoorings();
         } else {
           const msg = data.message || (res.status === 401 || res.status === 403
