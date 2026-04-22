@@ -511,6 +511,7 @@
     function applyOwnerFilter() {
       boatLayer.clearLayers();
       mooringLayer.clearLayers();
+      const visiblePoints = [];
 
       allPins.forEach(pin => {
         const marker = pin._marker;
@@ -524,11 +525,18 @@
         // Add marker if it belongs to user and filter is active
         if (ownerFilterActive && (isBoatVisible || isMooringVisible)) {
           (isBoat ? boatLayer : mooringLayer).addLayer(marker);
+          visiblePoints.push([pin.latitude, pin.longitude]);
         } else if (!ownerFilterActive) {
           // Add all markers when filter is not active
           (isBoat ? boatLayer : mooringLayer).addLayer(marker);
         }
       });
+
+      // Bring owned selections into view so users can immediately see results.
+      if (ownerFilterActive && visiblePoints.length > 0) {
+        const bounds = L.latLngBounds(visiblePoints);
+        map.fitBounds(bounds.pad(0.35), { maxZoom: 16 });
+      }
     }
 
     function clearOwnerFilter() {
