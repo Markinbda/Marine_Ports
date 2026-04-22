@@ -258,6 +258,13 @@
         .assign-search-row input { flex: 1; padding: 0.4rem 0.6rem; border: 1.5px solid #ccd6e0; border-radius: 6px; font-size: 0.82rem; outline: none; }
         .assign-search-row input:focus { border-color: #1a6fa8; }
         .assign-results { max-height: 160px; overflow-y: auto; border: 1px solid #e0e8f0; border-radius: 6px; background: #fff; }
+        .mooring-typeahead { position: relative; }
+        .mooring-typeahead input[type=text] { width: 100%; box-sizing: border-box; padding: 0.45rem 0.65rem; border: 1.5px solid #ccd6e0; border-radius: 6px; font-size: 0.85rem; outline: none; }
+        .mooring-typeahead input[type=text]:focus { border-color: #1a6fa8; }
+        .mooring-typeahead-results { position: absolute; top: 100%; left: 0; right: 0; z-index: 999; background: #fff; border: 1px solid #ccd6e0; border-radius: 0 0 6px 6px; max-height: 180px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .mooring-typeahead-results div { padding: 0.4rem 0.65rem; font-size: 0.84rem; cursor: pointer; }
+        .mooring-typeahead-results div:hover, .mooring-typeahead-results div.active { background: #e8f4fd; }
+        .mooring-typeahead-results .no-mooring-opt { color: #e05; font-style: italic; }
         .assign-result-item {
           display: flex; align-items: center; justify-content: space-between;
           padding: 0.45rem 0.65rem; border-bottom: 1px solid #f0f4f8;
@@ -1128,6 +1135,40 @@
       }).join('');
     }
 
+    function filterMooringEditSearch() {
+      const input = document.getElementById('eBoatMooringSearch');
+      const hiddenId = document.getElementById('eBoatMooringId');
+      const resultsEl = document.getElementById('eMooringResults');
+      if (!input || !resultsEl) return;
+      const q = input.value.toLowerCase().trim();
+      resultsEl.style.display = 'block';
+      const sorted = allMoorings.slice().sort((a, b) => String(a.mooringNumber||'').localeCompare(String(b.mooringNumber||'')));
+      const matches = q ? sorted.filter(m => (m.mooringNumber||'').toLowerCase().includes(q) || (m.ownerName||'').toLowerCase().includes(q)) : sorted;
+      const items = matches.slice(0, 40);
+      resultsEl.innerHTML = [
+        `<div class="no-mooring-opt" onclick="selectMooringEdit(null,'No mooring')">&#10006; No mooring</div>`,
+        ...items.map(m => `<div onclick="selectMooringEdit(${m.id},'${esc(m.mooringNumber).replace(/'/g,"&#39;")}')">${esc(m.mooringNumber)}${m.ownerName ? ' <small style=\'color:#888\'>' + esc(m.ownerName) + '</small>' : ''}</div>`)
+      ].join('');
+      if (!items.length && q) resultsEl.innerHTML += `<div style="color:#aaa;font-style:italic">No matches</div>`;
+    }
+
+    function selectMooringEdit(id, label) {
+      const input = document.getElementById('eBoatMooringSearch');
+      const hiddenId = document.getElementById('eBoatMooringId');
+      const resultsEl = document.getElementById('eMooringResults');
+      if (input) input.value = id ? label : '';
+      if (hiddenId) hiddenId.value = id || '';
+      if (resultsEl) resultsEl.style.display = 'none';
+    }
+
+    document.addEventListener('click', e => {
+      const ta = document.querySelector('.mooring-typeahead');
+      if (ta && !ta.contains(e.target)) {
+        const r = document.getElementById('eMooringResults');
+        if (r) r.style.display = 'none';
+      }
+    });
+
     function filterAssignResults(kind) {
       const editingUserId = currentEdit.id;
       const query = (document.getElementById(kind === 'boat' ? 'boatAssignSearch' : 'mooringAssignSearch')?.value || '').toLowerCase();
@@ -1287,17 +1328,6 @@
       } else if (type === 'boat') {
         await ensureAssignDataLoaded();
         const selectedMooringId = data.mooringId == null ? null : Number(data.mooringId);
-        const mooringOptions = [
-          '<option value="">No mooring</option>',
-          ...allMoorings
-            .slice()
-            .sort((a, b) => String(a.mooringNumber || '').localeCompare(String(b.mooringNumber || '')))
-            .map(m => {
-              const mid = Number(m.id);
-              const selected = selectedMooringId === mid ? 'selected' : '';
-              return `<option value="${mid}" ${selected}>${esc(m.mooringNumber)}${m.ownerName ? ' - ' + esc(m.ownerName) : ''}</option>`;
-            })
-        ].join('');
 
         document.getElementById('modalTitle').textContent = `Edit Boat - ${data.boatName}`;
         document.getElementById('modalBody').innerHTML = `
@@ -1308,7 +1338,13 @@
           <div><label>Length (ft)</label><input id="eLength" type="number" step="0.1" value="${data.lengthFeet}" /></div>
           <div class="full">
             <label>Mooring #</label>
-            <select id="eBoatMooringId">${mooringOptions}</select>
+            <div class="mooring-typeahead">
+              <input type="text" id="eBoatMooringSearch" placeholder="Search mooring #..." autocomplete="off"
+                oninput="filterMooringEditSearch()"
+                value="${selectedMooringId ? (allMoorings.find(m=>Number(m.id)===selectedMooringId)?.mooringNumber||'') : ''}" />
+              <input type="hidden" id="eBoatMooringId" value="${selectedMooringId || ''}" />
+              <div class="mooring-typeahead-results" id="eMooringResults" style="display:none"></div>
+            </div>
           </div>`;
       } else {
         document.getElementById('modalTitle').textContent = `Edit Mooring - ${data.mooringNumber}`;
