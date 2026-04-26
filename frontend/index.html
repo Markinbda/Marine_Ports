@@ -1053,33 +1053,128 @@
         <div id="ferry-routes" class="sub-section" style="display:none">
           <h1 class="page-title">Routes &amp; Terminals</h1>
           <div class="content-body">
-            <div class="card-grid">
-              <div class="info-card">
+
+            <p class="page-intro" style="margin-bottom:1.25rem;">The Bermuda Ferry system operates four colour-coded routes connecting Hamilton, Dockyard, St. George's and communities along the South Shore. Use the map and terminal directory below to plan your journey.</p>
+
+            <!-- ── Route cards ─────────────────────────────────────── -->
+            <div class="card-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:1.5rem;">
+
+              <div class="info-card" style="border-top-color:#1565C0;">
                 <div class="card-icon">🟦</div>
                 <div class="card-title">Blue Route</div>
-                <div class="card-body">Hamilton ↔ Dockyard (Royal Naval Dockyard). Fast ferry via Great Sound.</div>
+                <div class="card-body">
+                  <strong>Hamilton ↔ Royal Naval Dockyard</strong><br/>
+                  The most popular route for visitors — fast ferry across the Great Sound. Stops: Hamilton, Dockyard.
+                </div>
               </div>
-              <div class="info-card">
+
+              <div class="info-card" style="border-top-color:#e91e8c;">
                 <div class="card-icon">🟩</div>
-                <div class="card-title">Green Route</div>
-                <div class="card-body">Hamilton ↔ Paget ↔ Warwick. Local service on Hamilton Harbour.</div>
-              </div>
-              <div class="info-card">
-                <div class="card-icon">🟥</div>
                 <div class="card-title">Pink Route</div>
-                <div class="card-body">Hamilton ↔ Rockaway ↔ Dockyard. Stops at several Southshore points.</div>
+                <div class="card-body">
+                  <strong>Hamilton ↔ Paget &amp; Warwick</strong><br/>
+                  Scenic South Shore alternative to road travel. Stops: Hamilton, Salt Kettle, Darrell's Wharf, Belmont.
+                </div>
               </div>
-              <div class="info-card">
+
+              <div class="info-card" style="border-top-color:#388E3C;">
+                <div class="card-icon">🟥</div>
+                <div class="card-title">Green Route</div>
+                <div class="card-body">
+                  <strong>Hamilton ↔ Rockaway</strong><br/>
+                  Commuter service for residents of western Bermuda. Stops: Hamilton, Cavello Bay, Watford Bridge, Rockaway.
+                </div>
+              </div>
+
+              <div class="info-card" style="border-top-color:#E65100;">
                 <div class="card-icon">🟧</div>
-                <div class="card-title">Orange Route</div>
-                <div class="card-body">Hamilton ↔ St. George's. Eastern end of the island service.</div>
+                <div class="card-title">Orange Route <small style="font-weight:400;font-size:0.75rem;">(Seasonal)</small></div>
+                <div class="card-body">
+                  <strong>Dockyard ↔ St. George's</strong><br/>
+                  Summer season only (April – November). Connects the Royal Naval Dockyard to the historic Town of St. George's.
+                </div>
               </div>
+
             </div>
-            <table class="contact-table" style="margin-top:1rem">
-              <tr><td>Hamilton Terminal</td><td>Albuoy's Point, Hamilton — (441) 295-4506</td></tr>
-              <tr><td>Dockyard Terminal</td><td>Royal Naval Dockyard, Sandys</td></tr>
-              <tr><td>St. George's</td><td>White's Island / Ferry Terminal, St. George's</td></tr>
+
+            <!-- ── Embedded ferry map ──────────────────────────────── -->
+            <h3 style="margin-bottom:0.6rem;">Ferry Dock Locations</h3>
+            <div style="border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:1.5rem;line-height:0;">
+              <iframe
+                title="Bermuda Ferry Terminal Map"
+                src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d50327.61!2d-64.7832674!3d32.3191693!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sbm!4v1714167600000!5m2!1sen!2sbm"
+                width="100%"
+                height="420"
+                style="border:0;display:block;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+              </iframe>
+            </div>
+
+            <!-- ── Terminal directory ──────────────────────────────── -->
+            <h3 style="margin-bottom:0.75rem;">All Ferry Terminals &amp; Docks</h3>
+            <table class="contact-table">
+              <thead>
+                <tr style="background:var(--light,#e8f2fb);">
+                  <th style="padding:0.55rem 0.75rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--navy,#003366);">Terminal</th>
+                  <th style="padding:0.55rem 0.75rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--navy,#003366);">Address</th>
+                  <th style="padding:0.55rem 0.75rem;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--navy,#003366);">Routes Served</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Hamilton</strong></td>
+                  <td>8 Front Street, Pembroke, City of Hamilton</td>
+                  <td>🟦 Blue &nbsp; 🟩 Pink &nbsp; 🟥 Green</td>
+                </tr>
+                <tr>
+                  <td><strong>Royal Naval Dockyard</strong></td>
+                  <td>Dockyard Terrace, Sandys</td>
+                  <td>🟦 Blue &nbsp; 🟧 Orange (seasonal)</td>
+                </tr>
+                <tr>
+                  <td><strong>Watford Bridge</strong></td>
+                  <td>Watford Bridge, Mangrove Bay Road, Sandys</td>
+                  <td>🟥 Green</td>
+                </tr>
+                <tr>
+                  <td><strong>Cavello Bay</strong></td>
+                  <td>Long Point Lane &amp; Scotts Hill Road, Sandys</td>
+                  <td>🟥 Green</td>
+                </tr>
+                <tr>
+                  <td><strong>Rockaway</strong></td>
+                  <td>Tribe Road No. 5, Southampton</td>
+                  <td>🟥 Green</td>
+                </tr>
+                <tr>
+                  <td><strong>Salt Kettle</strong></td>
+                  <td>10 Salt Kettle Road, Paget</td>
+                  <td>🟩 Pink</td>
+                </tr>
+                <tr>
+                  <td><strong>Darrell's Wharf</strong></td>
+                  <td>Harbour Road (between Morgan Road &amp; Cobb's Hill Road), Paget</td>
+                  <td>🟩 Pink</td>
+                </tr>
+                <tr>
+                  <td><strong>Belmont</strong></td>
+                  <td>Harbour Road, Warwick</td>
+                  <td>🟩 Pink</td>
+                </tr>
+                <tr>
+                  <td><strong>St. George's</strong></td>
+                  <td>Hunter's Wharf, St. George's</td>
+                  <td>🟧 Orange (seasonal)</td>
+                </tr>
+              </tbody>
             </table>
+
+            <div class="alert" style="margin-top:1.25rem;">
+              <strong>Note:</strong> The Orange Route operates seasonally from April to November only. For live schedules, fares and journey planning visit <a href="https://www.bermudaferry.com/schedule" target="_blank" rel="noopener noreferrer">bermudaferry.com/schedule</a>.
+            </div>
+
           </div>
         </div>
       </section>
