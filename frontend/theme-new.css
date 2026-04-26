@@ -1,0 +1,663 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Marine & Ports – Government Theme  (theme-new.css)
+   ─────────────────────────────────────────────────────────────────────────
+   • Loaded on every page alongside the existing per-page <style> block.
+   • ALL rules are scoped to html[data-theme="new"] so they are completely
+     inert when the legacy theme is active.
+   • Zero changes to layout, JS behaviour or HTML structure.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Libre+Baskerville:wght@400;700&display=swap');
+
+/* ── Toggle button base (always visible regardless of active theme) ───────── */
+.mp-theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.85rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin-right: 0.4rem;
+}
+.mp-theme-btn:hover      { background: rgba(255,255,255,0.22); }
+.mp-theme-btn.mp-btn-active {
+  background:   rgba(184,150,46,0.28);
+  border-color: rgba(184,150,46,0.8);
+  color: #f5e79e;
+}
+
+/* ── CSS custom-property palette for the new theme ───────────────────────── */
+html[data-theme="new"] {
+  --g-dark:       #0B2D54;
+  --g-mid:        #1464A0;
+  --g-light:      #E6EFF8;
+  --g-gold:       #B8962E;
+  --g-gold-bg:    #FBF6E8;
+  --g-bg:         #F2F5F9;
+  --g-surface:    #FFFFFF;
+  --g-border:     #C4D1DE;
+  --g-text:       #12263A;
+  --g-muted:      #5B6D7E;
+  --g-success:    #1A5E31;
+  --g-success-bg: #E7F5EC;
+  --g-error:      #991B1B;
+  --g-error-bg:   #FEF2F2;
+  --g-warn:       #7C4700;
+  --g-warn-bg:    #FFF7ED;
+  --g-r:          3px;
+  --g-font:       'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+  --g-serif:      'Libre Baskerville', Georgia, serif;
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+html[data-theme="new"] body {
+  font-family: var(--g-font)  !important;
+  background:  var(--g-bg)   !important;
+  color:       var(--g-text) !important;
+}
+html[data-theme="new"] a { color: var(--g-mid) !important; }
+
+/* ── Utility bar (index.html) ─────────────────────────────────────────────── */
+html[data-theme="new"] .util-bar {
+  background:    #071E3A !important;
+  border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+  font-size:     0.73rem !important;
+  letter-spacing:0.2px  !important;
+}
+html[data-theme="new"] .util-bar a { color: rgba(255,255,255,0.78) !important; }
+html[data-theme="new"] .util-bar a:hover { color: var(--g-gold) !important; }
+
+/* ── Site header (index.html) ─────────────────────────────────────────────── */
+html[data-theme="new"] .site-header {
+  background:    var(--g-dark) !important;
+  box-shadow:    none          !important;
+  border-bottom: 4px solid var(--g-gold) !important;
+}
+html[data-theme="new"] .header-text .dept-name {
+  font-family:   var(--g-serif) !important;
+  font-size:     1.06rem        !important;
+  letter-spacing:0.4px          !important;
+}
+html[data-theme="new"] .header-text .dept-sub {
+  text-transform: uppercase  !important;
+  letter-spacing: 0.8px      !important;
+  font-size:      0.7rem     !important;
+}
+
+/* ── Generic header (admin / map / profile) ───────────────────────────────── */
+html[data-theme="new"] header {
+  background:    var(--g-dark)           !important;
+  border-bottom: 4px solid var(--g-gold) !important;
+  box-shadow:    none                    !important;
+}
+html[data-theme="new"] .brand {
+  font-family:   var(--g-serif) !important;
+  letter-spacing:0.3px          !important;
+}
+
+/* ── Primary nav (index.html) ─────────────────────────────────────────────── */
+html[data-theme="new"] .primary-nav {
+  background:  #0F3560              !important;
+  box-shadow:  0 2px 0 var(--g-gold)!important;
+}
+html[data-theme="new"] .primary-nav > ul > li > a,
+html[data-theme="new"] .primary-nav > ul > li > span {
+  font-family:    var(--g-font)            !important;
+  font-size:      0.78rem                  !important;
+  text-transform: uppercase                !important;
+  letter-spacing: 0.45px                   !important;
+  color:          rgba(255,255,255,0.85)   !important;
+}
+html[data-theme="new"] .primary-nav > ul > li > a:hover,
+html[data-theme="new"] .primary-nav > ul > li > span:hover,
+html[data-theme="new"] .primary-nav > ul > li.active > a {
+  background: var(--g-mid) !important;
+  color: #fff               !important;
+}
+html[data-theme="new"] .dropdown {
+  border-top:    3px solid var(--g-gold) !important;
+  border-radius: 0 0 2px 2px            !important;
+}
+html[data-theme="new"] .dropdown li a {
+  font-family: var(--g-font) !important;
+  color: var(--g-text)       !important;
+}
+html[data-theme="new"] .dropdown li a:hover {
+  background: var(--g-light) !important;
+  color: var(--g-mid)        !important;
+}
+
+/* ── Ticker bar (index.html) ─────────────────────────────────────────────── */
+html[data-theme="new"] .ticker-bar {
+  background: var(--g-gold)  !important;
+  color:      var(--g-dark)  !important;
+  font-size:  0.76rem        !important;
+}
+html[data-theme="new"] .ticker-label {
+  background:    var(--g-dark) !important;
+  border-radius: 2px           !important;
+  letter-spacing:0.5px         !important;
+}
+
+/* ── Page title headings ──────────────────────────────────────────────────── */
+html[data-theme="new"] .page-title {
+  font-family:   var(--g-serif)           !important;
+  color:         var(--g-dark)            !important;
+  border-bottom: 2px solid var(--g-gold)  !important;
+  font-size:     1.45rem                  !important;
+}
+html[data-theme="new"] .page-intro {
+  color:       var(--g-muted) !important;
+  line-height: 1.72           !important;
+}
+
+/* ── Sidebar (index.html) ─────────────────────────────────────────────────── */
+html[data-theme="new"] .sidebar {
+  border:        1px solid var(--g-border) !important;
+  border-radius: var(--g-r)               !important;
+}
+html[data-theme="new"] .sidebar-title {
+  background:     var(--g-dark) !important;
+  font-size:      0.71rem       !important;
+  text-transform: uppercase     !important;
+  letter-spacing: 1px           !important;
+}
+html[data-theme="new"] .sidebar ul li a { color: var(--g-text) !important; }
+html[data-theme="new"] .sidebar ul li a:hover,
+html[data-theme="new"] .sidebar ul li a.active {
+  background: var(--g-light) !important;
+  color: var(--g-mid)        !important;
+}
+html[data-theme="new"] .sidebar ul li a.active {
+  border-left:3px solid var(--g-mid) !important;
+  font-weight: 700                   !important;
+}
+
+/* ── Generic white card (login / register) ────────────────────────────────── */
+html[data-theme="new"] .card {
+  background:    var(--g-surface)          !important;
+  border:        1px solid var(--g-border) !important;
+  border-radius: var(--g-r)               !important;
+  box-shadow:    0 1px 6px rgba(0,0,0,0.07)!important;
+}
+html[data-theme="new"] .card h2,
+html[data-theme="new"] .card h3 {
+  font-family: var(--g-serif) !important;
+  color:       var(--g-dark)  !important;
+}
+
+/* ── Login / register page-header text ───────────────────────────────────── */
+html[data-theme="new"] .page-header h1 {
+  font-family:   var(--g-serif) !important;
+  letter-spacing:0.3px          !important;
+}
+
+/* ── Info cards (index.html) ──────────────────────────────────────────────── */
+html[data-theme="new"] .info-card {
+  background:    var(--g-surface)        !important;
+  border-top:    3px solid var(--g-mid)  !important;
+  border-radius: var(--g-r)             !important;
+  box-shadow:    none                   !important;
+}
+html[data-theme="new"] .info-card .card-title {
+  font-family: var(--g-serif) !important;
+  color:       var(--g-dark)  !important;
+}
+
+/* ── Stat cards (admin / profile) ────────────────────────────────────────── */
+html[data-theme="new"] .stat-card {
+  background:    var(--g-surface)          !important;
+  border:        1px solid var(--g-border) !important;
+  border-left:   none                     !important;
+  border-top:    4px solid var(--g-mid)   !important;
+  border-radius: var(--g-r)              !important;
+  box-shadow:    none                    !important;
+}
+html[data-theme="new"] .stat-card.pending  { border-top-color: #B45309 !important; }
+html[data-theme="new"] .stat-card.approved { border-top-color: #15803D !important; }
+html[data-theme="new"] .stat-card .val {
+  font-family: var(--g-serif) !important;
+  color:       var(--g-dark)  !important;
+  font-size:   2.1rem         !important;
+}
+html[data-theme="new"] .stat-card .lbl {
+  color:          var(--g-muted) !important;
+  font-size:      0.71rem        !important;
+  text-transform: uppercase      !important;
+  letter-spacing: 0.8px          !important;
+}
+
+/* ── Admin section wrapper ────────────────────────────────────────────────── */
+html[data-theme="new"] .section {
+  background:    var(--g-surface)          !important;
+  border:        1px solid var(--g-border) !important;
+  border-radius: var(--g-r)               !important;
+  box-shadow:    none                     !important;
+}
+html[data-theme="new"] .section-head {
+  background:    var(--g-bg)              !important;
+  border-bottom: 2px solid var(--g-gold)  !important;
+}
+html[data-theme="new"] .section-head h2 {
+  font-family: var(--g-serif) !important;
+  color:       var(--g-dark)  !important;
+  font-size:   0.93rem        !important;
+}
+
+/* ── Tables ───────────────────────────────────────────────────────────────── */
+html[data-theme="new"] thead tr { background: var(--g-bg) !important; }
+html[data-theme="new"] th {
+  font-family:    var(--g-font)             !important;
+  font-size:      0.7rem                    !important;
+  font-weight:    700                       !important;
+  text-transform: uppercase                 !important;
+  letter-spacing: 0.7px                     !important;
+  color:          var(--g-muted)            !important;
+  background:     var(--g-bg)              !important;
+  border-bottom:  2px solid var(--g-border) !important;
+  padding:        0.75rem 1rem             !important;
+}
+html[data-theme="new"] td {
+  color:         var(--g-text)        !important;
+  border-bottom: 1px solid #E8EFF6    !important;
+  padding:       0.7rem 1rem          !important;
+}
+html[data-theme="new"] tbody tr:hover td { background: #EFF5FC !important; }
+
+/* ── Badges ───────────────────────────────────────────────────────────────── */
+html[data-theme="new"] .badge {
+  border-radius:  2px       !important;
+  font-size:      0.69rem   !important;
+  font-weight:    700       !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px     !important;
+  padding:        0.18rem 0.5rem !important;
+}
+html[data-theme="new"] .badge.approved {
+  background: var(--g-success-bg) !important;
+  color:      var(--g-success)    !important;
+}
+html[data-theme="new"] .badge.pending {
+  background: var(--g-warn-bg) !important;
+  color:      var(--g-warn)    !important;
+}
+
+/* ── Header / utility buttons ─────────────────────────────────────────────── */
+html[data-theme="new"] .btn-sm,
+html[data-theme="new"] .btn-header,
+html[data-theme="new"] .btn {
+  font-family:    var(--g-font) !important;
+  font-size:      0.75rem       !important;
+  font-weight:    700           !important;
+  text-transform: uppercase     !important;
+  letter-spacing: 0.4px         !important;
+  border-radius:  2px           !important;
+}
+html[data-theme="new"] .btn-header.primary {
+  background:   var(--g-gold) !important;
+  border-color: var(--g-gold) !important;
+  color:        var(--g-dark) !important;
+}
+html[data-theme="new"] .btn-header.primary:hover { background: #CDA836 !important; }
+
+/* ── CTA buttons (index.html) ─────────────────────────────────────────────── */
+html[data-theme="new"] .btn-cta {
+  font-family:    var(--g-font) !important;
+  font-weight:    700           !important;
+  text-transform: uppercase     !important;
+  letter-spacing: 0.5px         !important;
+  font-size:      0.79rem       !important;
+  border-radius:  2px           !important;
+  background:     var(--g-dark) !important;
+}
+html[data-theme="new"] .btn-cta:hover { background: var(--g-mid) !important; }
+html[data-theme="new"] .btn-cta.outline {
+  background:  transparent           !important;
+  border:      2px solid var(--g-dark)!important;
+  color:       var(--g-dark)         !important;
+}
+html[data-theme="new"] .btn-cta.outline:hover { background: var(--g-light) !important; }
+
+/* ── Submit buttons (login / register) ───────────────────────────────────── */
+html[data-theme="new"] .btn-submit {
+  background:     var(--g-dark) !important;
+  border-radius:  2px           !important;
+  font-family:    var(--g-font) !important;
+  font-weight:    700           !important;
+  text-transform: uppercase     !important;
+  letter-spacing: 0.8px         !important;
+  font-size:      0.9rem        !important;
+}
+html[data-theme="new"] .btn-submit:hover {
+  background: var(--g-mid) !important;
+  opacity:    1            !important;
+}
+
+/* ── Admin action buttons ─────────────────────────────────────────────────── */
+html[data-theme="new"] .btn-action {
+  font-family:    var(--g-font) !important;
+  font-weight:    700           !important;
+  text-transform: uppercase     !important;
+  letter-spacing: 0.3px         !important;
+  font-size:      0.71rem       !important;
+  border-radius:  2px           !important;
+}
+html[data-theme="new"] .btn-approve { background: #15803D !important; }
+html[data-theme="new"] .btn-revoke  { background: #B45309 !important; }
+html[data-theme="new"] .btn-delete  { background: #B91C1C !important; }
+html[data-theme="new"] .btn-admin   { background: #6D28D9 !important; }
+html[data-theme="new"] .btn-edit    { background: #1D4ED8 !important; }
+
+/* ── Admin tab buttons ────────────────────────────────────────────────────── */
+html[data-theme="new"] .tab-btn {
+  font-family:    var(--g-font)             !important;
+  font-weight:    700                       !important;
+  text-transform: uppercase                 !important;
+  letter-spacing: 0.4px                     !important;
+  font-size:      0.79rem                   !important;
+  border-radius:  2px                       !important;
+  border:         2px solid var(--g-border) !important;
+  background:     var(--g-surface)          !important;
+  color:          var(--g-muted)            !important;
+}
+html[data-theme="new"] .tab-btn:hover {
+  border-color: var(--g-mid) !important;
+  color:        var(--g-mid) !important;
+}
+html[data-theme="new"] .tab-btn.active {
+  background:   var(--g-dark) !important;
+  border-color: var(--g-dark) !important;
+  color: #fff                 !important;
+}
+
+/* ── Form fields ──────────────────────────────────────────────────────────── */
+html[data-theme="new"] .field label {
+  font-size:      0.82rem       !important;
+  font-weight:    600           !important;
+  letter-spacing: 0.2px         !important;
+  color:          var(--g-text) !important;
+}
+html[data-theme="new"] .field input,
+html[data-theme="new"] .field select,
+html[data-theme="new"] .field textarea {
+  font-family:   var(--g-font)              !important;
+  font-size:     0.9rem                     !important;
+  color:         var(--g-text)              !important;
+  background:    var(--g-surface)           !important;
+  border:        2px solid var(--g-border)  !important;
+  border-radius: var(--g-r)                !important;
+}
+html[data-theme="new"] .field input:focus,
+html[data-theme="new"] .field select:focus,
+html[data-theme="new"] .field textarea:focus {
+  border-color: var(--g-mid)                     !important;
+  box-shadow:   0 0 0 3px rgba(20,100,160,0.14)  !important;
+  outline:      none                             !important;
+}
+html[data-theme="new"] .field input.error,
+html[data-theme="new"] .field select.error,
+html[data-theme="new"] .field textarea.error  { border-color: var(--g-error) !important; }
+html[data-theme="new"] .field .err-msg        { color: var(--g-error)        !important; }
+
+/* ── Filter bar (admin) ───────────────────────────────────────────────────── */
+html[data-theme="new"] .filter-bar {
+  background:    var(--g-bg)              !important;
+  border-bottom: 1px solid var(--g-border)!important;
+}
+html[data-theme="new"] .filter-bar input,
+html[data-theme="new"] .filter-bar select {
+  font-family:   var(--g-font)              !important;
+  background:    var(--g-surface)           !important;
+  border:        1.5px solid var(--g-border)!important;
+  border-radius: var(--g-r)               !important;
+}
+html[data-theme="new"] .filter-bar input:focus,
+html[data-theme="new"] .filter-bar select:focus {
+  border-color: var(--g-mid) !important;
+  outline: none              !important;
+}
+
+/* ── Status / message banners ─────────────────────────────────────────────── */
+html[data-theme="new"] .status.success,
+html[data-theme="new"] .msg.ok {
+  background:    var(--g-success-bg) !important;
+  color:         var(--g-success)    !important;
+  border:        1px solid #A8D5B5   !important;
+  border-radius: var(--g-r)         !important;
+}
+html[data-theme="new"] .status.error,
+html[data-theme="new"] .msg.err {
+  background:    var(--g-error-bg) !important;
+  color:         var(--g-error)    !important;
+  border:        1px solid #FCA5A5 !important;
+  border-radius: var(--g-r)       !important;
+}
+html[data-theme="new"] .status.warning {
+  background:    var(--g-warn-bg) !important;
+  color:         var(--g-warn)    !important;
+  border:        1px solid #F6C072!important;
+  border-radius: var(--g-r)      !important;
+}
+
+/* ── Alert box (index.html) ───────────────────────────────────────────────── */
+html[data-theme="new"] .alert {
+  border-left:   4px solid var(--g-gold)        !important;
+  background:    var(--g-gold-bg)               !important;
+  border-radius: 0 var(--g-r) var(--g-r) 0     !important;
+}
+html[data-theme="new"] .alert strong { color: var(--g-dark) !important; }
+
+/* ── Hero (index.html home section) ──────────────────────────────────────── */
+html[data-theme="new"] .home-hero {
+  background:  var(--g-dark)                  !important;
+  border-left: 6px solid var(--g-gold)        !important;
+  border-radius: var(--g-r)                  !important;
+}
+html[data-theme="new"] .home-hero h2 {
+  font-family:   var(--g-serif) !important;
+  font-size:     1.7rem         !important;
+  letter-spacing:0.3px          !important;
+}
+
+/* ── Service cards (index.html) ───────────────────────────────────────────── */
+html[data-theme="new"] .service-card {
+  background:    var(--g-surface)          !important;
+  border:        1px solid var(--g-border) !important;
+  border-radius: var(--g-r)               !important;
+}
+html[data-theme="new"] .service-card:hover {
+  border-color: var(--g-mid) !important;
+  border-top:   3px solid var(--g-mid) !important;
+  transform:    none         !important;
+  box-shadow:   0 2px 8px rgba(0,0,0,0.09) !important;
+}
+html[data-theme="new"] .service-card .sc-title {
+  font-family: var(--g-serif) !important;
+  color:       var(--g-dark)  !important;
+}
+
+/* ── Profile panels ───────────────────────────────────────────────────────── */
+html[data-theme="new"] .panel {
+  border:        1px solid var(--g-border) !important;
+  border-radius: var(--g-r)               !important;
+  box-shadow:    none                     !important;
+}
+html[data-theme="new"] .panel-head {
+  background:    var(--g-bg)              !important;
+  border-bottom: 2px solid var(--g-gold)  !important;
+}
+html[data-theme="new"] .panel-head h2 {
+  font-family: var(--g-serif) !important;
+  color:       var(--g-dark)  !important;
+}
+html[data-theme="new"] .chip {
+  background:    var(--g-light)            !important;
+  color:         var(--g-dark)             !important;
+  border:        1px solid var(--g-border) !important;
+  border-radius: 2px                       !important;
+}
+html[data-theme="new"] .grid .card h3 {
+  font-family:    var(--g-font) !important;
+  color:          var(--g-muted)!important;
+  text-transform: uppercase     !important;
+  letter-spacing: 0.8px         !important;
+  font-size:      0.78rem       !important;
+}
+html[data-theme="new"] .value {
+  font-family: var(--g-serif) !important;
+  color:       var(--g-dark)  !important;
+}
+
+/* ── Section titles (register.html) ──────────────────────────────────────── */
+html[data-theme="new"] .section-title {
+  font-family:    var(--g-font) !important;
+  color:          var(--g-mid)  !important;
+  border-bottom:  2px solid var(--g-light)!important;
+  text-transform: uppercase     !important;
+  letter-spacing: 1.2px         !important;
+  font-size:      0.74rem       !important;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+html[data-theme="new"] footer {
+  background:  #071E3A                   !important;
+  border-top:  3px solid var(--g-gold)   !important;
+  padding:     2rem 1.5rem              !important;
+}
+html[data-theme="new"] footer h4 {
+  font-family:    var(--g-serif)                   !important;
+  font-size:      0.8rem                           !important;
+  text-transform: uppercase                        !important;
+  letter-spacing: 0.5px                            !important;
+  padding-bottom: 0.4rem                           !important;
+  border-bottom:  1px solid rgba(255,255,255,0.15) !important;
+  margin-bottom:  0.75rem                          !important;
+}
+html[data-theme="new"] footer ul li a       { color: rgba(255,255,255,0.65) !important; }
+html[data-theme="new"] footer ul li a:hover { color: var(--g-gold)          !important; }
+html[data-theme="new"] .footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+/* ── Modals ───────────────────────────────────────────────────────────────── */
+html[data-theme="new"] .modal-box   { border-radius: var(--g-r) !important; }
+html[data-theme="new"] .modal-head  {
+  background:    var(--g-bg)              !important;
+  border-bottom: 2px solid var(--g-gold)  !important;
+}
+html[data-theme="new"] .modal-head h3,
+html[data-theme="new"] .modal-panel h3 {
+  font-family: var(--g-serif) !important;
+  color:       var(--g-dark)  !important;
+}
+html[data-theme="new"] .modal-tab {
+  font-family:    var(--g-font) !important;
+  font-weight:    600           !important;
+  text-transform: uppercase     !important;
+  letter-spacing: 0.3px         !important;
+  background:     var(--g-bg)   !important;
+}
+html[data-theme="new"] .modal-tab.active {
+  background:       var(--g-surface) !important;
+  color:            var(--g-dark)    !important;
+  border-bottom-color: var(--g-mid)  !important;
+}
+
+/* ── Fees modal (index.html) ──────────────────────────────────────────────── */
+html[data-theme="new"] .fees-header {
+  background:    var(--g-dark)           !important;
+  border-bottom: 3px solid var(--g-gold) !important;
+}
+html[data-theme="new"] .fees-header h2 { font-family: var(--g-serif) !important; }
+html[data-theme="new"] .fees-section h3 {
+  font-family:         var(--g-font) !important;
+  color:               var(--g-dark) !important;
+  border-bottom-color: var(--g-dark) !important;
+}
+html[data-theme="new"] .fees-table tr:nth-child(even) td { background: var(--g-bg) !important; }
+
+/* ── Toast (admin) ────────────────────────────────────────────────────────── */
+html[data-theme="new"] #toast {
+  background:    #1A2B3E         !important;
+  border-radius: var(--g-r)     !important;
+  font-family:   var(--g-font)  !important;
+}
+html[data-theme="new"] #toast.ok  { background: #14532D !important; }
+html[data-theme="new"] #toast.err { background: #7F1D1D !important; }
+
+/* ── Detail drawer (admin) ────────────────────────────────────────────────── */
+html[data-theme="new"] .drawer-head {
+  background:    var(--g-dark)           !important;
+  border-bottom: 3px solid var(--g-gold) !important;
+}
+html[data-theme="new"] .drawer-head h3 { font-family: var(--g-serif) !important; }
+html[data-theme="new"] .drawer-foot    { background: var(--g-bg)    !important; }
+html[data-theme="new"] .drawer-section-title {
+  color:          var(--g-mid) !important;
+  text-transform: uppercase    !important;
+  letter-spacing: 0.6px        !important;
+  border-bottom-color: var(--g-light) !important;
+}
+
+/* ── Content body headings (index.html sections) ──────────────────────────── */
+html[data-theme="new"] .content-body h3 {
+  font-family:       var(--g-serif) !important;
+  color:             var(--g-dark)  !important;
+  border-left-color: var(--g-gold)  !important;
+}
+html[data-theme="new"] .contact-table td:first-child { color: var(--g-dark) !important; }
+
+/* ── Bootstrap panel (admin) ──────────────────────────────────────────────── */
+html[data-theme="new"] #bootstrapBox {
+  background:    var(--g-gold-bg)         !important;
+  border:        2px solid var(--g-gold)  !important;
+  border-radius: var(--g-r)              !important;
+}
+
+/* ── Assign section inside edit modal (admin) ─────────────────────────────── */
+html[data-theme="new"] .assign-section {
+  background:    var(--g-bg)               !important;
+  border:        1px solid var(--g-border) !important;
+  border-radius: var(--g-r)              !important;
+}
+html[data-theme="new"] .assign-section h4 {
+  color:          var(--g-mid) !important;
+  text-transform: uppercase    !important;
+  letter-spacing: 0.5px        !important;
+}
+html[data-theme="new"] .assigned-chip {
+  background:    var(--g-light) !important;
+  color:         var(--g-dark)  !important;
+  border-radius: 2px            !important;
+}
+html[data-theme="new"] .assigned-chip.mooring {
+  background: #FDE8EF !important;
+  color:      #881337 !important;
+}
+
+/* ── Map admin filter bar ─────────────────────────────────────────────────── */
+html[data-theme="new"] #adminBar {
+  background:    rgba(242,245,249,0.98)    !important;
+  border:        1px solid var(--g-border) !important;
+  border-radius: var(--g-r)              !important;
+  box-shadow:    0 2px 8px rgba(0,0,0,0.14)!important;
+}
+html[data-theme="new"] .filter-toggle {
+  border-radius: 2px !important;
+  font-weight:   700 !important;
+}
+
+/* ── Sortable table column indicators ─────────────────────────────────────── */
+html[data-theme="new"] th.sortable:hover               { color: var(--g-mid) !important; }
+html[data-theme="new"] th.sortable.asc::after,
+html[data-theme="new"] th.sortable.desc::after         { color: var(--g-mid) !important; }
