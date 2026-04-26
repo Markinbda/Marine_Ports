@@ -204,10 +204,10 @@ html[data-theme="new"] .page-header h1 {
 
 /* ── Info cards (index.html) ──────────────────────────────────────────────── */
 html[data-theme="new"] .info-card {
-  background:    var(--g-surface)        !important;
-  border-top:    3px solid var(--g-mid)  !important;
-  border-radius: var(--g-r)             !important;
-  box-shadow:    none                   !important;
+  background-color: var(--g-surface)        !important;
+  border-top:       3px solid var(--g-mid)  !important;
+  border-radius:    var(--g-r)             !important;
+  box-shadow:       none                   !important;
 }
 html[data-theme="new"] .info-card .card-title {
   font-family: var(--g-serif) !important;
@@ -217,42 +217,14 @@ html[data-theme="new"] .info-card .card-title {
 /* ── Tile image backdrops (Gov theme only) ─────────────────────────────── */
 html[data-theme="new"] .service-card,
 html[data-theme="new"] .info-card {
-  position: relative;
   overflow: hidden;
-  isolation: isolate;
-  --tile-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80');
-}
-html[data-theme="new"] .service-card::before,
-html[data-theme="new"] .info-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: var(--tile-image);
-  background-size: cover;
-  background-position: center center;
-  opacity: 0.32;
-  filter: saturate(1.08) contrast(1.06);
-  z-index: 0;
-}
-html[data-theme="new"] .service-card::after,
-html[data-theme="new"] .info-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.42) 52%, rgba(255,255,255,0.58) 100%);
-  z-index: 0;
-}
-html[data-theme="new"] .service-card > *,
-html[data-theme="new"] .info-card > * {
-  position: relative;
-  z-index: 1;
 }
 html[data-theme="new"] .service-card .sc-icon,
 html[data-theme="new"] .info-card .card-icon {
   display: none !important;
 }
 
-/* Tile title header strips with image backdrop beneath */
+/* Tile title header strips */
 html[data-theme="new"] .service-card .sc-title {
   margin: -1.1rem -1rem 0.65rem;
   padding: 0.45rem 0.7rem;
@@ -266,23 +238,72 @@ html[data-theme="new"] .info-card .card-title {
   color: #fff !important;
 }
 
+/* Shared overlay helper — applied to every tile that has a background image */
+html[data-theme="new"] [class*="tile-"] {
+  background-size:     cover          !important;
+  background-position: center center  !important;
+  background-repeat:   no-repeat      !important;
+}
+
 /* Service tile image mappings */
-html[data-theme="new"] .tile-marops { --tile-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-boats { --tile-image: url('images/tiles/large-boat.svg'); }
-html[data-theme="new"] .tile-ferry { --tile-image: url('images/tiles/bermuda-ferry.svg'); }
-html[data-theme="new"] .tile-pilot { --tile-image: url('images/tiles/boat-captain.svg'); }
-html[data-theme="new"] .tile-aton { --tile-image: url('https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-tugs { --tile-image: url('images/tiles/tugboat.svg'); }
+html[data-theme="new"] .tile-marops {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-boats {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-ferry {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1559666126-84f389727b9a?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-pilot {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-aton {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-tugs {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?auto=format&fit=crop&w=900&q=80') !important;
+}
 
 /* Info tile image mappings */
-html[data-theme="new"] .tile-emergency { --tile-image: url('https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-office { --tile-image: url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-hours { --tile-image: url('https://images.unsplash.com/photo-1501139083538-0139583c060f?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-ferry-terminal { --tile-image: url('images/tiles/ferry-terminal.svg'); }
-html[data-theme="new"] .tile-route-blue { --tile-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-route-pink { --tile-image: url('https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-route-green { --tile-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-route-orange { --tile-image: url('https://images.unsplash.com/photo-1429087969512-1e85aab2683d?auto=format&fit=crop&w=1200&q=80'); }
+html[data-theme="new"] .tile-emergency {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-office {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-hours {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1501139083538-0139583c060f?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-ferry-terminal {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1519421321556-d42b36ded4e9?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-route-blue {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-route-pink {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-route-green {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80') !important;
+}
+html[data-theme="new"] .tile-route-orange {
+  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1429087969512-1e85aab2683d?auto=format&fit=crop&w=900&q=80') !important;
+}
 
 /* ── Stat cards (admin / profile) ────────────────────────────────────────── */
 html[data-theme="new"] .stat-card {
@@ -541,9 +562,9 @@ html[data-theme="new"] .home-hero h2 {
 
 /* ── Service cards (index.html) ───────────────────────────────────────────── */
 html[data-theme="new"] .service-card {
-  background:    var(--g-surface)          !important;
-  border:        1px solid var(--g-border) !important;
-  border-radius: var(--g-r)               !important;
+  background-color: var(--g-surface)          !important;
+  border:           1px solid var(--g-border) !important;
+  border-radius:    var(--g-r)               !important;
 }
 html[data-theme="new"] .service-card:hover {
   border-color: var(--g-mid) !important;
