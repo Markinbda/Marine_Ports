@@ -238,71 +238,64 @@ html[data-theme="new"] .info-card .card-title {
   color: #fff !important;
 }
 
-/* Shared overlay helper — applied to every tile that has a background image */
-html[data-theme="new"] [class*="tile-"] {
-  background-size:     cover          !important;
-  background-position: center center  !important;
-  background-repeat:   no-repeat      !important;
-}
-
-/* Service tile image mappings */
+/* Service tile image mappings — full background shorthand beats inline background: var(--white) */
 html[data-theme="new"] .tile-marops {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-boats {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('images/Boats_Moorings.jpg') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('images/Boats_Moorings.jpg') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-ferry {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('images/Ferry_Service.jpg') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('images/Ferry_Service.jpg') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-pilot {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=900&q=80') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=900&q=80') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-aton {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=900&q=80') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=900&q=80') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-tugs {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('images/Tug_Service.jpg') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('images/Tug_Service.jpg') center/cover no-repeat !important;
 }
 
 /* Info tile image mappings */
 html[data-theme="new"] .tile-emergency {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=900&q=80') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=900&q=80') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-office {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('images/Office_Hours.jpg') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('images/Office_Hours.jpg') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-hours {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('images/Office_Hours.jpg') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('images/Office_Hours.jpg') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-ferry-terminal {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('images/Ferry_Terminal.jpg') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('images/Ferry_Terminal.jpg') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-route-blue {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-route-pink {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=900&q=80') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=900&q=80') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-route-green {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=900&q=80') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-route-orange {
-  background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1429087969512-1e85aab2683d?auto=format&fit=crop&w=900&q=80') !important;
+  background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
+    url('https://images.unsplash.com/photo-1429087969512-1e85aab2683d?auto=format&fit=crop&w=900&q=80') center/cover no-repeat !important;
 }
 
 /* ── Stat cards (admin / profile) ────────────────────────────────────────── */
