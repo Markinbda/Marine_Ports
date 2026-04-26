@@ -252,7 +252,7 @@ html[data-theme="new"] .tile-marops {
 }
 html[data-theme="new"] .tile-boats {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=900&q=80') !important;
+    url('https://marine-ports.onrender.com/images/Boats_Moorings.jpg') !important;
 }
 html[data-theme="new"] .tile-ferry {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
@@ -264,7 +264,7 @@ html[data-theme="new"] .tile-pilot {
 }
 html[data-theme="new"] .tile-aton {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://marine-ports.onrender.com/images/buoy.jpg') !important;
+    url('https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=900&q=80') !important;
 }
 html[data-theme="new"] .tile-tugs {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
