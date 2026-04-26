@@ -229,8 +229,9 @@ html[data-theme="new"] .info-card::before {
   inset: 0;
   background-image: var(--tile-image);
   background-size: cover;
-  background-position: center;
-  opacity: 0.25;
+  background-position: center center;
+  opacity: 0.32;
+  filter: saturate(1.08) contrast(1.06);
   z-index: 0;
 }
 html[data-theme="new"] .service-card::after,
@@ -238,7 +239,7 @@ html[data-theme="new"] .info-card::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.76) 0%, rgba(255,255,255,0.9) 60%, rgba(255,255,255,0.95) 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.42) 52%, rgba(255,255,255,0.58) 100%);
   z-index: 0;
 }
 html[data-theme="new"] .service-card > *,
