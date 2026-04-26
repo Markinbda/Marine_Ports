@@ -252,11 +252,11 @@ html[data-theme="new"] .tile-marops {
 }
 html[data-theme="new"] .tile-boats {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://marine-ports.onrender.com/images/Boats_Moorings.jpg') !important;
+    url('images/Boats_Moorings.jpg') !important;
 }
 html[data-theme="new"] .tile-ferry {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://marine-ports.onrender.com/images/Ferry_Service.jpg') !important;
+    url('images/Ferry_Service.jpg') !important;
 }
 html[data-theme="new"] .tile-pilot {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
@@ -268,7 +268,7 @@ html[data-theme="new"] .tile-aton {
 }
 html[data-theme="new"] .tile-tugs {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://marine-ports.onrender.com/images/Tug_Service.jpg') !important;
+    url('images/Tug_Service.jpg') !important;
 }
 
 /* Info tile image mappings */
@@ -278,15 +278,15 @@ html[data-theme="new"] .tile-emergency {
 }
 html[data-theme="new"] .tile-office {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://marine-ports.onrender.com/images/Office_Hours.jpg') !important;
+    url('images/Office_Hours.jpg') !important;
 }
 html[data-theme="new"] .tile-hours {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://marine-ports.onrender.com/images/Office_Hours.jpg') !important;
+    url('images/Office_Hours.jpg') !important;
 }
 html[data-theme="new"] .tile-ferry-terminal {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://marine-ports.onrender.com/images/Ferry_Terminal.jpg') !important;
+    url('images/Ferry_Terminal.jpg') !important;
 }
 html[data-theme="new"] .tile-route-blue {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
