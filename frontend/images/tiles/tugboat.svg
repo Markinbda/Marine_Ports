@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-label="Tugboat in harbor">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a6d1f6"/>
+      <stop offset="100%" stop-color="#d9edff"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4688bd"/>
+      <stop offset="100%" stop-color="#23567f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="420" fill="url(#sky)"/>
+  <rect y="420" width="1200" height="280" fill="url(#sea)"/>
+  <rect x="120" y="360" width="210" height="80" fill="#b5c6d6"/>
+  <rect x="150" y="310" width="150" height="50" fill="#c7d4e0"/>
+  <rect x="640" y="300" width="190" height="40" fill="#1f3f58"/>
+  <polygon points="420,430 930,430 875,520 465,520" fill="#1a2f42"/>
+  <rect x="560" y="320" width="200" height="110" fill="#d94b3d"/>
+  <rect x="610" y="270" width="110" height="55" fill="#f0f5fb"/>
+  <rect x="620" y="284" width="22" height="26" fill="#7da9cd"/>
+  <rect x="648" y="284" width="22" height="26" fill="#7da9cd"/>
+  <rect x="676" y="284" width="22" height="26" fill="#7da9cd"/>
+  <rect x="700" y="248" width="12" height="84" fill="#1a2f42"/>
+  <circle cx="590" cy="450" r="36" fill="#2f4f6a"/>
+  <circle cx="730" cy="450" r="36" fill="#2f4f6a"/>
+  <path d="M0,560 C140,540 280,574 420,560 C560,546 700,574 840,560 C980,546 1080,572 1200,560 L1200,700 L0,700 Z" fill="#1b4a6d" opacity="0.58"/>
+</svg>

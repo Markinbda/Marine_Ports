@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-label="Bermuda ferry at terminal">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9fccf4"/>
+      <stop offset="100%" stop-color="#dff2ff"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4c8fc4"/>
+      <stop offset="100%" stop-color="#255b86"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="420" fill="url(#sky)"/>
+  <rect y="420" width="1200" height="280" fill="url(#sea)"/>
+  <rect x="90" y="285" width="160" height="235" fill="#c4d3df"/>
+  <rect x="120" y="315" width="100" height="80" fill="#92b3cc"/>
+  <rect x="250" y="470" width="290" height="18" fill="#7f96a8"/>
+  <rect x="520" y="350" width="500" height="26" fill="#6f8598"/>
+  <polygon points="520,430 980,430 935,510 565,510" fill="#113a60"/>
+  <rect x="620" y="325" width="220" height="100" fill="#f8fbff"/>
+  <rect x="675" y="280" width="120" height="48" fill="#f8fbff"/>
+  <rect x="690" y="292" width="22" height="22" fill="#75a6cf"/>
+  <rect x="718" y="292" width="22" height="22" fill="#75a6cf"/>
+  <rect x="746" y="292" width="22" height="22" fill="#75a6cf"/>
+  <rect x="638" y="350" width="36" height="30" fill="#75a6cf"/>
+  <rect x="684" y="350" width="36" height="30" fill="#75a6cf"/>
+  <rect x="730" y="350" width="36" height="30" fill="#75a6cf"/>
+  <rect x="776" y="350" width="36" height="30" fill="#75a6cf"/>
+  <path d="M0,560 C120,544 250,572 370,560 C490,548 620,572 740,560 C860,548 990,572 1200,558 L1200,700 L0,700 Z" fill="#1c4d72" opacity="0.56"/>
+</svg>

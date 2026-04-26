@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-label="Boat captain on bridge">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9bbcd7"/>
+      <stop offset="100%" stop-color="#dce8f1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" fill="url(#bg)"/>
+  <rect x="90" y="120" width="1020" height="460" rx="18" fill="#24435d"/>
+  <rect x="130" y="160" width="940" height="300" fill="#eef3f7"/>
+  <rect x="160" y="190" width="280" height="240" fill="#9fc2de"/>
+  <rect x="460" y="190" width="280" height="240" fill="#9fc2de"/>
+  <rect x="760" y="190" width="280" height="240" fill="#9fc2de"/>
+  <circle cx="610" cy="395" r="85" fill="#f1c79e"/>
+  <rect x="550" y="475" width="120" height="130" rx="16" fill="#ffffff"/>
+  <rect x="505" y="520" width="210" height="95" rx="20" fill="#f4f6f9"/>
+  <path d="M520,360 C550,320 670,320 700,360 L700,385 L520,385 Z" fill="#1a2f44"/>
+  <rect x="540" y="342" width="140" height="26" fill="#ffffff"/>
+  <rect x="570" y="444" width="80" height="18" fill="#d99d6f"/>
+  <circle cx="580" cy="390" r="9" fill="#273444"/>
+  <circle cx="640" cy="390" r="9" fill="#273444"/>
+  <path d="M575,420 C590,438 630,438 645,420" stroke="#9b5a40" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <rect x="240" y="500" width="260" height="30" rx="8" fill="#2f5778"/>
+  <circle cx="265" cy="515" r="10" fill="#adc9df"/>
+  <circle cx="305" cy="515" r="10" fill="#adc9df"/>
+  <circle cx="345" cy="515" r="10" fill="#adc9df"/>
+  <path d="M0,655 C160,625 300,675 460,650 C620,625 760,675 920,650 C1030,632 1120,666 1200,652 L1200,700 L0,700 Z" fill="#7aa3c4" opacity="0.42"/>
+</svg>
