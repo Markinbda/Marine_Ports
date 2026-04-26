@@ -268,17 +268,17 @@ html[data-theme="new"] .info-card .card-title {
 
 /* Service tile image mappings */
 html[data-theme="new"] .tile-marops { --tile-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-boats { --tile-image: url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-ferry { --tile-image: url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-pilot { --tile-image: url('https://images.unsplash.com/photo-1475688621402-4257c812d6db?auto=format&fit=crop&w=1200&q=80'); }
+html[data-theme="new"] .tile-boats { --tile-image: url('https://source.unsplash.com/1600x900/?large,boat,ship'); }
+html[data-theme="new"] .tile-ferry { --tile-image: url('https://source.unsplash.com/1600x900/?bermuda,ferry'); }
+html[data-theme="new"] .tile-pilot { --tile-image: url('https://source.unsplash.com/1600x900/?ship,captain,bridge'); }
 html[data-theme="new"] .tile-aton { --tile-image: url('https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-tugs { --tile-image: url('https://images.unsplash.com/photo-1494412519320-aa613dfb7738?auto=format&fit=crop&w=1200&q=80'); }
+html[data-theme="new"] .tile-tugs { --tile-image: url('https://source.unsplash.com/1600x900/?tugboat,harbor'); }
 
 /* Info tile image mappings */
 html[data-theme="new"] .tile-emergency { --tile-image: url('https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=1200&q=80'); }
 html[data-theme="new"] .tile-office { --tile-image: url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80'); }
 html[data-theme="new"] .tile-hours { --tile-image: url('https://images.unsplash.com/photo-1501139083538-0139583c060f?auto=format&fit=crop&w=1200&q=80'); }
-html[data-theme="new"] .tile-ferry-terminal { --tile-image: url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1200&q=80'); }
+html[data-theme="new"] .tile-ferry-terminal { --tile-image: url('https://source.unsplash.com/1600x900/?bermuda,ferry,terminal'); }
 html[data-theme="new"] .tile-route-blue { --tile-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80'); }
 html[data-theme="new"] .tile-route-pink { --tile-image: url('https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&q=80'); }
 html[data-theme="new"] .tile-route-green { --tile-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80'); }
