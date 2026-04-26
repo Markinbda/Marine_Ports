@@ -256,7 +256,7 @@ html[data-theme="new"] .tile-boats {
 }
 html[data-theme="new"] .tile-ferry {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1559666126-84f389727b9a?auto=format&fit=crop&w=900&q=80') !important;
+    url('https://marine-ports.onrender.com/images/Ferry_Service.jpg') !important;
 }
 html[data-theme="new"] .tile-pilot {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
@@ -264,11 +264,11 @@ html[data-theme="new"] .tile-pilot {
 }
 html[data-theme="new"] .tile-aton {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=900&q=80') !important;
+    url('https://marine-ports.onrender.com/images/buoy.jpg') !important;
 }
 html[data-theme="new"] .tile-tugs {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?auto=format&fit=crop&w=900&q=80') !important;
+    url('https://marine-ports.onrender.com/images/Tug_Service.jpg') !important;
 }
 
 /* Info tile image mappings */
@@ -278,15 +278,15 @@ html[data-theme="new"] .tile-emergency {
 }
 html[data-theme="new"] .tile-office {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80') !important;
+    url('https://marine-ports.onrender.com/images/Office_Hours.jpg') !important;
 }
 html[data-theme="new"] .tile-hours {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1501139083538-0139583c060f?auto=format&fit=crop&w=900&q=80') !important;
+    url('https://marine-ports.onrender.com/images/Office_Hours.jpg') !important;
 }
 html[data-theme="new"] .tile-ferry-terminal {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1519421321556-d42b36ded4e9?auto=format&fit=crop&w=900&q=80') !important;
+    url('https://marine-ports.onrender.com/images/Ferry_Terminal.jpg') !important;
 }
 html[data-theme="new"] .tile-route-blue {
   background-image: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
