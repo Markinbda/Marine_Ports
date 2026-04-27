@@ -399,26 +399,9 @@
       return 'Re-register';
     }
 
-    async function requestRenewal(kind, id, stateKey) {
+    function requestRenewal(kind, id, stateKey) {
       if (stateKey === 'pending') return;
-      try {
-        const res = await fetch(`${API_BASE}/api/${kind}/${id}/renewal-request`, {
-          method: 'PUT',
-          headers: authHeaders()
-        });
-        const data = await readApiBody(res);
-        if (!res.ok) {
-          showMsg('err', data.message || 'Could not submit renewal request.');
-          return;
-        }
-
-        showMsg('ok', data.message || 'Renewal request submitted.');
-        setTimeout(() => {
-          window.location.href = 'register.html';
-        }, 250);
-      } catch {
-        showMsg('err', 'Unable to submit renewal request right now.');
-      }
+      window.location.href = `register.html?renewal=1&kind=${encodeURIComponent(kind)}&id=${encodeURIComponent(id)}`;
     }
 
     function renderBoats(boats) {

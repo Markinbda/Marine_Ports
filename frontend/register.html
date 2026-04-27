@@ -181,6 +181,23 @@
     .status.success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
     .status.error   { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
 
+    /* ── Renewal info box ────────────────────────────────────────────────── */
+    .renewal-info {
+      background: #f0f7ff;
+      border: 1.5px solid #b3d7f7;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-size: 0.92rem;
+      color: #17324d;
+      line-height: 1.7;
+    }
+    .renewal-info strong { color: #0d3b66; }
+    .field input[readonly] {
+      background: #f2f5f8;
+      color: #555;
+      cursor: default;
+    }
+
     /* ── Footer link ─────────────────────────────────────────────────────── */
     .footer-link {
       text-align: center;
@@ -307,6 +324,12 @@
 
       </div>
 
+      <!-- ── 4. Renewal item (shown only in renewal mode) ───────────────── -->
+      <div id="renewalItemSection" style="display:none">
+        <div class="section-title">Registration Being Renewed</div>
+        <div class="renewal-info" id="renewalInfoBox"></div>
+      </div>
+
       <!-- ── Submit ──────────────────────────────────────────────────────── -->
       <button type="submit" class="btn-submit" id="submitBtn">
         Submit Registration
@@ -337,6 +360,73 @@
 
     // ── Configuration ─────────────────────────────────────────────────────────
     const API_BASE = window.API_BASE || 'http://localhost:5000';
+
+    // ── Renewal mode detection ────────────────────────────────────────────────
+    const _params      = new URLSearchParams(window.location.search);
+    const renewalMode  = _params.get('renewal') === '1';
+    const renewalKind  = _params.get('kind') || '';   // 'boats' or 'moorings'
+    const renewalId    = _params.get('id')   || '';
+
+    if (renewalMode) {
+      // Pre-fill personal details from session
+      const fullName = sessionStorage.getItem('mp_fullName') || '';
+
+      // Decode JWT to retrieve email claim
+      function _parseJwt(jwt) {
+        try {
+          if (!jwt || jwt.split('.').length < 2) return {};
+          const b64 = jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+          return JSON.parse(atob(b64 + '='.repeat((4 - b64.length % 4) % 4)));
+        } catch { return {}; }
+      }
+      const claims = _parseJwt(sessionStorage.getItem('mp_token'));
+      const email  = claims.email || claims.unique_name || claims.upn || '';
+
+      // Populate and lock personal fields
+      document.getElementById('fullName').value    = fullName;
+      document.getElementById('fullName').readOnly = true;
+      document.getElementById('email').value       = email;
+      document.getElementById('email').readOnly    = true;
+
+      // Hide phone (not stored in session), password, and address sections
+      document.getElementById('field-phone').style.display = 'none';
+      const allSectionTitles = document.querySelectorAll('.section-title');
+      allSectionTitles.forEach(t => {
+        const text = t.textContent.trim();
+        if (text === 'Set Password' || text === 'Residential Address') {
+          let el = t;
+          while (el && el.tagName !== 'FORM') {
+            const sib = el.nextElementSibling;
+            if (el.classList.contains('section-title') || el.classList.contains('form-grid')) {
+              el.style.display = 'none';
+            }
+            el = sib;
+            if (!el || el.classList.contains('section-title') && el.textContent.trim() !== text) break;
+          }
+        }
+      });
+      // Direct hide of password+address grids (sibling of the section-title)
+      document.querySelectorAll('.section-title').forEach(t => {
+        const text = t.textContent.trim();
+        if (text === 'Set Password' || text === 'Residential Address') {
+          t.style.display = 'none';
+          const grid = t.nextElementSibling;
+          if (grid) grid.style.display = 'none';
+        }
+      });
+
+      // Show the renewal item panel
+      const kindLabel = renewalKind === 'moorings' ? 'Mooring' : 'Boat';
+      document.getElementById('renewalItemSection').style.display = 'block';
+      document.getElementById('renewalInfoBox').innerHTML =
+        `<strong>Type:</strong> ${kindLabel}<br>` +
+        `<strong>Record ID:</strong> #${renewalId}<br>` +
+        `<strong>Action:</strong> Renewal registration request`;
+
+      // Update header and button
+      document.querySelector('.page-header h1').textContent = 'Registration Renewal';
+      document.getElementById('submitBtn').textContent = 'Submit Renewal Request';
+    }
 
     // ── DOM references ────────────────────────────────────────────────────────
     const form         = document.getElementById('registrationForm');
@@ -398,36 +488,38 @@
       setError('email', !emailOk);
       if (!emailOk) valid = false;
 
-      const phone = document.getElementById('phone').value.trim();
-      const phoneOk = /^[+\d\s\-().]{7,20}$/.test(phone);
-      setError('phone', !phoneOk);
-      if (!phoneOk) valid = false;
+      if (!renewalMode) {
+        const phone = document.getElementById('phone').value.trim();
+        const phoneOk = /^[+\d\s\-().]{7,20}$/.test(phone);
+        setError('phone', !phoneOk);
+        if (!phoneOk) valid = false;
 
-      const pw  = document.getElementById('password').value;
-      const pwOk = pw.length >= 8;
-      setError('password', !pwOk);
-      if (!pwOk) valid = false;
+        const pw  = document.getElementById('password').value;
+        const pwOk = pw.length >= 8;
+        setError('password', !pwOk);
+        if (!pwOk) valid = false;
 
-      const cpw   = document.getElementById('confirmPassword').value;
-      const cpwOk = cpw === pw && cpw.length > 0;
-      setError('confirmPassword', !cpwOk);
-      if (!cpwOk) valid = false;
+        const cpw   = document.getElementById('confirmPassword').value;
+        const cpwOk = cpw === pw && cpw.length > 0;
+        setError('confirmPassword', !cpwOk);
+        if (!cpwOk) valid = false;
 
-      const addr1 = document.getElementById('addressLine1').value.trim();
-      setError('addressLine1', !addr1);
-      if (!addr1) valid = false;
+        const addr1 = document.getElementById('addressLine1').value.trim();
+        setError('addressLine1', !addr1);
+        if (!addr1) valid = false;
 
-      const parish = document.getElementById('parish').value;
-      setError('parish', !parish);
-      if (!parish) valid = false;
+        const parish = document.getElementById('parish').value;
+        setError('parish', !parish);
+        if (!parish) valid = false;
 
-      const govId = document.getElementById('govId').value.trim();
-      setError('govId', !govId);
-      if (!govId) valid = false;
+        const govId = document.getElementById('govId') ? document.getElementById('govId').value.trim() : '';
+        setError('govId', !govId);
+        if (!govId) valid = false;
 
-      const role = document.getElementById('role').value;
-      setError('role', !role);
-      if (!role) valid = false;
+        const role = document.getElementById('role') ? document.getElementById('role').value : '';
+        setError('role', !role);
+        if (!role) valid = false;
+      }
 
       return valid;
     }
@@ -435,8 +527,6 @@
     // ── Form submission ───────────────────────────────────────────────────────
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      // Clear previous status
       hideBanner();
 
       if (!validateForm()) {
@@ -444,6 +534,38 @@
         return;
       }
 
+      submitBtn.disabled    = true;
+      submitBtn.textContent = 'Submitting…';
+
+      // ── Renewal path ──────────────────────────────────────────────────────
+      if (renewalMode) {
+        try {
+          const token = sessionStorage.getItem('mp_token');
+          const response = await fetch(`${API_BASE}/api/${renewalKind}/${renewalId}/renewal-request`, {
+            method:  'PUT',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+          });
+          const data = await response.json().catch(() => ({}));
+
+          if (response.ok) {
+            showBanner('success',
+              '✔ Renewal request submitted. It will be reviewed by the Port Authority. ' +
+              'You will be notified once approved.');
+            setTimeout(() => window.location.href = 'profile.html', 2500);
+          } else {
+            showBanner('error', data.message || 'Could not submit renewal request. Please try again.');
+          }
+        } catch (err) {
+          showBanner('error', 'Could not reach the server. Please check your connection and try again.');
+          console.error('Renewal error:', err);
+        } finally {
+          submitBtn.disabled    = false;
+          submitBtn.textContent = 'Submit Renewal Request';
+        }
+        return;
+      }
+
+      // ── Standard new registration path ────────────────────────────────────
       const payload = {
         fullName:                    document.getElementById('fullName').value.trim(),
         email:                       document.getElementById('email').value.trim(),
@@ -453,13 +575,10 @@
         addressLine1:                document.getElementById('addressLine1').value.trim(),
         addressLine2:                document.getElementById('addressLine2').value.trim(),
         parish:                      document.getElementById('parish').value,
-        governmentIdOrLicenceNumber: document.getElementById('govId').value.trim(),
-        organisationName:            document.getElementById('organisation').value.trim() || null,
-        role:                        document.getElementById('role').value
+        governmentIdOrLicenceNumber: document.getElementById('govId') ? document.getElementById('govId').value.trim() : '',
+        organisationName:            document.getElementById('organisation') ? document.getElementById('organisation').value.trim() || null : null,
+        role:                        document.getElementById('role') ? document.getElementById('role').value : ''
       };
-
-      submitBtn.disabled  = true;
-      submitBtn.textContent = 'Submitting…';
 
       try {
         const response = await fetch(`${API_BASE}/api/auth/register`, {
