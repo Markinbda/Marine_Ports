@@ -1474,6 +1474,31 @@
     let currentSection = 'home';
     let currentSub     = '';
 
+    function ensureVisibleTitleHasHomeButton(section) {
+      if (section === 'home') return;
+      const sect = document.getElementById('sect-' + section);
+      if (!sect) return;
+
+      const visibleSub = Array.from(sect.querySelectorAll('.sub-section'))
+        .find(s => s.style.display !== 'none');
+      const title = (visibleSub || sect).querySelector('.page-title');
+      if (!title || title.querySelector('.btn-return-home')) return;
+
+      const titleText = document.createElement('span');
+      titleText.className = 'page-title-text';
+      titleText.textContent = title.textContent.trim();
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-return-home';
+      btn.textContent = 'Return to Home';
+      btn.addEventListener('click', () => showSection('home', ''));
+
+      title.textContent = '';
+      title.appendChild(titleText);
+      title.appendChild(btn);
+    }
+
     function showSection(section, subId) {
       // Hide all sections
       document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -1500,6 +1525,8 @@
       document.querySelectorAll('#primaryNav li').forEach(li => li.classList.remove('active'));
       const navItem = document.getElementById('nav-' + section);
       if (navItem) navItem.classList.add('active');
+
+      ensureVisibleTitleHasHomeButton(section);
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -1535,6 +1562,7 @@
         a.classList.toggle('active', a.textContent.trim() ===
           (SECTIONS[section].subs.find(s => s.id === subId) || {}).label);
       });
+      ensureVisibleTitleHasHomeButton(section);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -1604,29 +1632,7 @@
       });
     });
 
-    // ── Inject Return Home buttons into page titles ──────────────────────────
-    function injectReturnButtons() {
-      document.querySelectorAll('.page-title').forEach(title => {
-        if (title.querySelector('.btn-return-home')) return;
-
-        const titleText = document.createElement('span');
-        titleText.className = 'page-title-text';
-        titleText.textContent = title.textContent.trim();
-
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'btn-return-home';
-        btn.textContent = 'Return to Home';
-        btn.addEventListener('click', () => showSection('home', ''));
-
-        title.textContent = '';
-        title.appendChild(titleText);
-        title.appendChild(btn);
-      });
-    }
-
     // ── Init ──────────────────────────────────────────────────────────────────
-    injectReturnButtons();
     showSection('home', '');
   </script>
 </body>
