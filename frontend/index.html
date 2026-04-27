@@ -288,6 +288,25 @@
       border-bottom: 3px solid var(--gold);
       padding-bottom: 0.5rem;
       margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .page-title .btn-return-home {
+      padding: 0.5rem 1rem;
+      background: var(--blue);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s;
+      white-space: nowrap;
+      margin-left: 1rem;
+    }
+    .page-title .btn-return-home:hover {
+      background: var(--hover);
     }
     .page-intro {
       font-size: 1rem;
@@ -1584,6 +1603,45 @@
         if (e.key === 'Enter') doLogin();
       });
     });
+
+    // ── Inject Return Home buttons into page titles ──────────────────────────
+    function injectReturnButtons() {
+      document.querySelectorAll('.content-section.active .page-title').forEach(title => {
+        // Skip if button already exists
+        if (title.querySelector('.btn-return-home')) return;
+        
+        // Create a wrapper div for title text
+        const titleText = document.createElement('span');
+        titleText.textContent = title.textContent;
+        
+        // Create return button
+        const btn = document.createElement('button');
+        btn.className = 'btn-return-home';
+        btn.textContent = '🏠 Return to Home';
+        btn.onclick = () => {
+          showSection('home', '');
+          return false;
+        };
+        
+        // Clear title and add wrapped elements
+        title.textContent = '';
+        title.appendChild(titleText);
+        title.appendChild(btn);
+      });
+    }
+
+    // Inject buttons into initial home section and other sections when shown
+    function showSectionWithButtons(section, subId) {
+      showSection(section, subId);
+      setTimeout(injectReturnButtons, 0);
+    }
+
+    // Override showSection calls to add button injection
+    const originalShowSection = showSection;
+    showSection = function(section, subId) {
+      originalShowSection(section, subId);
+      setTimeout(injectReturnButtons, 0);
+    };
 
     // ── Init ──────────────────────────────────────────────────────────────────
     showSection('home', '');
