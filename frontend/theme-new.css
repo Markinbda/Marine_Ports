@@ -271,7 +271,7 @@ html[data-theme="new"] .tile-emergency {
 }
 html[data-theme="new"] .tile-office {
   background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('images/Office_Hours.jpg') center/cover no-repeat !important;
+    url('https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-hours {
   background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
