@@ -257,7 +257,7 @@ html[data-theme="new"] .tile-pilot {
 }
 html[data-theme="new"] .tile-aton {
   background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
-    url('https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=900&q=80') center/cover no-repeat !important;
+    url('images/Aids_to_navigation.webp') center/cover no-repeat !important;
 }
 html[data-theme="new"] .tile-tugs {
   background: linear-gradient(rgba(255,255,255,0.68),rgba(255,255,255,0.68)),
