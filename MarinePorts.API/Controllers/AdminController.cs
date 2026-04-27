@@ -88,7 +88,9 @@ public class AdminController : ControllerBase
         var totalBoats    = await _db.Boats.CountAsync();
         var totalUsers    = await _db.Users.CountAsync();
         var pendingUsers  = await _db.Users.CountAsync(u => !u.IsApproved);
-        return Ok(new { totalMoorings, totalBoats, totalUsers, pendingUsers });
+        var pendingBoats = await _db.Boats.CountAsync(b => !b.IsApproved);
+        var pendingMoorings = await _db.Moorings.CountAsync(m => !m.IsApproved);
+        return Ok(new { totalMoorings, totalBoats, totalUsers, pendingUsers, pendingBoats, pendingMoorings });
     }
 
     // ── PUT /api/admin/users/{id}/approve ─────────────────────────────────────
@@ -197,7 +199,7 @@ public class AdminController : ControllerBase
             {
                 b.Id, b.RegistrationNumber, b.BoatName, b.BoatType,
                 b.OwnerName, b.LengthFeet, b.Latitude, b.Longitude,
-                b.PhotoUrl, b.RegisteredAt,
+                b.PhotoUrl, b.RegisteredAt, b.ExpiresAt, b.IsApproved, b.RenewalRequestedAt,
                 // ColorCode is a C# computed property – derive it in the projection
                 // so EF Core doesn't try (and fail) to translate it to SQL.
                 ColorCode = b.LengthFeet <= 10 ? "#2196F3"
@@ -243,7 +245,10 @@ public class AdminController : ControllerBase
             Longitude          = dto.Longitude,
             PhotoUrl           = dto.PhotoUrl,
             AppUserId          = targetUserId,
-            RegisteredAt       = DateTime.UtcNow
+            RegisteredAt       = DateTime.UtcNow,
+            IsApproved         = true,
+            RenewalRequestedAt = null,
+            ExpiresAt          = DateTime.UtcNow.AddYears(1)
         };
 
         _db.Boats.Add(boat);
@@ -289,6 +294,23 @@ public class AdminController : ControllerBase
             return StatusCode(500, new { message = ex.InnerException?.Message ?? ex.Message, detail = ex.ToString() });
         }
     }
+
+    // PUT /api/admin/boats/{id}/approve-registration
+    [HttpPut("boats/{id:int}/approve-registration")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ApproveBoatRegistration(int id)
+    {
+        var boat = await _db.Boats.FindAsync(id);
+        if (boat is null) return NotFound();
+
+        boat.IsApproved = true;
+        boat.RegisteredAt = DateTime.UtcNow;
+        boat.ExpiresAt = DateTime.UtcNow.AddYears(1);
+        boat.RenewalRequestedAt = null;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"Boat {boat.RegistrationNumber} approved and re-registered for one year." });
+    }
     // ══════════════════════════════════════════════════════════════════════════
 
     // GET /api/admin/moorings
@@ -303,6 +325,7 @@ public class AdminController : ControllerBase
             {
                 m.Id, m.MooringNumber, m.OwnerName,
                 m.Latitude, m.Longitude, m.BoatSize, m.PhotoUrl, m.RegisteredAt,
+                m.ExpiresAt, m.IsApproved, m.RenewalRequestedAt,
                 m.AppUserId,
                 UserEmail = m.AppUser != null ? m.AppUser.Email : null
             })
@@ -338,7 +361,10 @@ public class AdminController : ControllerBase
             BoatSize      = dto.BoatSize?.Trim(),
             PhotoUrl      = dto.PhotoUrl,
             AppUserId     = targetUserId,
-            RegisteredAt  = DateTime.UtcNow
+            RegisteredAt  = DateTime.UtcNow,
+            IsApproved         = true,
+            RenewalRequestedAt = null,
+            ExpiresAt          = DateTime.UtcNow.AddYears(1)
         };
 
         _db.Moorings.Add(mooring);
@@ -376,6 +402,23 @@ public class AdminController : ControllerBase
         return Ok(new { message = $"Mooring {mooring.MooringNumber} updated." });
     }
 
+    // PUT /api/admin/moorings/{id}/approve-registration
+    [HttpPut("moorings/{id:int}/approve-registration")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ApproveMooringRegistration(int id)
+    {
+        var mooring = await _db.Moorings.FindAsync(id);
+        if (mooring is null) return NotFound();
+
+        mooring.IsApproved = true;
+        mooring.RegisteredAt = DateTime.UtcNow;
+        mooring.ExpiresAt = DateTime.UtcNow.AddYears(1);
+        mooring.RenewalRequestedAt = null;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = $"Mooring {mooring.MooringNumber} approved and re-registered for one year." });
+    }
+
     // ── GET /api/admin/users/{id} ─────────────────────────────────────────────
     /// <summary>Returns full profile + associated boats and moorings for one user.</summary>
     [HttpGet("users/{id:int}")]
@@ -408,6 +451,8 @@ public class AdminController : ControllerBase
                     b.Latitude,
                     b.Longitude,
                     b.RegisteredAt,
+                    b.ExpiresAt,
+                    b.IsApproved,
                     b.MooringId,
                     MooringNumber = b.Mooring != null ? b.Mooring.MooringNumber : null
                 }).ToList(),
@@ -418,7 +463,9 @@ public class AdminController : ControllerBase
                     m.BoatSize,
                     m.Latitude,
                     m.Longitude,
-                    m.RegisteredAt
+                    m.RegisteredAt,
+                    m.ExpiresAt,
+                    m.IsApproved
                 }).ToList()
             })
             .FirstOrDefaultAsync();

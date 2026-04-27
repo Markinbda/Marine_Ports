@@ -24,6 +24,15 @@ public class Mooring
 
     public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
 
+    /// <summary>Current registration expiry date after approval.</summary>
+    public DateTime? ExpiresAt { get; set; }
+
+    /// <summary>Whether this mooring registration is approved and publicly visible.</summary>
+    public bool IsApproved { get; set; } = true;
+
+    /// <summary>When the latest renewal/registration request was submitted.</summary>
+    public DateTime? RenewalRequestedAt { get; set; }
+
     // ── Owner FK (nullable for admin-added records) ───────────────────────────
     public int? AppUserId { get; set; }
     public AppUser? AppUser { get; set; }

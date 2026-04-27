@@ -32,6 +32,15 @@ public class Boat
 
     public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
 
+    /// <summary>Current registration expiry date after approval.</summary>
+    public DateTime? ExpiresAt { get; set; }
+
+    /// <summary>Whether this boat registration is approved and publicly visible.</summary>
+    public bool IsApproved { get; set; } = true;
+
+    /// <summary>When the latest renewal/registration request was submitted.</summary>
+    public DateTime? RenewalRequestedAt { get; set; }
+
     // ── Owner FK ──────────────────────────────────────────────────────────────
     public int AppUserId { get; set; }
     public AppUser? AppUser { get; set; }

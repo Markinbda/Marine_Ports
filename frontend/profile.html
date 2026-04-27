@@ -124,6 +124,92 @@
       font-style: italic;
     }
 
+    .user-meta {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
+    .meta-item {
+      background: #f7fbff;
+      border: 1px solid #d8e5f0;
+      border-radius: 10px;
+      padding: 0.6rem 0.7rem;
+    }
+    .meta-item .k {
+      font-size: 0.72rem;
+      color: #6a7c8f;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .meta-item .v {
+      font-size: 0.9rem;
+      color: #1a3f63;
+      margin-top: 0.15rem;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+    .status-pill.active {
+      background: #e8f5e9;
+      border-color: #c8e6c9;
+      color: #2e7d32;
+    }
+    .status-pill.pending {
+      background: #eceff1;
+      border-color: #cfd8dc;
+      color: #455a64;
+    }
+    .status-pill.soon {
+      background: #fff3e0;
+      border-color: #ffcc80;
+      color: #e65100;
+    }
+    .status-pill.past {
+      background: #ffebee;
+      border-color: #ef9a9a;
+      color: #b71c1c;
+    }
+
+    .renew-btn {
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 0.36rem 0.6rem;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .renew-btn.active {
+      background: #e3f2fd;
+      color: #0d47a1;
+      border-color: #90caf9;
+    }
+    .renew-btn.soon {
+      background: #ffcc80;
+      color: #5d3500;
+      border-color: #fb8c00;
+    }
+    .renew-btn.past {
+      background: #ef5350;
+      color: #fff;
+      border-color: #c62828;
+    }
+    .renew-btn.pending {
+      background: #eceff1;
+      color: #607d8b;
+      border-color: #cfd8dc;
+      cursor: not-allowed;
+    }
+
     .msg {
       margin-bottom: 0.9rem;
       border-radius: 8px;
@@ -137,6 +223,7 @@
 
     @media (max-width: 900px) {
       .grid { grid-template-columns: 1fr; }
+      .user-meta { grid-template-columns: 1fr 1fr; }
     }
   </style>
   <link rel="stylesheet" href="theme-new.css" />
@@ -169,6 +256,33 @@
 
     <section class="panel">
       <div class="panel-head">
+        <h2>My Registration Details</h2>
+        <span class="chip">Account Overview</span>
+      </div>
+      <div style="padding:0.9rem 1rem;">
+        <div class="user-meta">
+          <div class="meta-item">
+            <div class="k">Name</div>
+            <div class="v" id="metaName">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="k">Role</div>
+            <div class="v" id="metaRole">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="k">User ID</div>
+            <div class="v" id="metaUserId">-</div>
+          </div>
+          <div class="meta-item">
+            <div class="k">Email</div>
+            <div class="v" id="metaEmail">-</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
         <h2>My Boats</h2>
         <span class="chip" id="boatChip">0 records</span>
       </div>
@@ -191,8 +305,27 @@
     const role = sessionStorage.getItem('mp_role') || '';
     const userId = Number(sessionStorage.getItem('mp_userId') || 0);
     const fullName = sessionStorage.getItem('mp_fullName') || 'User';
+    const EXPIRY_WARNING_DAYS = 30;
 
     document.getElementById('userInfo').textContent = `${fullName}${role ? ' (' + role + ')' : ''}`;
+
+    function parseJwtPayload(jwt) {
+      if (!jwt || jwt.split('.').length < 2) return {};
+      try {
+        const payload = jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        const decoded = atob(payload + '='.repeat((4 - payload.length % 4) % 4));
+        return JSON.parse(decoded);
+      } catch {
+        return {};
+      }
+    }
+
+    const claims = parseJwtPayload(token);
+    const emailClaim = claims.email || claims.unique_name || claims.upn || '-';
+    document.getElementById('metaName').textContent = fullName || '-';
+    document.getElementById('metaRole').textContent = role || '-';
+    document.getElementById('metaUserId').textContent = String(userId || '-');
+    document.getElementById('metaEmail').textContent = String(emailClaim || '-');
 
     document.getElementById('backBtn').addEventListener('click', () => {
       window.location.href = 'map.html';
@@ -233,6 +366,61 @@
         .replace(/"/g, '&quot;');
     }
 
+    function toExpiryDate(item) {
+      if (item.expiresAt) return new Date(item.expiresAt);
+      if (!item.registeredAt) return null;
+      const d = new Date(item.registeredAt);
+      if (Number.isNaN(d.getTime())) return null;
+      d.setFullYear(d.getFullYear() + 1);
+      return d;
+    }
+
+    function getExpiryState(item) {
+      if (item.isApproved === false) {
+        return { key: 'pending', label: 'Pending Approval' };
+      }
+
+      const exp = toExpiryDate(item);
+      if (!exp || Number.isNaN(exp.getTime())) {
+        return { key: 'active', label: 'Active' };
+      }
+
+      const now = new Date();
+      const days = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      if (days < 0) return { key: 'past', label: 'Past Due' };
+      if (days <= EXPIRY_WARNING_DAYS) return { key: 'soon', label: 'Soon to Expire' };
+      return { key: 'active', label: 'Active' };
+    }
+
+    function renewalButtonText(state) {
+      if (state.key === 'past') return 'Past Due - Re-register';
+      if (state.key === 'soon') return 'Soon to Expire - Re-register';
+      if (state.key === 'pending') return 'Pending Approval';
+      return 'Re-register';
+    }
+
+    async function requestRenewal(kind, id, stateKey) {
+      if (stateKey === 'pending') return;
+      try {
+        const res = await fetch(`${API_BASE}/api/${kind}/${id}/renewal-request`, {
+          method: 'PUT',
+          headers: authHeaders()
+        });
+        const data = await readApiBody(res);
+        if (!res.ok) {
+          showMsg('err', data.message || 'Could not submit renewal request.');
+          return;
+        }
+
+        showMsg('ok', data.message || 'Renewal request submitted.');
+        setTimeout(() => {
+          window.location.href = 'register.html';
+        }, 250);
+      } catch {
+        showMsg('err', 'Unable to submit renewal request right now.');
+      }
+    }
+
     function renderBoats(boats) {
       const wrap = document.getElementById('boatsWrap');
       document.getElementById('boatCount').textContent = boats.length;
@@ -253,10 +441,17 @@
               <th>Length (ft)</th>
               <th>Owner</th>
               <th>Registered</th>
+              <th>Expiry</th>
+              <th>Status</th>
+              <th>Renewal</th>
             </tr>
           </thead>
           <tbody>
             ${boats.map(b => `
+              ${(() => {
+                const state = getExpiryState(b);
+                const expDate = toExpiryDate(b);
+                return `
               <tr>
                 <td><strong>${esc(b.registrationNumber)}</strong></td>
                 <td>${esc(b.boatName)}</td>
@@ -264,7 +459,14 @@
                 <td>${Number(b.lengthFeet || 0).toFixed(1)}</td>
                 <td>${esc(b.ownerName)}</td>
                 <td>${fmtDate(b.registeredAt)}</td>
+                <td>${fmtDate(expDate)}</td>
+                <td><span class="status-pill ${state.key}">${state.label}</span></td>
+                <td>
+                  <button type="button" class="renew-btn ${state.key}" onclick="requestRenewal('boats', ${Number(b.id)}, '${state.key}')">${renewalButtonText(state)}</button>
+                </td>
               </tr>
+                `;
+              })()}
             `).join('')}
           </tbody>
         </table>`;
@@ -290,10 +492,17 @@
               <th>Latitude</th>
               <th>Longitude</th>
               <th>Registered</th>
+              <th>Expiry</th>
+              <th>Status</th>
+              <th>Renewal</th>
             </tr>
           </thead>
           <tbody>
             ${moorings.map(m => `
+              ${(() => {
+                const state = getExpiryState(m);
+                const expDate = toExpiryDate(m);
+                return `
               <tr>
                 <td><strong>${esc(m.mooringNumber)}</strong></td>
                 <td>${esc(m.boatSize || '')}</td>
@@ -301,7 +510,14 @@
                 <td>${Number(m.latitude).toFixed(5)}</td>
                 <td>${Number(m.longitude).toFixed(5)}</td>
                 <td>${fmtDate(m.registeredAt)}</td>
+                <td>${fmtDate(expDate)}</td>
+                <td><span class="status-pill ${state.key}">${state.label}</span></td>
+                <td>
+                  <button type="button" class="renew-btn ${state.key}" onclick="requestRenewal('moorings', ${Number(m.id)}, '${state.key}')">${renewalButtonText(state)}</button>
+                </td>
               </tr>
+                `;
+              })()}
             `).join('')}
           </tbody>
         </table>`;

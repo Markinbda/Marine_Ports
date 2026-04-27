@@ -24,7 +24,8 @@ public class BoatsController : ControllerBase
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll() =>
-        Ok(await _db.Boats.Include(b => b.AppUser)
+        Ok(await _db.Boats.Where(b => b.IsApproved)
+            .Include(b => b.AppUser)
             .OrderByDescending(b => b.RegisteredAt).ToListAsync());
 
     // GET /api/boats/mine  – returns only the caller's boats
@@ -44,6 +45,8 @@ public class BoatsController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var boat = await _db.Boats.Include(b => b.AppUser).FirstOrDefaultAsync(b => b.Id == id);
+        if (boat is not null && !boat.IsApproved)
+            return NotFound();
         return boat is null ? NotFound() : Ok(boat);
     }
 
@@ -71,7 +74,10 @@ public class BoatsController : ControllerBase
             Longitude          = dto.Longitude,
             PhotoUrl           = dto.PhotoUrl,
             AppUserId          = userId,
-            RegisteredAt       = DateTime.UtcNow
+            RegisteredAt       = DateTime.UtcNow,
+            IsApproved         = false,
+            RenewalRequestedAt = DateTime.UtcNow,
+            ExpiresAt          = null
         };
 
         _db.Boats.Add(boat);
@@ -102,9 +108,35 @@ public class BoatsController : ControllerBase
         boat.Latitude           = dto.Latitude;
         boat.Longitude          = dto.Longitude;
         boat.PhotoUrl           = dto.PhotoUrl;
+        boat.IsApproved         = false;
+        boat.RenewalRequestedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
-        return Ok(boat);
+        return Ok(new
+        {
+            message = "Boat details updated and submitted for approval.",
+            boat
+        });
+    }
+
+    // PUT /api/boats/{id}/renewal-request
+    [HttpPut("{id:int}/renewal-request")]
+    public async Task<IActionResult> RequestRenewal(int id)
+    {
+        var boat = await _db.Boats.FindAsync(id);
+        if (boat is null) return NotFound();
+
+        if (!TryGetCurrentUserId(out int callerId))
+            return Unauthorized(new { message = "Invalid token: missing user identifier claim." });
+
+        if (boat.AppUserId != callerId && !User.IsInRole("Admin"))
+            return Forbid();
+
+        boat.IsApproved         = false;
+        boat.RenewalRequestedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Boat renewal request submitted and pending admin approval." });
     }
 
     // DELETE /api/boats/{id}

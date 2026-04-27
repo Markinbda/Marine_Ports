@@ -514,11 +514,13 @@
               <th class="sortable" data-col="longitude" onclick="sortTable('moorings','longitude')">Longitude</th>
               <th class="sortable" data-col="boatSize" onclick="sortTable('moorings','boatSize')">Boat Size</th>
               <th class="sortable" data-col="registeredAt" onclick="sortTable('moorings','registeredAt')">Registered</th>
+              <th class="sortable" data-col="expiresAt" onclick="sortTable('moorings','expiresAt')">Expiry</th>
+              <th class="sortable" data-col="isApproved" onclick="sortTable('moorings','isApproved')">Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="mooringsTbody">
-            <tr><td colspan="8" class="loading">Loading moorings</td></tr>
+            <tr><td colspan="10" class="loading">Loading moorings</td></tr>
           </tbody>
         </table>
       </div>
@@ -544,11 +546,13 @@
               <th class="sortable" data-col="lengthFeet" onclick="sortTable('boats','lengthFeet')">Length</th>
               <th class="sortable" data-col="latitude" onclick="sortTable('boats','latitude')">Lat</th>
               <th class="sortable" data-col="longitude" onclick="sortTable('boats','longitude')">Lon</th>
+              <th class="sortable" data-col="expiresAt" onclick="sortTable('boats','expiresAt')">Expiry</th>
+              <th class="sortable" data-col="isApproved" onclick="sortTable('boats','isApproved')">Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="boatsTbody">
-            <tr><td colspan="9" class="loading">Loading boats</td></tr>
+            <tr><td colspan="11" class="loading">Loading boats</td></tr>
           </tbody>
         </table>
       </div>
@@ -928,14 +932,14 @@
     async function loadMoorings() {
       const tbody = document.getElementById('mooringsTbody');
       if (!token || role !== 'Admin') return;
-      tbody.innerHTML = '<tr><td colspan="8" class="loading">Loading</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="loading">Loading</td></tr>';
       try {
         const res = await fetch(`${API_BASE}/api/admin/moorings`, { headers: authHeaders() });
         if (!res.ok) throw new Error();
         allMoorings = await res.json();
         renderMoorings();
       } catch {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty">Could not load moorings.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="empty">Could not load moorings.</td></tr>';
       }
     }
 
@@ -955,7 +959,7 @@
       filtered = applySort(filtered, 'moorings');
 
       if (!filtered.length) {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty">No moorings match the filter.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="empty">No moorings match the filter.</td></tr>';
         return;
       }
       filtered.forEach(m => { editCache['mooring_' + m.id] = m; });
@@ -970,8 +974,13 @@
             <td>${m.longitude.toFixed(5)}</td>
             <td>${esc(m.boatSize || '')}</td>
             <td style="white-space:nowrap">${fmtDate(m.registeredAt)}</td>
+            <td style="white-space:nowrap">${fmtDate(m.expiresAt)}</td>
+            <td>${m.isApproved ? '<span class="badge approved">Approved</span>' : '<span class="badge pending">Pending</span>'}</td>
             <td>
               <div class="actions">
+                ${!m.isApproved
+                  ? `<button class="btn-action btn-approve" onclick="approveMooringRegistration(${m.id})">Approve</button>`
+                  : ''}
                 <button class="btn-action btn-edit" onclick="openEdit('mooring',${m.id})">Edit</button>
                 <button class="btn-action btn-delete" onclick="deleteMooring(${m.id}, '${esc(m.mooringNumber)}')">Delete</button>
               </div>
@@ -1031,14 +1040,14 @@
     async function loadBoats() {
       const tbody = document.getElementById('boatsTbody');
       if (!token || role !== 'Admin') return;
-      tbody.innerHTML = '<tr><td colspan="9" class="loading">Loading</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11" class="loading">Loading</td></tr>';
       try {
         const res = await fetch(`${API_BASE}/api/admin/boats`, { headers: authHeaders() });
         if (!res.ok) throw new Error();
         allBoats = await res.json();
         renderBoats();
       } catch {
-        tbody.innerHTML = '<tr><td colspan="9" class="empty">Could not load boats.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" class="empty">Could not load boats.</td></tr>';
       }
     }
 
@@ -1056,7 +1065,7 @@
       filtered = applySort(filtered, 'boats');
 
       if (!filtered.length) {
-        tbody.innerHTML = '<tr><td colspan="9" class="empty">No boats match the filter.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" class="empty">No boats match the filter.</td></tr>';
         return;
       }
       filtered.forEach(b => { editCache['boat_' + b.id] = b; });
@@ -1072,14 +1081,35 @@
             <td style="text-align:right">${b.lengthFeet} ft</td>
             <td>${b.latitude.toFixed(5)}</td>
             <td>${b.longitude.toFixed(5)}</td>
+            <td style="white-space:nowrap">${fmtDate(b.expiresAt)}</td>
+            <td>${b.isApproved ? '<span class="badge approved">Approved</span>' : '<span class="badge pending">Pending</span>'}</td>
             <td>
               <div class="actions">
+                ${!b.isApproved
+                  ? `<button class="btn-action btn-approve" onclick="approveBoatRegistration(${b.id})">Approve</button>`
+                  : ''}
                 <button class="btn-action btn-edit" onclick="openEdit('boat',${b.id})">Edit</button>
                 <button class="btn-action btn-delete" onclick="deleteBoat(${b.id},'${esc(b.boatName)}')">Delete</button>
               </div>
             </td>
           </tr>
         `).join('');
+    }
+
+    async function approveBoatRegistration(id) {
+      const res = await apiCall('PUT', `/api/admin/boats/${id}/approve-registration`);
+      if (res) {
+        toast('ok', res.message);
+        loadBoats();
+      }
+    }
+
+    async function approveMooringRegistration(id) {
+      const res = await apiCall('PUT', `/api/admin/moorings/${id}/approve-registration`);
+      if (res) {
+        toast('ok', res.message);
+        loadMoorings();
+      }
     }
 
     async function deleteBoat(id, name) {

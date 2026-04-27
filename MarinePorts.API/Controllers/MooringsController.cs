@@ -24,7 +24,8 @@ public class MooringsController : ControllerBase
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll() =>
-        Ok(await _db.Moorings.Include(m => m.AppUser)
+        Ok(await _db.Moorings.Where(m => m.IsApproved)
+            .Include(m => m.AppUser)
             .OrderByDescending(m => m.RegisteredAt).ToListAsync());
 
     // GET /api/moorings/mine  – returns only the caller's moorings
@@ -44,6 +45,8 @@ public class MooringsController : ControllerBase
     public async Task<IActionResult> GetById(int id)
     {
         var mooring = await _db.Moorings.Include(m => m.AppUser).FirstOrDefaultAsync(m => m.Id == id);
+        if (mooring is not null && !mooring.IsApproved)
+            return NotFound();
         return mooring is null ? NotFound() : Ok(mooring);
     }
 
@@ -69,7 +72,10 @@ public class MooringsController : ControllerBase
             BoatSize      = dto.BoatSize?.Trim(),
             PhotoUrl      = dto.PhotoUrl,
             AppUserId     = userId,
-            RegisteredAt  = DateTime.UtcNow
+            RegisteredAt  = DateTime.UtcNow,
+            IsApproved         = false,
+            RenewalRequestedAt = DateTime.UtcNow,
+            ExpiresAt          = null
         };
 
         _db.Moorings.Add(mooring);
@@ -98,9 +104,35 @@ public class MooringsController : ControllerBase
         mooring.Longitude     = dto.Longitude;
         mooring.BoatSize      = dto.BoatSize?.Trim();
         mooring.PhotoUrl      = dto.PhotoUrl;
+        mooring.IsApproved         = false;
+        mooring.RenewalRequestedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
-        return Ok(mooring);
+        return Ok(new
+        {
+            message = "Mooring details updated and submitted for approval.",
+            mooring
+        });
+    }
+
+    // PUT /api/moorings/{id}/renewal-request
+    [HttpPut("{id:int}/renewal-request")]
+    public async Task<IActionResult> RequestRenewal(int id)
+    {
+        var mooring = await _db.Moorings.FindAsync(id);
+        if (mooring is null) return NotFound();
+
+        if (!TryGetCurrentUserId(out int callerId))
+            return Unauthorized(new { message = "Invalid token: missing user identifier claim." });
+
+        if (mooring.AppUserId != callerId && !User.IsInRole("Admin"))
+            return Forbid();
+
+        mooring.IsApproved         = false;
+        mooring.RenewalRequestedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+        return Ok(new { message = "Mooring renewal request submitted and pending admin approval." });
     }
 
     // DELETE /api/moorings/{id}

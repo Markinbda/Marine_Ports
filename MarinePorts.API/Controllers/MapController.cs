@@ -37,6 +37,7 @@ public class MapController : ControllerBase
         // Skip EF change tracking for read-only map queries.
         var boatPins = await _db.Boats
             .AsNoTracking()
+            .Where(b => b.IsApproved)
             .Select(b => new MapPinDto
             {
                 Id        = b.Id,
@@ -56,6 +57,7 @@ public class MapController : ControllerBase
 
         var mooringData = await _db.Moorings
             .AsNoTracking()
+            .Where(m => m.IsApproved)
             .Select(m => new { m.Id, m.AppUserId, m.Latitude, m.Longitude, m.PhotoUrl, m.OwnerName, m.MooringNumber, m.BoatSize })
             .ToListAsync();
 
