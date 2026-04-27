@@ -1606,44 +1606,27 @@
 
     // ── Inject Return Home buttons into page titles ──────────────────────────
     function injectReturnButtons() {
-      document.querySelectorAll('.content-section.active .page-title').forEach(title => {
-        // Skip if button already exists
+      document.querySelectorAll('.page-title').forEach(title => {
         if (title.querySelector('.btn-return-home')) return;
-        
-        // Create a wrapper div for title text
+
         const titleText = document.createElement('span');
-        titleText.textContent = title.textContent;
-        
-        // Create return button
+        titleText.className = 'page-title-text';
+        titleText.textContent = title.textContent.trim();
+
         const btn = document.createElement('button');
+        btn.type = 'button';
         btn.className = 'btn-return-home';
-        btn.textContent = '🏠 Return to Home';
-        btn.onclick = () => {
-          showSection('home', '');
-          return false;
-        };
-        
-        // Clear title and add wrapped elements
+        btn.textContent = 'Return to Home';
+        btn.addEventListener('click', () => showSection('home', ''));
+
         title.textContent = '';
         title.appendChild(titleText);
         title.appendChild(btn);
       });
     }
 
-    // Inject buttons into initial home section and other sections when shown
-    function showSectionWithButtons(section, subId) {
-      showSection(section, subId);
-      setTimeout(injectReturnButtons, 0);
-    }
-
-    // Override showSection calls to add button injection
-    const originalShowSection = showSection;
-    showSection = function(section, subId) {
-      originalShowSection(section, subId);
-      setTimeout(injectReturnButtons, 0);
-    };
-
     // ── Init ──────────────────────────────────────────────────────────────────
+    injectReturnButtons();
     showSection('home', '');
   </script>
 </body>
